@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod +x start_dashboard.sh)",
+      "Bash(python3 -m venv venv)",
+      "Bash(source venv/bin/activate)",
+      "Bash(pip install --upgrade pip)",
+      "Bash(pip install -r requirements.txt)",
+      "Bash(pip install streamlit yfinance pandas numpy plotly python-dotenv)",
+      "Bash(pip install sqlalchemy schedule colorlog matplotlib python-telegram-bot)",
+      "Bash(pkill -f streamlit)",
+      "Bash(netstat -tln)",
+      "Bash(ss -tln)",
+      "Bash(test -f .env)",
+      "Bash(tree -L 2 src/)",
+      "Bash(python -c \"import streamlit; import yfinance; import pandas; import plotly; print(''Imports OK'')\")",
+      "Bash(python -c \"import dashboard\")",
+      "Bash(rm -rf venv)",
+      "Bash(python3.11 -m venv venv)",
+      "Bash(pip install -q -r requirements.txt)",
+      "Bash(test -f .env.example)",
+      "Bash(cp .env.example .env)",
+      "Bash(python -c \"import streamlit; import yfinance; import pandas; import plotly; import numpy; import sqlalchemy; print(''All imports successful!'')\")",
+      "Bash(python -c \"import py_compile; py_compile.compile(''dashboard.py'', doraise=True); print(''dashboard.py compiled successfully - no syntax errors!'')\")",
+      "Bash(chmod +x start_scheduler.sh)",
+      "Read(//tmp/**)",
+      "Bash(python main.py screen --symbol AAPL)",
+      "Bash(python main.py screen --symbol MSFT)",
+      "Bash(pkill -f \"streamlit run dashboard.py\")",
+      "Bash(cat /tmp/streamlit.log)",
+      "Bash(streamlit run dashboard.py --server.address 0.0.0.0 --server.port 8501)",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs -r kill -9)",
+      "Bash(git init)",
+      "Bash(git add .)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
