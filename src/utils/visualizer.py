@@ -674,6 +674,271 @@ class ChartVisualizer:
         except Exception as e:
             logger.error(f"Error creating alert summary chart: {e}")
             return None
+    def create_historical_chart(
+        self,
+        symbol: str,
+        timeframe: str = 'weekly',
+        period: str = '2y'
+    ) -> Optional[go.Figure]:
+        """
+        Create chart with HISTORICAL LEVELS + RSI TRENDLINES
+
+        Shows:
+        - Price with candlesticks
+        - EMAs (24, 38, 62)
+        - ALL historical crossover levels (horizontal lines)
+        - RSI with descending trendline
+        - RSI breakout markers
+
+        Args:
+            symbol: Stock symbol
+            timeframe: 'daily' or 'weekly'
+            period: Data period ('1y', '2y', etc.)
+
+        Returns:
+            Plotly Figure object or None if failed
+        """
+        try:
+            from trendline_analysis.core.rsi_breakout_analyzer import RSIBreakoutAnalyzer
+
+            # Get interval
+            interval = '1wk' if timeframe == 'weekly' else '1d'
+
+            # Fetch data
+            df = self.market_data.get_historical_data(symbol, period=period, interval=interval)
+
+            if df is None or df.empty:
+                logger.error(f"No data for {symbol}")
+                return None
+
+            # Calculate EMAs
+            df = self.ema_analyzer.calculate_emas(df)
+            current_price = float(df['Close'].iloc[-1])
+
+            # Detect ALL crossovers
+            crossovers = self.ema_analyzer.detect_crossovers(df, timeframe)
+
+            # Get ALL historical support levels
+            historical_levels = self.ema_analyzer.find_historical_support_levels(
+                df, crossovers, current_price
+            )
+
+            # Analyze RSI breakout
+            rsi_analyzer = RSIBreakoutAnalyzer()
+            lookback = 104 if timeframe == 'weekly' else 252
+            rsi_result = rsi_analyzer.analyze(df, lookback_periods=lookback)
+
+            # Calculate RSI
+            df['RSI'] = self.calculate_rsi(df, period=14)
+
+            # Create subplots: Price + RSI
+            fig = make_subplots(
+                rows=2, cols=1,
+                shared_xaxes=True,
+                vertical_spacing=0.05,
+                row_heights=[0.7, 0.3],
+                subplot_titles=(
+                    f'{symbol} - {timeframe.upper()} - Niveaux Historiques',
+                    'RSI avec Trendlines'
+                )
+            )
+
+            # ===================
+            # SUBPLOT 1: PRICE
+            # ===================
+
+            # Candlesticks
+            fig.add_trace(
+                go.Candlestick(
+                    x=df.index,
+                    open=df['Open'],
+                    high=df['High'],
+                    low=df['Low'],
+                    close=df['Close'],
+                    name='Price',
+                    increasing_line_color='#26a69a',
+                    decreasing_line_color='#ef5350'
+                ),
+                row=1, col=1
+            )
+
+            # EMAs
+            ema_colors = {'EMA_24': 'orange', 'EMA_38': 'blue', 'EMA_62': 'purple'}
+            for ema_col, color in ema_colors.items():
+                if ema_col in df.columns:
+                    fig.add_trace(
+                        go.Scatter(
+                            x=df.index,
+                            y=df[ema_col],
+                            name=ema_col.replace('_', ' '),
+                            line=dict(color=color, width=1.5),
+                            opacity=0.7
+                        ),
+                        row=1, col=1
+                    )
+
+            # HISTORICAL LEVELS (horizontal lines)
+            for level in historical_levels:
+                level_price = level['level']
+                is_near = level['is_near']
+                distance = level['distance_pct']
+                crossover_info = level['crossover_info']
+                cross_date = crossover_info['date'].strftime('%Y-%m-%d')
+
+                # Color: red if near, green if far
+                color = 'red' if is_near else 'green'
+                dash = 'solid' if is_near else 'dot'
+                width = 2 if is_near else 1
+
+                # Horizontal line using Scatter (more reliable with subplots)
+                x_range = [df.index[0], df.index[-1]]
+                fig.add_trace(
+                    go.Scatter(
+                        x=x_range,
+                        y=[level_price, level_price],
+                        mode='lines',
+                        line=dict(color=color, width=width, dash=dash),
+                        name=f"Support ${level_price:.2f}",
+                        showlegend=False,
+                        hovertemplate=f"<b>Support Historique</b><br>Prix: ${level_price:.2f}<br>Date crossover: {cross_date}<extra></extra>"
+                    ),
+                    row=1, col=1
+                )
+
+                # Crossover marker
+                fig.add_trace(
+                    go.Scatter(
+                        x=[crossover_info['date']],
+                        y=[level_price],
+                        mode='markers',
+                        marker=dict(
+                            size=10,
+                            color=color,
+                            symbol='star',
+                            line=dict(color='white', width=1)
+                        ),
+                        name=f"Crossover ${level_price:.2f}",
+                        showlegend=False,
+                        hovertemplate=(
+                            f"<b>Crossover Historique</b><br>"
+                            f"Date: {cross_date}<br>"
+                            f"Prix: ${level_price:.2f}<br>"
+                            f"Distance: {distance:.1f}%<br>"
+                            f"Type: {crossover_info['type']}<br>"
+                            f"EMAs: {crossover_info['fast_ema']}x{crossover_info['slow_ema']}"
+                            f"<extra></extra>"
+                        )
+                    ),
+                    row=1, col=1
+                )
+
+            # ===================
+            # SUBPLOT 2: RSI
+            # ===================
+
+            # RSI line
+            fig.add_trace(
+                go.Scatter(
+                    x=df.index,
+                    y=df['RSI'],
+                    name='RSI',
+                    line=dict(color='purple', width=1.5)
+                ),
+                row=2, col=1
+            )
+
+            # RSI reference lines
+            fig.add_hline(y=70, line_dash="dash", line_color="red", line_width=0.5, row=2, col=1)
+            fig.add_hline(y=30, line_dash="dash", line_color="green", line_width=0.5, row=2, col=1)
+            fig.add_hline(y=50, line_dash="dot", line_color="gray", line_width=0.5, row=2, col=1)
+
+            # RSI Trendline and breakouts
+            if rsi_result and rsi_result.has_rsi_trendline:
+                trendline = rsi_result.rsi_trendline
+
+                # Trendline peaks
+                peak_indices = trendline.peak_indices
+                peak_dates = df.index[peak_indices]
+                peak_values = trendline.peak_values
+
+                # Plot peaks
+                fig.add_trace(
+                    go.Scatter(
+                        x=peak_dates,
+                        y=peak_values,
+                        mode='markers',
+                        marker=dict(size=8, color='red', symbol='triangle-down'),
+                        name='RSI Peaks',
+                        hovertemplate="<b>RSI Peak</b><br>RSI: %{y:.1f}<extra></extra>"
+                    ),
+                    row=2, col=1
+                )
+
+                # Trendline
+                trendline_x = [peak_dates[0], peak_dates[-1]]
+                trendline_y = [
+                    trendline.slope * 0 + trendline.intercept,
+                    trendline.slope * (len(peak_dates) - 1) + trendline.intercept
+                ]
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=trendline_x,
+                        y=trendline_y,
+                        mode='lines',
+                        line=dict(color='red', width=2, dash='dash'),
+                        name=f'Oblique RSI (R²={trendline.r_squared:.2f})',
+                        hovertemplate=f"<b>Trendline RSI</b><br>R²: {trendline.r_squared:.2f}<extra></extra>"
+                    ),
+                    row=2, col=1
+                )
+
+                # Breakout marker
+                if rsi_result.has_rsi_breakout:
+                    breakout = rsi_result.rsi_breakout
+
+                    fig.add_trace(
+                        go.Scatter(
+                            x=[breakout.date],
+                            y=[breakout.rsi_value],
+                            mode='markers',
+                            marker=dict(
+                                size=15,
+                                color='green',
+                                symbol='star',
+                                line=dict(color='white', width=2)
+                            ),
+                            name='RSI Breakout',
+                            hovertemplate=(
+                                f"<b>RSI BREAKOUT!</b><br>"
+                                f"Date: {breakout.date.strftime('%Y-%m-%d')}<br>"
+                                f"RSI: {breakout.rsi_value:.1f}<br>"
+                                f"Strength: {breakout.strength}<br>"
+                                f"Age: {breakout.age_in_periods:.0f} periods"
+                                f"<extra></extra>"
+                            )
+                        ),
+                        row=2, col=1
+                    )
+
+            # Layout
+            fig.update_layout(
+                title=f"{symbol} - Signaux Historiques (Niveaux + RSI Trendlines)",
+                xaxis2_title="Date",
+                yaxis1_title="Prix ($)",
+                yaxis2_title="RSI",
+                height=900,
+                hovermode='x unified',
+                showlegend=True
+            )
+
+            return fig
+
+        except Exception as e:
+            logger.error(f"Error creating historical chart: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
 
 
 # Singleton instance

@@ -19,15 +19,16 @@ TIMEFRAMES = {
 }
 
 # Support/Resistance zone tolerance (%)
-ZONE_TOLERANCE = 5.0
+ZONE_TOLERANCE = 8.0  # Assoupli de 5% à 8% pour détecter plus de signaux
 
 # How many days back to look for EMA crossovers
 LOOKBACK_DAYS_WEEKLY = 260  # ~1 year of weekly data
 LOOKBACK_DAYS_DAILY = 365   # ~1 year of daily data
 
 # Maximum age of crossover to be considered relevant (in weeks for weekly, days for daily)
-MAX_CROSSOVER_AGE_WEEKLY = 52  # weeks
-MAX_CROSSOVER_AGE_DAILY = 120  # days
+# AUGMENTÉ pour garder les anciens supports valides (comme dans screenshot TSLA à $290)
+MAX_CROSSOVER_AGE_WEEKLY = 104  # weeks (~2 ans) - Les anciens crossovers restent des supports valides
+MAX_CROSSOVER_AGE_DAILY = 365   # days (1 an) - Les anciens crossovers restent des supports valides
 
 # ===========================
 # STOCK FILTERING CRITERIA

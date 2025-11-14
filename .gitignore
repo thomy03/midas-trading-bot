@@ -58,3 +58,27 @@ Thumbs.db
 
 # Streamlit
 .streamlit/secrets.toml
+streamlit*.log
+
+# Temporary/Debug files (prevent accumulation)
+archive_temp_files/
+diagnostic_*.py
+debug_*.html
+*_debug.html
+*_test.html
+cleanup_*.sh
+
+# Chart exports (HTML visualizations)
+*.html
+!docs/**/*.html
+
+# Screenshots and images
+*.png
+!docs/**/*.png
+!static/**/*.png
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/

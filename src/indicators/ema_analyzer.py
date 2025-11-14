@@ -100,12 +100,19 @@ class EMAAnalyzer:
 
                     # Calculate age of crossover
                     if isinstance(cross_date, pd.Timestamp):
-                        days_ago = (datetime.now() - cross_date.to_pydatetime()).days
+                        # Handle timezone-aware timestamps
+                        try:
+                            if cross_date.tzinfo is not None:
+                                # Convert both to UTC for comparison
+                                now_utc = datetime.now(cross_date.tzinfo)
+                                days_ago = (now_utc - cross_date).days
+                            else:
+                                days_ago = (datetime.now() - cross_date.to_pydatetime()).days
+                        except Exception as e:
+                            logger.debug(f"Error calculating days_ago for {cross_date}: {e}")
+                            days_ago = 0
                     else:
                         days_ago = 0
-
-                    # Filter based on max age
-                    max_age = MAX_CROSSOVER_AGE_WEEKLY if timeframe == 'weekly' else MAX_CROSSOVER_AGE_DAILY
 
                     # For weekly, convert to weeks
                     if timeframe == 'weekly':
@@ -113,8 +120,27 @@ class EMAAnalyzer:
                     else:
                         age_in_periods = days_ago
 
-                    if age_in_periods > max_age:
-                        continue
+                    # NOUVELLE LOGIQUE: Support reste valide tant que TOUTES les EMAs sont au-dessus
+                    # Pour un crossover bullish (support), vérifier que EMAs actuelles > niveau crossover
+                    if cross_type == 'bullish':
+                        latest = df.iloc[-1]
+                        current_ema_24 = latest.get('EMA_24', 0)
+                        current_ema_38 = latest.get('EMA_38', 0)
+                        current_ema_62 = latest.get('EMA_62', 0)
+
+                        # Support reste valide si TOUTES les EMAs sont au-dessus du niveau crossover
+                        all_emas_above = (
+                            current_ema_24 > cross_price and
+                            current_ema_38 > cross_price and
+                            current_ema_62 > cross_price
+                        )
+
+                        # Si toutes les EMAs sont au-dessus, le support est TOUJOURS valide (pas de limite d'âge)
+                        # Sinon, appliquer la limite d'âge classique
+                        if not all_emas_above:
+                            max_age = MAX_CROSSOVER_AGE_WEEKLY if timeframe == 'weekly' else MAX_CROSSOVER_AGE_DAILY
+                            if age_in_periods > max_age:
+                                continue
 
                     crossovers.append({
                         'date': cross_date,
@@ -201,6 +227,104 @@ class EMAAnalyzer:
             # For sell (not used in this strategy, but included for completeness)
             return False, "Sell signals not implemented"
 
+    def find_ema_support_levels(
+        self,
+        df: pd.DataFrame,
+        current_price: float
+    ) -> List[Dict]:
+        """
+        Trouve les supports EMA (prix proche d'une EMA, même sans crossover récent)
+
+        Args:
+            df: DataFrame with price and EMA data
+            current_price: Current stock price
+
+        Returns:
+            List of EMA support levels
+        """
+        support_levels = []
+        latest = df.iloc[-1]
+
+        for ema_period in EMA_PERIODS:
+            ema_col = f'EMA_{ema_period}'
+            if ema_col in latest:
+                ema_value = float(latest[ema_col])
+
+                # Distance du prix à cette EMA
+                distance_pct = abs((current_price - ema_value) / ema_value * 100)
+
+                # Si le prix est proche de cette EMA (< ZONE_TOLERANCE)
+                if distance_pct <= ZONE_TOLERANCE:
+                    # Vérifier que l'EMA agit comme support (prix au-dessus)
+                    if current_price >= ema_value * 0.98:  # Tolérance de 2%
+                        support_levels.append({
+                            'level': ema_value,
+                            'distance_pct': distance_pct,
+                            'ema_period': ema_period,
+                            'zone_type': 'ema_support',
+                            'strength': 70 + (ema_period / 62 * 30),  # EMAs plus longues = plus fortes
+                            'crossover_info': {
+                                'type': 'ema_support',
+                                'fast_ema': ema_period,
+                                'slow_ema': ema_period,
+                                'price': ema_value,
+                                'days_ago': 0
+                            }
+                        })
+
+        support_levels.sort(key=lambda x: x['strength'], reverse=True)
+        return support_levels
+
+    def find_historical_support_levels(
+        self,
+        df: pd.DataFrame,
+        crossovers: List[Dict],
+        current_price: float
+    ) -> List[Dict]:
+        """
+        Find ALL historical support levels from crossovers (no distance limit).
+
+        NOUVELLE LOGIQUE: Les crossovers sont des niveaux de référence permanents
+        qui restent valides tant que les EMAs ne les ont pas retracés.
+
+        Args:
+            df: DataFrame with price and EMA data
+            crossovers: List of ALL detected crossovers
+            current_price: Current stock price
+
+        Returns:
+            List of ALL historical support levels with their distance
+        """
+        historical_levels = []
+
+        for crossover in crossovers:
+            cross_price = crossover['price']
+
+            # NOUVELLE LOGIQUE: Garder TOUS les crossovers où le prix est au-dessus
+            # (= support potentiel), peu importe si le crossover était bullish ou bearish
+            if current_price < cross_price:
+                continue  # Ignorer les niveaux au-dessus du prix actuel (résistances)
+
+            distance_pct = abs((current_price - cross_price) / cross_price * 100)
+
+            # Le prix est au-dessus → c'est un support historique
+            zone_type = 'historical_support'
+
+            historical_levels.append({
+                'level': cross_price,
+                'distance_pct': distance_pct,
+                'crossover_info': crossover,
+                'zone_type': zone_type,
+                'strength': self._calculate_zone_strength(crossover),
+                'is_near': distance_pct <= ZONE_TOLERANCE  # Flag pour savoir si prix proche
+            })
+
+        # Sort by proximity (closest first)
+        historical_levels.sort(key=lambda x: x['distance_pct'])
+
+        logger.debug(f"Found {len(historical_levels)} historical support levels")
+        return historical_levels
+
     def find_support_zones(
         self,
         df: pd.DataFrame,
@@ -208,7 +332,10 @@ class EMAAnalyzer:
         current_price: float
     ) -> List[Dict]:
         """
-        Find support zones based on crossovers
+        Find support zones based on crossovers AND EMA supports
+
+        ANCIENNE LOGIQUE: Filtre par ZONE_TOLERANCE (8%)
+        Utilisée pour la compatibilité avec l'ancien système
 
         Args:
             df: DataFrame with price and EMA data
@@ -220,6 +347,7 @@ class EMAAnalyzer:
         """
         support_zones = []
 
+        # 1. Support zones from crossovers (avec filtre de distance)
         for crossover in crossovers:
             cross_price = crossover['price']
 
@@ -244,10 +372,15 @@ class EMAAnalyzer:
                         'strength': self._calculate_zone_strength(crossover)
                     })
 
+        # 2. Support zones from EMA levels (même sans crossover)
+        ema_supports = self.find_ema_support_levels(df, current_price)
+        support_zones.extend(ema_supports)
+
         # Sort by strength (more recent crossovers are stronger)
         support_zones.sort(key=lambda x: x['strength'], reverse=True)
 
-        logger.debug(f"Found {len(support_zones)} support zones near current price ${current_price:.2f}")
+        logger.debug(f"Found {len(support_zones)} support zones near current price ${current_price:.2f} "
+                    f"({len(support_zones) - len(ema_supports)} from crossovers, {len(ema_supports)} from EMA levels)")
         return support_zones
 
     def _calculate_zone_strength(self, crossover: Dict) -> float:
@@ -314,15 +447,11 @@ class EMAAnalyzer:
             # Detect crossovers
             crossovers = self.detect_crossovers(df, timeframe)
 
-            if not crossovers:
-                logger.debug(f"{symbol} ({timeframe}): No relevant crossovers found")
-                return None
-
-            # Find support zones
+            # Find support zones (from crossovers AND EMA levels)
             support_zones = self.find_support_zones(df, crossovers, current_price)
 
             if not support_zones:
-                logger.debug(f"{symbol} ({timeframe}): No support zones near current price")
+                logger.debug(f"{symbol} ({timeframe}): No support zones near current price (no crossovers and no EMA support)")
                 return None
 
             # Get latest EMA values
