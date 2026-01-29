@@ -134,3 +134,130 @@ CACHE_DURATION = 60
 # Retry settings for API calls
 MAX_RETRIES = 3
 RETRY_DELAY = 2  # seconds
+
+# ===========================
+# TICKERS DATA SOURCE
+# ===========================
+
+# Directory containing ticker JSON files
+# These files are used instead of scraping Wikipedia (more reliable)
+# Update using: .\scripts\Update-Tickers.ps1
+TICKERS_JSON_DIR = 'data/tickers'
+
+# Maximum age of ticker files before warning (in days)
+TICKERS_MAX_AGE_DAYS = 7
+
+# ===========================
+# POSITION SIZING
+# ===========================
+
+# Trading capital in euros
+CAPITAL = 10000
+
+# Maximum risk per trade (as decimal: 0.02 = 2%)
+RISK_PER_TRADE = 0.02
+
+# Stop-loss distance in ATR units
+ATR_MULTIPLIER = 2.0
+
+# Maximum single position as % of capital
+MAX_POSITION_PCT = 0.25
+
+# ===========================
+# CONFIDENCE SCORING
+# ===========================
+
+# Score thresholds for signal classification
+CONFIDENCE_THRESHOLDS = {
+    'STRONG_BUY': 75,  # Score >= 75
+    'BUY': 55,         # Score >= 55
+    'WATCH': 35,       # Score >= 35
+    'OBSERVE': 0       # Score < 35
+}
+
+# Score weights (should sum to 100)
+SCORE_WEIGHTS = {
+    'ema_alignment': 25,      # EMAs croissantes
+    'support_proximity': 25,  # Distance au support
+    'rsi_breakout': 30,       # Qualité du breakout
+    'volume_confirmation': 20  # Volume relatif
+}
+
+# ===========================
+# MULTI-ASSETS MARKETS
+# ===========================
+
+# Extended markets configuration
+MARKETS_EXTENDED = {
+    'NASDAQ': True,
+    'SP500': True,
+    'CRYPTO': True,    # Top cryptos (BTC, ETH, SOL, etc.)
+    'CAC40': True,     # French CAC40
+    'DAX': False,      # German DAX (disabled by default)
+    'EUROPE': True,    # Euro Stoxx 50
+    'ASIA_ADR': True   # Asian ADRs
+}
+
+# ===========================
+# GROK API (xAI) - LAYER 2 SENTIMENT
+# ===========================
+
+# Enable Grok sentiment analysis (Phase 2)
+GROK_ENABLED = True
+
+# xAI API Configuration
+# SECURITY: API key must be set in .env file or environment variable
+GROK_API_KEY = os.getenv('GROK_API_KEY', '')
+GROK_API_URL = 'https://api.x.ai/v1/chat/completions'
+GROK_MODEL = 'grok-4-1-fast-reasoning'  # Fast reasoning model
+
+# Grok request timeout (seconds)
+GROK_TIMEOUT = 30
+
+# Rate limiting (requests per minute)
+GROK_RATE_LIMIT = 60
+
+# ===========================
+# OPENROUTER API - TREND DISCOVERY
+# ===========================
+
+# OpenRouter API Configuration for LLM-based trend analysis
+# SECURITY: API key must be set in .env file or environment variable
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
+
+# Model to use for trend discovery and V4.1 intelligence
+# Options: 'google/gemini-3-flash-preview' (V4.1 default), 'anthropic/claude-3-sonnet' (balanced),
+#          'anthropic/claude-3-opus' (powerful), 'openai/gpt-4-turbo'
+OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'google/gemini-3-flash-preview')
+
+# ===========================
+# TREND DISCOVERY SETTINGS
+# ===========================
+
+# Enable automatic trend discovery
+TREND_DISCOVERY_ENABLED = True
+
+# Daily scan time (24-hour format HH:MM)
+TREND_SCAN_TIME = '06:00'
+
+# Minimum confidence for trend to be included
+TREND_MIN_CONFIDENCE = 0.4
+
+# Minimum momentum score to flag a sector
+TREND_MIN_MOMENTUM = 0.2
+
+# Days of news to analyze
+TREND_NEWS_DAYS = 3
+
+# Data directory for trend reports
+TREND_DATA_DIR = 'data/trends'
+
+# ===========================
+# NEWS API KEYS
+# ===========================
+
+# NewsAPI key for news fetching
+NEWSAPI_KEY = os.getenv('NEWSAPI_KEY', '')
+
+# Alpha Vantage key for news sentiment
+ALPHAVANTAGE_KEY = os.getenv('ALPHAVANTAGE_KEY', '')

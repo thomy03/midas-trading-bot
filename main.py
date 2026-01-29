@@ -1,8 +1,21 @@
 """
 Market Screener - Main Entry Point
 
+DEPRECATED: This entry point is deprecated in favor of V4 agents.
+Please use:
+  - python run_agent.py --mode live     # For automated trading
+  - python webapp.py                     # For web dashboard
+
+This file is kept for reference and backward compatibility.
+
 This script runs the daily market screening and sends notifications.
 """
+import warnings
+warnings.warn(
+    "main.py is DEPRECATED. Use 'python run_agent.py' or 'python webapp.py' instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 import os
 import sys
 import argparse
