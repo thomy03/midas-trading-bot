@@ -124,9 +124,18 @@ class EMAAnalyzer:
                     # Pour un crossover bullish (support), vérifier que EMAs actuelles > niveau crossover
                     if cross_type == 'bullish':
                         latest = df.iloc[-1]
-                        current_ema_24 = latest.get('EMA_24', 0)
-                        current_ema_38 = latest.get('EMA_38', 0)
-                        current_ema_62 = latest.get('EMA_62', 0)
+                        current_ema_24 = latest.get('EMA_24', np.nan)
+                        current_ema_38 = latest.get('EMA_38', np.nan)
+                        current_ema_62 = latest.get('EMA_62', np.nan)
+
+                        # FIX: Validate EMA values are valid (not NaN or <= 0)
+                        if (pd.isna(current_ema_24) or current_ema_24 <= 0 or
+                            pd.isna(current_ema_38) or current_ema_38 <= 0 or
+                            pd.isna(current_ema_62) or current_ema_62 <= 0):
+                            # Invalid EMA data - skip this crossover
+                            logger.debug(f"Skipping crossover due to invalid EMA values: "
+                                       f"EMA_24={current_ema_24}, EMA_38={current_ema_38}, EMA_62={current_ema_62}")
+                            continue
 
                         # Support reste valide si TOUTES les EMAs sont au-dessus du niveau crossover
                         all_emas_above = (
@@ -186,8 +195,12 @@ class EMAAnalyzer:
         ema_38 = latest.get('EMA_38', np.nan)
         ema_62 = latest.get('EMA_62', np.nan)
 
+        # FIX: Validate EMA values are valid (not NaN or <= 0)
         if pd.isna(ema_24) or pd.isna(ema_38) or pd.isna(ema_62):
             return False, "Missing EMA data"
+
+        if ema_24 <= 0 or ema_38 <= 0 or ema_62 <= 0:
+            return False, "Invalid EMA data (zero or negative)"
 
         # Check alignment for buy signal
         if for_buy:

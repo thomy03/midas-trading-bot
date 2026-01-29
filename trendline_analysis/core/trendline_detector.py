@@ -90,7 +90,8 @@ class RSITrendlineDetector:
         gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
         loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
 
-        rs = gain / loss
+        # Avoid division by zero: add small epsilon to loss
+        rs = gain / (loss + np.finfo(float).eps)
         rsi = 100 - (100 / (1 + rs))
 
         return rsi
@@ -203,28 +204,67 @@ class RSITrendlineDetector:
         Returns:
             Best Trendline or None if no valid trendline found
         """
-        if len(peaks) < self.min_peaks:
+        all_trendlines = self.find_all_trendlines(rsi, peaks, lookback_periods)
+        if not all_trendlines:
             return None
+        # Return the best one (highest score)
+        return all_trendlines[0]
+
+    def find_all_trendlines(
+        self,
+        rsi: pd.Series,
+        peaks: np.ndarray,
+        lookback_periods: int = 52
+    ) -> List[Trendline]:
+        """
+        Find ALL valid descending resistance trendlines (not just the best one)
+
+        Uses combinations of peaks (not just consecutive) to find trendlines
+        that might skip intermediate peaks with very different RSI values.
+
+        Args:
+            rsi: RSI values
+            peaks: Peak indices from detect_peaks
+            lookback_periods: How far back to look for peaks
+
+        Returns:
+            List of all valid Trendlines, sorted by quality score (best first)
+        """
+        from itertools import combinations
+
+        if len(peaks) < self.min_peaks:
+            return []
 
         # Filter peaks to recent data only
         recent_threshold = len(rsi) - lookback_periods
         recent_peaks = peaks[peaks >= max(0, recent_threshold)]
 
         if len(recent_peaks) < self.min_peaks:
-            return None
+            return []
 
-        best_trendline = None
-        best_score = -np.inf
+        all_trendlines = []
+        seen_peak_sets = set()  # Avoid duplicates
 
         # Minimum bars after last peak to look for breakout
-        # Reduced to 2 to allow more recent trendlines
         min_bars_after_last_peak = 2
 
-        # Try different STARTING positions for the trendline
-        for start_idx in range(len(recent_peaks) - self.min_peaks + 1):
-            # Try different number of peaks starting from start_idx
-            for num_peaks in range(self.min_peaks, min(len(recent_peaks) - start_idx + 1, 10)):
-                selected_peaks = recent_peaks[start_idx:start_idx + num_peaks]
+        # Maximum number of peaks to consider (to limit combinations)
+        # Reduced from 20 to 15 for better performance (C(20,6)=38760 vs C(15,6)=5005)
+        # Phase 6 optimization: balance between coverage and speed
+        max_peaks_to_consider = min(len(recent_peaks), 15)
+        peaks_to_use = recent_peaks[-max_peaks_to_consider:]  # Most recent peaks
+
+        # Try ALL combinations of 3 to 6 peaks (not just consecutive ones)
+        for num_peaks in range(self.min_peaks, min(len(peaks_to_use) + 1, 7)):
+            for combo in combinations(range(len(peaks_to_use)), num_peaks):
+                selected_indices = [peaks_to_use[i] for i in combo]
+                selected_peaks = np.array(selected_indices)
+
+                # Create a hashable key for this peak set
+                peak_key = tuple(selected_peaks.tolist())
+                if peak_key in seen_peak_sets:
+                    continue
+                seen_peak_sets.add(peak_key)
 
                 # Check if we have enough data AFTER the last peak
                 last_peak_idx = selected_peaks[-1]
@@ -236,10 +276,8 @@ class RSITrendlineDetector:
                 x = selected_peaks.astype(float)
                 y = rsi.iloc[selected_peaks].to_numpy()
 
-                # ⚠️ ASSOUPLI: Valider que le DERNIER sommet est plus bas que le PREMIER
-                # (au lieu d'exiger que CHAQUE sommet soit plus bas que le précédent)
-                # Cela permet d'accepter des oscillations intermédiaires tout en gardant une tendance descendante
-                is_descending = y[-1] < y[0]  # Dernier < Premier
+                # Validate: last peak must be lower than first (overall descending)
+                is_descending = y[-1] < y[0]
                 if not is_descending:
                     continue  # Skip this combination - not descending overall
 
@@ -249,13 +287,12 @@ class RSITrendlineDetector:
                 if not (slope >= MIN_SLOPE and slope <= MAX_SLOPE and r_squared >= self.min_r_squared):
                     continue
 
-                # ⚠️ CRITICAL: Validate that it's a TRUE RESISTANCE
+                # CRITICAL: Validate that it's a TRUE RESISTANCE
                 # RSI must NOT cross significantly above between peaks
                 if not self.validate_resistance(rsi, slope, intercept, selected_peaks, tolerance=2.0):
                     continue  # Not a valid resistance line
 
-                # ⚠️ VISUAL QUALITY: Validate peaks are close enough to trendline
-                # Calculate maximum distance of any peak from the trendline
+                # VISUAL QUALITY: Validate peaks are close enough to trendline
                 max_residual = max(abs(y[i] - (slope * x[i] + intercept)) for i in range(len(y)))
                 if max_residual > MAX_RESIDUAL_DISTANCE:
                     continue  # Peaks too far from trendline, poor visual fit
@@ -269,21 +306,89 @@ class RSITrendlineDetector:
                 recency_bonus = min(bars_after / 20.0, 1.0) * 10
                 quality_score += recency_bonus
 
-                if quality_score > best_score:
-                    best_score = quality_score
-                    best_trendline = Trendline(
-                        slope=slope,
-                        intercept=intercept,
-                        r_squared=r_squared,
-                        peak_indices=selected_peaks.tolist(),
-                        peak_dates=rsi.index[selected_peaks].tolist(),
-                        peak_values=y.tolist(),
-                        start_idx=selected_peaks[0],
-                        end_idx=len(rsi) - 1,
-                        quality_score=quality_score
-                    )
+                trendline = Trendline(
+                    slope=slope,
+                    intercept=intercept,
+                    r_squared=r_squared,
+                    peak_indices=selected_peaks.tolist(),
+                    peak_dates=rsi.index[selected_peaks].tolist(),
+                    peak_values=y.tolist(),
+                    start_idx=selected_peaks[0],
+                    end_idx=len(rsi) - 1,
+                    quality_score=quality_score
+                )
+                all_trendlines.append(trendline)
 
-        return best_trendline
+        # Sort by quality score (best first) then filter overlapping trendlines
+        all_trendlines.sort(key=lambda t: t.quality_score, reverse=True)
+
+        # Filter to keep only non-overlapping trendlines
+        filtered_trendlines = self._filter_overlapping_trendlines(all_trendlines)
+
+        return filtered_trendlines
+
+    def _filter_overlapping_trendlines(
+        self,
+        trendlines: List[Trendline],
+        max_trendlines: int = 3
+    ) -> List[Trendline]:
+        """
+        Filter trendlines to keep diverse ones from different time periods.
+
+        Strategy:
+        1. Keep the best trendline
+        2. For additional trendlines, prefer those from DIFFERENT time periods
+           (check if start dates are far apart)
+        3. If same period, require low overlap (< 50% shared peaks)
+
+        Args:
+            trendlines: List of trendlines sorted by quality
+            max_trendlines: Maximum number of trendlines to return (default 3)
+
+        Returns:
+            Filtered list of diverse trendlines (max 3)
+        """
+        if not trendlines:
+            return []
+
+        filtered = [trendlines[0]]  # Keep the best one
+
+        for tl in trendlines[1:]:
+            if len(filtered) >= max_trendlines:
+                break  # Already have enough trendlines
+
+            should_add = True
+            tl_peaks = set(tl.peak_indices)
+            tl_start = tl.peak_indices[0]
+            tl_end = tl.peak_indices[-1]
+
+            for kept_tl in filtered:
+                kept_peaks = set(kept_tl.peak_indices)
+                kept_start = kept_tl.peak_indices[0]
+                kept_end = kept_tl.peak_indices[-1]
+
+                # Check if trendlines are from different time periods
+                # (no temporal overlap at all)
+                time_gap = min(abs(tl_start - kept_end), abs(tl_end - kept_start))
+                different_periods = (tl_end < kept_start) or (tl_start > kept_end)
+
+                if different_periods:
+                    # Different time periods = keep it (no overlap check needed)
+                    continue
+
+                # Same time period - check peak overlap
+                overlap = len(tl_peaks & kept_peaks)
+                overlap_ratio = overlap / min(len(tl_peaks), len(kept_peaks))
+
+                # Reject if too much overlap (> 50%)
+                if overlap_ratio > 0.5:
+                    should_add = False
+                    break
+
+            if should_add:
+                filtered.append(tl)
+
+        return filtered
 
     def _calculate_quality_score(
         self,

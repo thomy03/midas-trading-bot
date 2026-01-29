@@ -1,43 +1,60 @@
 """
-RSI Breakout Analyzer - Simplified version for EMA Screener integration
+Enhanced RSI Breakout Analyzer - Version Haute Précision
 
-Détecte UNIQUEMENT les obliques RSI et leurs breakouts (pas de price trendline).
-Conçu pour être intégré avec le screener EMA.
+Compatible avec RSIBreakoutAnalyzer mais utilise le détecteur amélioré en interne.
+Peut être utilisé comme drop-in replacement dans le screener.
 """
 
 import pandas as pd
-from typing import Optional, Dict
-from dataclasses import dataclass
+from typing import Optional
 
-from .trendline_detector import RSITrendlineDetector, Trendline
-from .breakout_analyzer import TrendlineBreakoutAnalyzer, Breakout
-
-
-@dataclass
-class RSIBreakoutResult:
-    """Résultat de l'analyse RSI breakout"""
-    has_rsi_trendline: bool
-    has_rsi_breakout: bool
-    rsi_trendline: Optional[Trendline] = None
-    rsi_breakout: Optional[Breakout] = None
-    signal: str = 'NO_SIGNAL'  # 'STRONG_BUY', 'BUY', 'WATCH', 'NO_SIGNAL'
+from .enhanced_trendline_detector import EnhancedRSITrendlineDetector
+from .breakout_analyzer import TrendlineBreakoutAnalyzer
+from .rsi_breakout_analyzer import RSIBreakoutResult
 
 
-class RSIBreakoutAnalyzer:
+class EnhancedRSIBreakoutAnalyzer:
     """
-    Analyseur simplifié pour breakouts RSI uniquement
+    Analyseur RSI amélioré avec haute précision
 
-    Usage:
-        analyzer = RSIBreakoutAnalyzer()
-        result = analyzer.analyze(df, lookback_periods=252)
+    Drop-in replacement pour RSIBreakoutAnalyzer avec :
+    - RANSAC pour ajustement robuste
+    - Prominence adaptative
+    - Validation stricte de distance
+    - 3 modes de précision configurables
 
-        if result.has_rsi_breakout:
-            print(f"RSI Breakout détecté: {result.signal}")
+    Usage dans le screener :
+        # Remplacer :
+        # from trendline_analysis.core.rsi_breakout_analyzer import RSIBreakoutAnalyzer
+        # self.rsi_analyzer = RSIBreakoutAnalyzer()
+
+        # Par :
+        from trendline_analysis.core.enhanced_rsi_breakout_analyzer import EnhancedRSIBreakoutAnalyzer
+        self.rsi_analyzer = EnhancedRSIBreakoutAnalyzer(precision_mode='medium')
     """
 
-    def __init__(self):
-        """Initialize RSI breakout analyzer"""
-        self.rsi_detector = RSITrendlineDetector()
+    def __init__(self, precision_mode: str = 'medium', enable_ransac: bool = True):
+        """
+        Initialize enhanced RSI breakout analyzer
+
+        Args:
+            precision_mode: 'high', 'medium', ou 'low'
+                - 'high': R²>0.65, dist<4.0 (stricte, moins d'obliques mais excellente qualité)
+                - 'medium': R²>0.50, dist<5.0 (équilibré, recommandé pour screening)
+                - 'low': R²>0.35, dist<6.0 (permissif, plus d'obliques)
+            enable_ransac: Utiliser RANSAC (recommandé: True)
+        """
+        self.precision_mode = precision_mode
+        self.enable_ransac = enable_ransac
+
+        # Détecteur d'obliques amélioré
+        self.rsi_detector = EnhancedRSITrendlineDetector(
+            precision_mode=precision_mode,
+            use_ransac=enable_ransac,
+            adaptive_prominence=True
+        )
+
+        # Analyseur de breakout (inchangé)
         self.breakout_analyzer = TrendlineBreakoutAnalyzer()
 
     def analyze(
@@ -46,22 +63,24 @@ class RSIBreakoutAnalyzer:
         lookback_periods: int = 252
     ) -> Optional[RSIBreakoutResult]:
         """
-        Analyse un DataFrame pour détecter un breakout d'oblique RSI
+        Analyse un DataFrame pour détecter oblique + breakout RSI
 
         IMPORTANT: Vérifie le breakout sur TOUTES les obliques détectées (jusqu'à 3)
-        et retourne le breakout le plus significatif s'il y en a plusieurs.
+        et retourne le breakout le plus significatif.
+
+        COMPATIBLE avec RSIBreakoutAnalyzer.analyze()
 
         Args:
             df: DataFrame avec OHLCV data
-            lookback_periods: Période de lookback (252 pour daily ~1an, 104 pour weekly ~2ans)
+            lookback_periods: Période de lookback (252 pour daily, 104 pour weekly)
 
         Returns:
-            RSIBreakoutResult ou None si aucune oblique RSI détectée
+            RSIBreakoutResult ou None si aucune oblique détectée
         """
         # Step 1: Calculer RSI
         rsi = self.rsi_detector.calculate_rsi(df)
 
-        # Step 2: Détecter tous les pics
+        # Step 2: Détecter les pics
         peaks, _ = self.rsi_detector.detect_peaks(rsi)
 
         if len(peaks) < 3:
@@ -71,7 +90,7 @@ class RSIBreakoutAnalyzer:
         all_trendlines = self.rsi_detector.find_all_trendlines(rsi, peaks, lookback_periods)
 
         if not all_trendlines:
-            return None  # Pas d'oblique RSI = pas de signal possible
+            return None  # Pas d'oblique de qualité suffisante
 
         # Step 4: Vérifier breakout sur CHAQUE oblique (avec volume confirmation)
         best_breakout = None
@@ -95,7 +114,7 @@ class RSIBreakoutAnalyzer:
             return RSIBreakoutResult(
                 has_rsi_trendline=True,
                 has_rsi_breakout=False,
-                rsi_trendline=all_trendlines[0],  # Meilleure oblique
+                rsi_trendline=all_trendlines[0],
                 rsi_breakout=None,
                 signal='WATCH'
             )
@@ -113,11 +132,7 @@ class RSIBreakoutAnalyzer:
         signal_priority = {'STRONG_BUY': 4, 'BUY': 3, 'WATCH': 2, 'NO_SIGNAL': 1}
         return signal_priority.get(new_signal, 0) > signal_priority.get(current_signal, 0)
 
-    def _get_signal(
-        self,
-        rsi_trendline: Trendline,
-        rsi_breakout: Optional[Breakout]
-    ) -> str:
+    def _get_signal(self, rsi_trendline, rsi_breakout) -> str:
         """
         Génère un signal de trading basé sur le breakout RSI
 
@@ -147,39 +162,26 @@ class RSIBreakoutAnalyzer:
         # WATCH: breakout WEAK ou trop ancien
         return 'WATCH'
 
-    def get_summary(self, result: RSIBreakoutResult) -> Dict:
+    def get_detector_info(self) -> dict:
         """
-        Génère un résumé lisible du résultat
+        Retourne les informations de configuration du détecteur
 
-        Args:
-            result: Résultat de l'analyse
-
-        Returns:
-            Dictionnaire avec résumé
+        Utile pour debugging et logging
         """
-        summary = {
-            'has_rsi_trendline': result.has_rsi_trendline,
-            'has_rsi_breakout': result.has_rsi_breakout,
-            'signal': result.signal
+        return {
+            'precision_mode': self.precision_mode,
+            'ransac_enabled': self.enable_ransac,
+            'min_r_squared': self.rsi_detector.min_r_squared,
+            'max_residual_distance': self.rsi_detector.max_residual,
+            'max_mean_residual': self.rsi_detector.max_mean_residual,
+            'adaptive_prominence': True
         }
 
-        if result.rsi_trendline:
-            summary['rsi_trendline'] = {
-                'num_peaks': len(result.rsi_trendline.peak_indices),
-                'r_squared': result.rsi_trendline.r_squared,
-                'slope': result.rsi_trendline.slope,
-                'start_date': result.rsi_trendline.peak_dates[0].strftime('%Y-%m-%d'),
-                'end_date': result.rsi_trendline.peak_dates[-1].strftime('%Y-%m-%d')
-            }
 
-        if result.rsi_breakout:
-            summary['rsi_breakout'] = {
-                'date': result.rsi_breakout.date.strftime('%Y-%m-%d'),
-                'rsi_value': result.rsi_breakout.rsi_value,
-                'strength': result.rsi_breakout.strength,
-                'age_periods': result.rsi_breakout.age_in_periods,
-                'volume_ratio': result.rsi_breakout.volume_ratio,
-                'volume_confirmed': result.rsi_breakout.volume_confirmed
-            }
-
-        return summary
+# Alias pour compatibilité
+class PrecisionRSIBreakoutAnalyzer(EnhancedRSIBreakoutAnalyzer):
+    """
+    Alias pour EnhancedRSIBreakoutAnalyzer
+    Nom alternatif plus explicite
+    """
+    pass

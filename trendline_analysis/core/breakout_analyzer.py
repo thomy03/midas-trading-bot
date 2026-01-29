@@ -31,6 +31,8 @@ class Breakout:
     is_confirmed: bool
     age_in_periods: int  # How many periods ago
     trendline_quality: float
+    volume_ratio: float = 1.0  # Volume at breakout vs 20-day average
+    volume_confirmed: bool = True  # True if volume > 1.0x average
 
 
 class TrendlineBreakoutAnalyzer:
@@ -58,7 +60,8 @@ class TrendlineBreakoutAnalyzer:
     def detect_breakout(
         self,
         rsi: pd.Series,
-        trendline: Trendline
+        trendline: Trendline,
+        df: pd.DataFrame = None
     ) -> Optional[Breakout]:
         """
         Detect if and when RSI broke above the trendline
@@ -66,6 +69,7 @@ class TrendlineBreakoutAnalyzer:
         Args:
             rsi: RSI values
             trendline: Trendline to check for breakout
+            df: Optional DataFrame with Volume data for volume confirmation
 
         Returns:
             Breakout object or None if no breakout detected
@@ -85,7 +89,9 @@ class TrendlineBreakoutAnalyzer:
 
             if distance_above >= self.threshold:
                 # Potential breakout - check if it's a crossing (not already above)
-                if i > start_idx:
+                # FIX: Changed from 'i > start_idx' to 'i > 0' to include first candidate
+                # start_idx is always >= 1 (due to peak_indices[-1] + 1), so i-1 is always valid
+                if i > 0:
                     prev_rsi = rsi.iloc[i - 1]
                     prev_trendline = self.detector.get_trendline_value(trendline, i - 1)
 
@@ -122,6 +128,11 @@ class TrendlineBreakoutAnalyzer:
             rsi.iloc[breakout_idx]
         )
 
+        # Calculate volume confirmation
+        volume_ratio, volume_confirmed = self._calculate_volume_confirmation(
+            df, breakout_idx
+        )
+
         return Breakout(
             date=first_breakout['date'],
             index=breakout_idx,
@@ -131,7 +142,9 @@ class TrendlineBreakoutAnalyzer:
             strength=strength,
             is_confirmed=is_confirmed,
             age_in_periods=age,
-            trendline_quality=trendline.quality_score
+            trendline_quality=trendline.quality_score,
+            volume_ratio=volume_ratio,
+            volume_confirmed=volume_confirmed
         )
 
     def _check_confirmation(
@@ -187,6 +200,58 @@ class TrendlineBreakoutAnalyzer:
         # Weak: marginal breakout
         else:
             return 'WEAK'
+
+    def _calculate_volume_confirmation(
+        self,
+        df: pd.DataFrame,
+        breakout_idx: int
+    ) -> tuple:
+        """
+        Calculate volume confirmation at breakout
+
+        A breakout with high volume is more reliable:
+        - Volume > 1.5x average = strong confirmation
+        - Volume > 1.0x average = normal confirmation
+        - Volume < 1.0x average = weak confirmation
+
+        Args:
+            df: DataFrame with 'Volume' column
+            breakout_idx: Index where breakout occurred
+
+        Returns:
+            (volume_ratio, volume_confirmed)
+            - volume_ratio: breakout volume / 20-day avg (or 1.0 if no data)
+            - volume_confirmed: True if volume_ratio >= 1.0
+        """
+        # Default values if no volume data
+        if df is None or df.empty or 'Volume' not in df.columns:
+            return (1.0, True)
+
+        try:
+            # Calculate 20-day average volume
+            avg_volume = df['Volume'].rolling(20, min_periods=10).mean()
+
+            # Ensure breakout_idx is valid
+            if breakout_idx < 0 or breakout_idx >= len(df):
+                return (1.0, True)
+
+            breakout_volume = df['Volume'].iloc[breakout_idx]
+            avg_at_breakout = avg_volume.iloc[breakout_idx]
+
+            # Check for valid values
+            if pd.isna(avg_at_breakout) or avg_at_breakout <= 0:
+                return (1.0, True)
+
+            if pd.isna(breakout_volume) or breakout_volume <= 0:
+                return (1.0, True)
+
+            volume_ratio = float(breakout_volume / avg_at_breakout)
+            volume_confirmed = volume_ratio >= 1.0
+
+            return (round(volume_ratio, 2), volume_confirmed)
+
+        except Exception:
+            return (1.0, True)
 
     def is_recent_breakout(self, breakout: Breakout) -> bool:
         """
