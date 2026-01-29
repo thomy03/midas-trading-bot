@@ -1,0 +1,140 @@
+# TradingBot V4 - Docker Compose Configuration
+#
+# Services:
+# - agent: Trading agent autonome (principal)
+# - dashboard: Streamlit web interface
+# - api: FastAPI REST API (optionnel)
+#
+# Usage:
+#   docker-compose up -d              # Start all services
+#   docker-compose up agent           # Start agent only
+#   docker-compose up dashboard       # Start dashboard only
+#   docker-compose logs -f agent      # View agent logs
+#   docker-compose down               # Stop all services
+#
+# Modes de l'agent:
+#   MODE=test      - Test avec mock IBKR
+#   MODE=discovery - Scan social + decouverte
+#   MODE=trading   - Screening + execution
+#   MODE=full      - Cycle quotidien complet
+
+services:
+  # ==================== Agent Service (V4) ====================
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: tradingbot-agent
+    restart: unless-stopped
+    command: ["python", "run_agent.py", "--mode", "${AGENT_MODE:-test}", "--mock"]
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=${TZ:-Europe/Paris}
+      - AGENT_MODE=${AGENT_MODE:-test}
+    env_file:
+      - .env
+    networks:
+      - tradingbot-network
+    # Note: Pour le trading reel, retirer --mock et configurer IBKR_HOST
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"  # Pour acceder a TWS sur l'hote
+
+  # ==================== Dashboard Service ====================
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: tradingbot-dashboard
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./.env:/app/.env:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=${TZ:-Europe/Paris}
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - tradingbot-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`tradingbot.local`)"
+
+  # ==================== API Service ====================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: tradingbot-api
+    restart: unless-stopped
+    command: ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./.env:/app/.env:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=${TZ:-Europe/Paris}
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    networks:
+      - tradingbot-network
+    depends_on:
+      - dashboard
+
+  # ==================== Agent Full Cycle (Cron) ====================
+  # Ce service execute le cycle complet quotidien
+  # A utiliser avec un cron externe ou Windows Task Scheduler
+  agent-full:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: tradingbot-agent-full
+    restart: "no"
+    command: ["python", "run_agent.py", "--mode", "full", "--mock"]
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=${TZ:-Europe/Paris}
+    env_file:
+      - .env
+    networks:
+      - tradingbot-network
+    profiles:
+      - cron  # Ne demarre pas par defaut, seulement avec --profile cron
+
+# ==================== Networks ====================
+networks:
+  tradingbot-network:
+    driver: bridge
+
+# ==================== Volumes ====================
+volumes:
+  tradingbot-data:
+    driver: local
