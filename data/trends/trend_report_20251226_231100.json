@@ -1,0 +1,421 @@
+{
+  "date": "2025-12-26T23:11:00.707721",
+  "trends": [
+    {
+      "name": "Healthcare Momentum",
+      "type": "sector_momentum",
+      "strength": "established",
+      "confidence": 0.8,
+      "description": "Bullish momentum detected in Healthcare",
+      "momentum_score": 0.921397036302647,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Healthcare"
+      ],
+      "symbols": [
+        "UNH",
+        "JNJ",
+        "PFE",
+        "ABBV",
+        "MRK"
+      ],
+      "detected_at": "2025-12-26T23:10:53.694459",
+      "sources": []
+    },
+    {
+      "name": "Technology Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Technology",
+      "momentum_score": 0.4408043950953008,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Technology"
+      ],
+      "symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "META",
+        "NVDA"
+      ],
+      "detected_at": "2025-12-26T23:10:53.694422",
+      "sources": []
+    },
+    {
+      "name": "AI_Semiconductors Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in AI_Semiconductors",
+      "momentum_score": 0.5069829943951069,
+      "volume_surge": 1.0,
+      "breadth_score": 0.3333333333333333,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "AI_Semiconductors"
+      ],
+      "symbols": [
+        "NVDA",
+        "AMD",
+        "AVGO",
+        "QCOM",
+        "INTC"
+      ],
+      "detected_at": "2025-12-26T23:10:53.694445",
+      "sources": []
+    },
+    {
+      "name": "Clean_Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Clean_Energy",
+      "momentum_score": 0.5,
+      "volume_surge": 1.0,
+      "breadth_score": 0.7142857142857143,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Clean_Energy"
+      ],
+      "symbols": [
+        "ENPH",
+        "SEDG",
+        "FSLR",
+        "RUN",
+        "PLUG"
+      ],
+      "detected_at": "2025-12-26T23:10:53.694484",
+      "sources": []
+    },
+    {
+      "name": "Désillusion Opérationnelle de l'IA (AI Reality Check)",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Après une phase d'euphorie, les entreprises réalisent que l'intégration des agents IA est plus complexe que prévu et ne garantit pas une efficacité immédiate malgré les licenciements massifs. Le focus se déplace de la simple adoption vers la mesure réelle du ROI et la fiabilité des LLM en environnement de production.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Révisions à la baisse des prévisions de croissance liées à l'IA",
+        "Difficultés d'intégration des agents autonomes",
+        "Saturation des gains d'efficacité par licenciements"
+      ],
+      "sectors": [
+        "SaaS",
+        "Enterprise Software",
+        "Consulting"
+      ],
+      "symbols": [
+        "CRM",
+        "MSFT",
+        "ACN",
+        "SAP"
+      ],
+      "detected_at": "2025-12-26T23:11:00.683949",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Souveraineté Énergétique et Infrastructurelle du Moyen-Orient",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'Arabie Saoudite et les pays du Golfe pivotent pour devenir les hubs mondiaux du calcul haute performance (HPC) en capitalisant sur leur capital illimité et leurs ressources énergétiques. Ce narratif dépasse le pétrole pour se concentrer sur l'exportation de puissance de calcul et l'hébergement de data centers souverains.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Accords bilatéraux avec NVIDIA/Groq",
+        "Conférence Future Investment Initiative",
+        "Investissements massifs du fonds PIF"
+      ],
+      "sectors": [
+        "Data Centers",
+        "Energy",
+        "Semiconductors"
+      ],
+      "symbols": [
+        "ARM",
+        "NVDA",
+        "GCT",
+        "SMCI"
+      ],
+      "detected_at": "2025-12-26T23:11:00.696927",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Renaissance des Métaux Précieux comme Refuge de Volatilité",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Face à l'instabilité psychologique des investisseurs particuliers et aux pertes massives sur les options/tech, l'argent (Silver) émerge comme un levier de récupération rapide et un actif de protection. On observe un transfert de liquidités spéculatives vers les commodités physiques perçues comme sous-évaluées.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Pertes records sur les options technologiques",
+        "Volatilité accrue des marchés actions",
+        "Demande industrielle pour les infrastructures IA"
+      ],
+      "sectors": [
+        "Mining",
+        "Commodities",
+        "Precious Metals"
+      ],
+      "symbols": [
+        "SLV",
+        "PAAS",
+        "AG",
+        "PSLV"
+      ],
+      "detected_at": "2025-12-26T23:11:00.707690",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Biotech Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Biotech",
+      "momentum_score": 0.3823950850139803,
+      "volume_surge": 1.0,
+      "breadth_score": 0.6666666666666666,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Biotech"
+      ],
+      "symbols": [
+        "AMGN",
+        "GILD",
+        "REGN",
+        "VRTX",
+        "BIIB"
+      ],
+      "detected_at": "2025-12-26T23:10:53.694467",
+      "sources": []
+    },
+    {
+      "name": "Finance Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Finance",
+      "momentum_score": 0.3372985314927373,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Finance"
+      ],
+      "symbols": [
+        "JPM",
+        "BAC",
+        "GS",
+        "MS",
+        "WFC"
+      ],
+      "detected_at": "2025-12-26T23:10:53.694472",
+      "sources": []
+    },
+    {
+      "name": "Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Energy",
+      "momentum_score": 0.32720253725544657,
+      "volume_surge": 1.0,
+      "breadth_score": 0.5,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Energy"
+      ],
+      "symbols": [
+        "XOM",
+        "CVX",
+        "COP",
+        "SLB",
+        "EOG"
+      ],
+      "detected_at": "2025-12-26T23:10:53.694478",
+      "sources": []
+    },
+    {
+      "name": "Defense Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Defense",
+      "momentum_score": 0.3146887785440974,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Defense"
+      ],
+      "symbols": [
+        "LMT",
+        "RTX",
+        "NOC",
+        "GD",
+        "BA"
+      ],
+      "detected_at": "2025-12-26T23:10:53.694491",
+      "sources": []
+    }
+  ],
+  "sector_momentum": {
+    "Technology": 0.4408043950953008,
+    "AI_Semiconductors": 0.5069829943951069,
+    "Healthcare": 0.921397036302647,
+    "Biotech": 0.3823950850139803,
+    "Finance": 0.3372985314927373,
+    "Energy": 0.32720253725544657,
+    "Clean_Energy": 0.5,
+    "Consumer": 0.07972475292126424,
+    "Crypto_Adjacent": 0.035092880020576714,
+    "Defense": 0.3146887785440974
+  },
+  "market_sentiment": 0.3845586991041157,
+  "top_movers": [
+    "TGT"
+  ],
+  "watchlist_additions": [
+    "JNJ",
+    "JPM",
+    "BAC",
+    "CVX",
+    "GILD",
+    "UNH",
+    "XOM",
+    "ARM",
+    "SLV",
+    "GOOGL",
+    "AMGN",
+    "COP",
+    "PAAS",
+    "CRM",
+    "NOC",
+    "REGN",
+    "ACN",
+    "GCT",
+    "GS",
+    "MSFT",
+    "ENPH",
+    "SAP",
+    "AAPL",
+    "AMD",
+    "SEDG",
+    "FSLR",
+    "LMT",
+    "SMCI",
+    "AVGO",
+    "RTX",
+    "NVDA",
+    "PFE",
+    "PSLV",
+    "AG"
+  ],
+  "narrative_updates": [
+    {
+      "name": "Désillusion Opérationnelle de l'IA (AI Reality Check)",
+      "description": "Après une phase d'euphorie, les entreprises réalisent que l'intégration des agents IA est plus complexe que prévu et ne garantit pas une efficacité immédiate malgré les licenciements massifs. Le focus se déplace de la simple adoption vers la mesure réelle du ROI et la fiabilité des LLM en environnement de production.",
+      "strength": "developing",
+      "sectors": [
+        "SaaS",
+        "Enterprise Software",
+        "Consulting"
+      ],
+      "symbols": [
+        "CRM",
+        "MSFT",
+        "ACN",
+        "SAP"
+      ],
+      "catalysts": [
+        "Révisions à la baisse des prévisions de croissance liées à l'IA",
+        "Difficultés d'intégration des agents autonomes",
+        "Saturation des gains d'efficacité par licenciements"
+      ],
+      "risk_level": "medium"
+    },
+    {
+      "name": "Souveraineté Énergétique et Infrastructurelle du Moyen-Orient",
+      "description": "L'Arabie Saoudite et les pays du Golfe pivotent pour devenir les hubs mondiaux du calcul haute performance (HPC) en capitalisant sur leur capital illimité et leurs ressources énergétiques. Ce narratif dépasse le pétrole pour se concentrer sur l'exportation de puissance de calcul et l'hébergement de data centers souverains.",
+      "strength": "emerging",
+      "sectors": [
+        "Data Centers",
+        "Energy",
+        "Semiconductors"
+      ],
+      "symbols": [
+        "ARM",
+        "NVDA",
+        "GCT",
+        "SMCI"
+      ],
+      "catalysts": [
+        "Accords bilatéraux avec NVIDIA/Groq",
+        "Conférence Future Investment Initiative",
+        "Investissements massifs du fonds PIF"
+      ],
+      "risk_level": "medium"
+    },
+    {
+      "name": "Renaissance des Métaux Précieux comme Refuge de Volatilité",
+      "description": "Face à l'instabilité psychologique des investisseurs particuliers et aux pertes massives sur les options/tech, l'argent (Silver) émerge comme un levier de récupération rapide et un actif de protection. On observe un transfert de liquidités spéculatives vers les commodités physiques perçues comme sous-évaluées.",
+      "strength": "emerging",
+      "sectors": [
+        "Mining",
+        "Commodities",
+        "Precious Metals"
+      ],
+      "symbols": [
+        "SLV",
+        "PAAS",
+        "AG",
+        "PSLV"
+      ],
+      "catalysts": [
+        "Pertes records sur les options technologiques",
+        "Volatilité accrue des marchés actions",
+        "Demande industrielle pour les infrastructures IA"
+      ],
+      "risk_level": "high"
+    }
+  ]
+}

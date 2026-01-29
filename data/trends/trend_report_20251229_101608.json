@@ -1,0 +1,520 @@
+{
+  "date": "2025-12-29T10:16:08.263565",
+  "trends": [
+    {
+      "name": "AI_Infrastructure_and_Data_Centers Momentum",
+      "type": "sector_momentum",
+      "strength": "established",
+      "confidence": 0.8,
+      "description": "Bullish momentum detected in AI_Infrastructure_and_Data_Centers",
+      "momentum_score": 0.6560148256565015,
+      "volume_surge": 1.0,
+      "breadth_score": 0.6666666666666666,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "AI_Infrastructure_and_Data_Centers"
+      ],
+      "symbols": [
+        "NVDA",
+        "VRT",
+        "ANET",
+        "SMCI",
+        "DELL"
+      ],
+      "detected_at": "2025-12-29T10:15:37.334859",
+      "sources": []
+    },
+    {
+      "name": "Space Economy",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "Le secteur spatial transitionne d'une phase d'exploration étatique vers une économie commerciale mature portée par des infrastructures de communication massives et des valorisations records.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "Potentielle introduction en bourse (IPO) de SpaceX avec une valorisation record de 1,5 billion de dollars",
+        "Déploiement de satellites de nouvelle génération pour la connectivité cellulaire directe (AST SpaceMobile)",
+        "Innovation dans les infrastructures orbitales avec des stations spatiales modulaires et extensibles"
+      ],
+      "sectors": [],
+      "symbols": [
+        "ASTS",
+        "SPACE (SpaceX - Private/Pre-IPO)",
+        "LMT",
+        "NOC"
+      ],
+      "detected_at": "2025-12-29T10:16:01.520037",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Obesity Drugs",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "Le marché des GLP-1 évolue vers un écosystème global incluant la nutrition spécialisée et une intégration accrue dans les systèmes de santé publique.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "Expansion de la couverture Medicare et négociations de prix pour les médicaments en 2026",
+        "Croissance de la demande pour les produits complémentaires (protéines) liée à la perte de poids",
+        "Adoption massive et succès financier continu de la classe thérapeutique GLP-1"
+      ],
+      "sectors": [],
+      "symbols": [
+        "NVO",
+        "PFE",
+        "LLY"
+      ],
+      "detected_at": "2025-12-29T10:16:01.520040",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Nuclear Renaissance",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "La renaissance nucléaire passe d'une phase conceptuelle à une phase d'exécution régionale concrète, portée par des incitations fiscales aux États-Unis et des ambitions d'indépendance énergétique au Moyen-Orient.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "Soutien législatif et financier massif au Texas (350M$)",
+        "Expansion stratégique du programme nucléaire en Turquie (Objectif 2028)",
+        "Volonté politique de souveraineté énergétique nationale"
+      ],
+      "sectors": [],
+      "symbols": [
+        "CCJ",
+        "SMR",
+        "VST",
+        "CEG",
+        "BWXT"
+      ],
+      "detected_at": "2025-12-29T10:16:01.520043",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "GLP1_and_Metabolic_Health Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in GLP1_and_Metabolic_Health",
+      "momentum_score": 0.5320012276656726,
+      "volume_surge": 1.0,
+      "breadth_score": 0.7142857142857143,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "GLP1_and_Metabolic_Health"
+      ],
+      "symbols": [
+        "LLY",
+        "NVO",
+        "VKTX",
+        "AMGN",
+        "GPCR"
+      ],
+      "detected_at": "2025-12-29T10:15:37.334873",
+      "sources": []
+    },
+    {
+      "name": "Defense_and_Autonomous_Systems Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Defense_and_Autonomous_Systems",
+      "momentum_score": 0.46788883148841187,
+      "volume_surge": 1.0,
+      "breadth_score": 0.7777777777777778,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Defense_and_Autonomous_Systems"
+      ],
+      "symbols": [
+        "PLTR",
+        "AVAV",
+        "LMT",
+        "RTX",
+        "NOC"
+      ],
+      "detected_at": "2025-12-29T10:15:37.334879",
+      "sources": []
+    },
+    {
+      "name": "Space_and_Satellite_Communications Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Space_and_Satellite_Communications",
+      "momentum_score": -0.6798576047936357,
+      "volume_surge": 1.0,
+      "breadth_score": -0.2,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Space_and_Satellite_Communications"
+      ],
+      "symbols": [
+        "ASTS",
+        "RKLB",
+        "LUNR",
+        "RDW",
+        "BKSY"
+      ],
+      "detected_at": "2025-12-29T10:15:37.334886",
+      "sources": []
+    },
+    {
+      "name": "Electrical_Grid_Modernization Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Electrical_Grid_Modernization",
+      "momentum_score": 0.48736335914753626,
+      "volume_surge": 1.0,
+      "breadth_score": 0.75,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Electrical_Grid_Modernization"
+      ],
+      "symbols": [
+        "ETN",
+        "PH",
+        "EMR",
+        "HUBB",
+        "PWR"
+      ],
+      "detected_at": "2025-12-29T10:15:37.334890",
+      "sources": []
+    },
+    {
+      "name": "AI Revolution",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'IA transitionne d'un outil purement technique vers une intégration sociétale profonde, portée par une compétition géopolitique intense sur l'AGI.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.45,
+      "news_count": 0,
+      "key_catalysts": [
+        "Course à l'Intelligence Artificielle Générale (AGI) menée par les acteurs chinois",
+        "Démocratisation de l'IA dans les usages quotidiens (dating, productivité personnelle)",
+        "Engagement vers l'Open Source favorisant une adoption massive et rapide"
+      ],
+      "sectors": [],
+      "symbols": [
+        "MSFT",
+        "GOOGL",
+        "BABA",
+        "BIDU",
+        "NVDA"
+      ],
+      "detected_at": "2025-12-29T10:16:01.520028",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Rate Pivot",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Le marché anticipe un pivot monétaire imminent, favorisant les actifs à longue duration et les devises étrangères face à l'incertitude de la transition à la Fed.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.4,
+      "news_count": 0,
+      "key_catalysts": [
+        "Anticipation de baisses de taux de la Fed (Fed rate cuts)",
+        "Transition de leadership à la tête de la Réserve Fédérale",
+        "Recherche de rendement sécurisé via les obligations à long terme"
+      ],
+      "sectors": [],
+      "symbols": [
+        "TLT",
+        "NVDA",
+        "EUR/USD"
+      ],
+      "detected_at": "2025-12-29T10:16:01.520051",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Convergence IA-Infrastructure Verte",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'expansion massive des centres de données pour l'IA crée une demande sans précédent en énergie décarbonée, réhabilitant la dette verte malgré les pressions politiques. Ce narratif déplace l'intérêt de l'IA logicielle vers l'infrastructure énergétique physique nécessaire à son fonctionnement.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Demande énergétique des Data Centers",
+        "Records de ventes de Green Bonds",
+        "Besoin de stabilité réseau"
+      ],
+      "sectors": [
+        "Énergies renouvelables",
+        "Infrastructures électriques",
+        "Finance durable (Green Bonds)"
+      ],
+      "symbols": [
+        "NEE",
+        "VST",
+        "BEP",
+        "ETN"
+      ],
+      "detected_at": "2025-12-29T10:16:08.232066",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Découplage Métaux Précieux / Énergie",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'argent métal surperforme le pétrole de manière historique, signalant une recherche de valeur refuge déconnectée de la croissance industrielle classique. Ce narratif suggère une méfiance systémique où les métaux deviennent des 'actifs de réassurance' face à l'instabilité monétaire.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Ratio Argent/Pétrole inhabituel",
+        "Instabilité géopolitique",
+        "Demande de 'safe haven' psychologique"
+      ],
+      "sectors": [
+        "Mines d'argent et d'or",
+        "Métaux précieux"
+      ],
+      "symbols": [
+        "SIL",
+        "SLV",
+        "PAAS",
+        "MAG"
+      ],
+      "detected_at": "2025-12-29T10:16:08.249636",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Arbitrage Géographique FIRE (Geo-Arbitrage)",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Une nouvelle vague d'investisseurs précoces (FIRE) optimise la sortie du marché du travail en transférant des portefeuilles constitués dans des économies fortes vers des pays à bas coût. Ce narratif se concentre sur la gestion de retrait de capital transfrontalier plutôt que sur l'accumulation.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Télétravail",
+        "Inflation dans les pays développés",
+        "Mobilité européenne"
+      ],
+      "sectors": [
+        "Gestion de patrimoine",
+        "Fintech de transfert de devises",
+        "Immobilier international"
+      ],
+      "symbols": [
+        "SCHD",
+        "JEPI",
+        "WISE",
+        "ABNB"
+      ],
+      "detected_at": "2025-12-29T10:16:08.263074",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Cybersecurity",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "L'intégration de l'IA dans le hardware (robotique) et l'infrastructure cloud élargit considérablement la surface d'attaque, transformant la cybersécurité d'un coût opérationnel en une nécessité de sécurité physique et nationale.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.2,
+      "news_count": 0,
+      "key_catalysts": [
+        "Vulnérabilités critiques des systèmes de contrôle IA dans la robotique humanoïde",
+        "Demande structurelle croissante liée à la numérisation et à l'évolution des cybermenaces jusqu'en 2026",
+        "Besoins énergétiques massifs de l'IA créant des tensions sur l'infrastructure et la continuité des services"
+      ],
+      "sectors": [],
+      "symbols": [
+        "ORCL",
+        "CRWD",
+        "PANW",
+        "FTNT",
+        "ZS"
+      ],
+      "detected_at": "2025-12-29T10:16:01.520048",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    }
+  ],
+  "sector_momentum": {
+    "AI_Infrastructure_and_Data_Centers": 0.6560148256565015,
+    "Nuclear_and_Small_Modular_Reactors": 0.168822849332326,
+    "GLP1_and_Metabolic_Health": 0.5320012276656726,
+    "Defense_and_Autonomous_Systems": 0.46788883148841187,
+    "Bitcoin_Proxy_and_Mining": 0.03991457194864666,
+    "Semiconductor_Equipment": 0.1700405731252233,
+    "Space_and_Satellite_Communications": -0.6798576047936357,
+    "Electrical_Grid_Modernization": 0.48736335914753626
+  },
+  "market_sentiment": 0.23027357919633534,
+  "top_movers": [
+    "SIDU"
+  ],
+  "watchlist_additions": [
+    "PAAS",
+    "LMT",
+    "BEP",
+    "ABNB",
+    "VRT",
+    "CCJ",
+    "CEG",
+    "SLV",
+    "SIL",
+    "LLY",
+    "SCHD",
+    "EMR",
+    "JEPI",
+    "VKTX",
+    "GOOGL",
+    "BABA",
+    "SMR",
+    "BIDU",
+    "VST",
+    "NVO",
+    "AVAV",
+    "EUR/USD",
+    "ASTS",
+    "BWXT",
+    "TLT",
+    "ETN",
+    "NVDA",
+    "PFE",
+    "SPACE (SpaceX - Private/Pre-IPO)",
+    "MSFT",
+    "ANET",
+    "PLTR",
+    "WISE",
+    "NEE",
+    "MAG",
+    "PH",
+    "NOC"
+  ],
+  "narrative_updates": [
+    {
+      "name": "Convergence IA-Infrastructure Verte",
+      "description": "L'expansion massive des centres de données pour l'IA crée une demande sans précédent en énergie décarbonée, réhabilitant la dette verte malgré les pressions politiques. Ce narratif déplace l'intérêt de l'IA logicielle vers l'infrastructure énergétique physique nécessaire à son fonctionnement.",
+      "strength": "developing",
+      "sectors": [
+        "Énergies renouvelables",
+        "Infrastructures électriques",
+        "Finance durable (Green Bonds)"
+      ],
+      "symbols": [
+        "NEE",
+        "VST",
+        "BEP",
+        "ETN"
+      ],
+      "catalysts": [
+        "Demande énergétique des Data Centers",
+        "Records de ventes de Green Bonds",
+        "Besoin de stabilité réseau"
+      ],
+      "risk_level": "medium"
+    },
+    {
+      "name": "Découplage Métaux Précieux / Énergie",
+      "description": "L'argent métal surperforme le pétrole de manière historique, signalant une recherche de valeur refuge déconnectée de la croissance industrielle classique. Ce narratif suggère une méfiance systémique où les métaux deviennent des 'actifs de réassurance' face à l'instabilité monétaire.",
+      "strength": "emerging",
+      "sectors": [
+        "Mines d'argent et d'or",
+        "Métaux précieux"
+      ],
+      "symbols": [
+        "SIL",
+        "SLV",
+        "PAAS",
+        "MAG"
+      ],
+      "catalysts": [
+        "Ratio Argent/Pétrole inhabituel",
+        "Instabilité géopolitique",
+        "Demande de 'safe haven' psychologique"
+      ],
+      "risk_level": "high"
+    },
+    {
+      "name": "Arbitrage Géographique FIRE (Geo-Arbitrage)",
+      "description": "Une nouvelle vague d'investisseurs précoces (FIRE) optimise la sortie du marché du travail en transférant des portefeuilles constitués dans des économies fortes vers des pays à bas coût. Ce narratif se concentre sur la gestion de retrait de capital transfrontalier plutôt que sur l'accumulation.",
+      "strength": "emerging",
+      "sectors": [
+        "Gestion de patrimoine",
+        "Fintech de transfert de devises",
+        "Immobilier international"
+      ],
+      "symbols": [
+        "SCHD",
+        "JEPI",
+        "WISE",
+        "ABNB"
+      ],
+      "catalysts": [
+        "Télétravail",
+        "Inflation dans les pays développés",
+        "Mobilité européenne"
+      ],
+      "risk_level": "medium"
+    }
+  ]
+}

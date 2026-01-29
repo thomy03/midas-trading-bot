@@ -1,0 +1,71 @@
+{
+  "updated_at": "2025-12-27T23:51:10.711724",
+  "total_guidelines": 4,
+  "active_guidelines": 4,
+  "guidelines": [
+    {
+      "id": "seek_volume_spike",
+      "type": "seek_pattern",
+      "rule": "Rechercher les trades avec le pattern 'volume_spike'",
+      "description": "Ce pattern a \u00e9t\u00e9 associ\u00e9 \u00e0 des trades gagnants",
+      "confidence": 0.35,
+      "created_at": "2025-12-27T23:51:10.667451",
+      "last_confirmed": "2025-12-27T23:51:10.667452",
+      "confirmation_count": 1,
+      "invalidation_count": 0,
+      "based_on_trades": [
+        "NVDA",
+        "AAPL"
+      ],
+      "conditions": {}
+    },
+    {
+      "id": "seek_high_confidence",
+      "type": "seek_pattern",
+      "rule": "Rechercher les trades avec le pattern 'high_confidence'",
+      "description": "Ce pattern a \u00e9t\u00e9 associ\u00e9 \u00e0 des trades gagnants",
+      "confidence": 0.35,
+      "created_at": "2025-12-27T23:51:10.667461",
+      "last_confirmed": "2025-12-27T23:51:10.667462",
+      "confirmation_count": 1,
+      "invalidation_count": 0,
+      "based_on_trades": [
+        "NVDA",
+        "AAPL"
+      ],
+      "conditions": {}
+    },
+    {
+      "id": "seek_sector_unknown",
+      "type": "seek_pattern",
+      "rule": "Rechercher les trades avec le pattern 'sector_unknown'",
+      "description": "Ce pattern a \u00e9t\u00e9 associ\u00e9 \u00e0 des trades gagnants",
+      "confidence": 0.5,
+      "created_at": "2025-12-27T23:51:10.667466",
+      "last_confirmed": "2025-12-27T23:51:10.667466",
+      "confirmation_count": 1,
+      "invalidation_count": 0,
+      "based_on_trades": [
+        "NVDA",
+        "AAPL"
+      ],
+      "conditions": {}
+    },
+    {
+      "id": "seek_high_confidence_wins",
+      "type": "seek_pattern",
+      "rule": "Rechercher les trades avec le pattern 'high_confidence_wins'",
+      "description": "Ce pattern a \u00e9t\u00e9 associ\u00e9 \u00e0 des trades gagnants",
+      "confidence": 0.6,
+      "created_at": "2025-12-27T23:51:10.667469",
+      "last_confirmed": "2025-12-27T23:51:10.667469",
+      "confirmation_count": 1,
+      "invalidation_count": 0,
+      "based_on_trades": [
+        "NVDA",
+        "AAPL"
+      ],
+      "conditions": {}
+    }
+  ]
+}

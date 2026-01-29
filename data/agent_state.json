@@ -1,0 +1,203 @@
+{
+  "version": "4.0.0",
+  "created_at": "2025-12-28T22:21:22.916220",
+  "last_updated": "2026-01-18T11:13:43.707066",
+  "current_phase": "discovery",
+  "phase_started_at": "2026-01-18T11:13:43.707059",
+  "market_regime": "bear_strong",
+  "regime_confidence": 0.33948314328741314,
+  "regime_updated_at": "2026-01-01T15:25:03.291125",
+  "initial_capital": 1500.0,
+  "current_capital": 1500.0,
+  "peak_capital": 1500.0,
+  "positions": {},
+  "watchlist": [
+    "ASTS",
+    "AAPL",
+    "CRM",
+    "IP",
+    "VR",
+    "VOO",
+    "WFC",
+    "BLK",
+    "SPY",
+    "MSFT",
+    "RKLB",
+    "AI",
+    "SPX",
+    "ADBE",
+    "MS",
+    "IBRX"
+  ],
+  "focus_symbols": [
+    "ASTS",
+    "VR",
+    "CRM",
+    "IP",
+    "AAPL",
+    "VOO",
+    "WFC",
+    "BLK",
+    "SPY",
+    "MSFT",
+    "RKLB",
+    "AI",
+    "SPX",
+    "ADBE",
+    "MS",
+    "IBRX"
+  ],
+  "active_trends": [
+    {
+      "name": "Technology Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Technology",
+      "momentum_score": -0.6699824784312829,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Technology"
+      ],
+      "symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "META",
+        "NVDA"
+      ],
+      "detected_at": "2026-01-01T15:24:39.248303",
+      "sources": []
+    },
+    {
+      "name": "Healthcare Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Healthcare",
+      "momentum_score": -0.5404975078577582,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Healthcare"
+      ],
+      "symbols": [
+        "UNH",
+        "JNJ",
+        "PFE",
+        "ABBV",
+        "MRK"
+      ],
+      "detected_at": "2026-01-01T15:24:39.248324",
+      "sources": []
+    },
+    {
+      "name": "Finance Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Finance",
+      "momentum_score": -1.0,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Finance"
+      ],
+      "symbols": [
+        "JPM",
+        "BAC",
+        "GS",
+        "MS",
+        "WFC"
+      ],
+      "detected_at": "2026-01-01T15:24:39.248333",
+      "sources": []
+    },
+    {
+      "name": "Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Energy",
+      "momentum_score": 0.5838040608833127,
+      "volume_surge": 1.0,
+      "breadth_score": 0.3333333333333333,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Energy"
+      ],
+      "symbols": [
+        "XOM",
+        "CVX",
+        "COP",
+        "SLB",
+        "EOG"
+      ],
+      "detected_at": "2026-01-01T15:24:39.248340",
+      "sources": []
+    }
+  ],
+  "active_narratives": [],
+  "total_trades": 0,
+  "total_wins": 0,
+  "total_losses": 0,
+  "total_pnl": 0.0,
+  "win_rate": 0.0,
+  "learned_rules_count": 0,
+  "last_rule_learned": null,
+  "last_scan_at": "2026-01-18T10:54:19.872937",
+  "last_trade_at": null,
+  "last_audit_at": null,
+  "recent_errors": [
+    {
+      "timestamp": "2025-12-28T22:23:11.045923",
+      "error": "Social scan failed: 'SocialScanner' object has no attribute 'scan_all'",
+      "context": {}
+    },
+    {
+      "timestamp": "2025-12-28T22:23:11.047021",
+      "error": "Grok scan failed: 'GrokScanner' object has no attribute 'analyze_market_sentiment'",
+      "context": {}
+    },
+    {
+      "timestamp": "2025-12-28T22:34:38.655404",
+      "error": "Social scan failed: 'SocialScanner' object has no attribute 'scan_all'",
+      "context": {}
+    },
+    {
+      "timestamp": "2025-12-28T22:34:38.656359",
+      "error": "Grok scan failed: 'GrokScanner' object has no attribute 'analyze_market_sentiment'",
+      "context": {}
+    },
+    {
+      "timestamp": "2025-12-28T22:41:04.421936",
+      "error": "Social scan failed: 'SocialScanner' object has no attribute 'scan_all'",
+      "context": {}
+    },
+    {
+      "timestamp": "2025-12-28T22:41:04.422864",
+      "error": "Grok scan failed: 'GrokScanner' object has no attribute 'analyze_market_sentiment'",
+      "context": {}
+    },
+    {
+      "timestamp": "2025-12-28T22:44:03.373290",
+      "error": "Social scan failed: 'list' object has no attribute 'keys'",
+      "context": {}
+    }
+  ],
+  "active_warnings": [],
+  "daily_history": [],
+  "trade_history": []
+}

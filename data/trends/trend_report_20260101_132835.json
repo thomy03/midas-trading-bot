@@ -1,0 +1,371 @@
+{
+  "date": "2026-01-01T13:28:35.718594",
+  "trends": [
+    {
+      "name": "AI Revolution",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "The AI sector is transitioning from speculative hype to a phase of massive capital consolidation and practical utility refinement.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "High-value M&A activity and strategic partnerships involving Nvidia and SoftBank",
+        "Continuous product evolution and UX personalization in generative AI tools",
+        "Structural integration of AI into governance and professional labor markets"
+      ],
+      "sectors": [],
+      "symbols": [
+        "NVDA",
+        "SFTBY",
+        "MSFT"
+      ],
+      "detected_at": "2026-01-01T13:28:15.353043",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Obesity Drugs",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "The shift from injectable to oral delivery and expansion into non-obesity indications (addiction) are significantly broadening the addressable market.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "FDA approval of oral GLP-1 formulations for weight management",
+        "Clinical expansion into addiction treatment indications",
+        "Strategic price reductions to capture high-volume emerging markets like China"
+      ],
+      "sectors": [],
+      "symbols": [
+        "NVO",
+        "LLY"
+      ],
+      "detected_at": "2026-01-01T13:28:15.353072",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Nuclear Renaissance",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "Nuclear energy is transitioning from a legacy utility play to a critical high-growth infrastructure component for the AI revolution.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.75,
+      "news_count": 0,
+      "key_catalysts": [
+        "AI data center energy demand",
+        "Institutional capital inflow into SMR developers",
+        "Global commercialization of Small Modular Reactors"
+      ],
+      "sectors": [],
+      "symbols": [
+        "OKLO",
+        "GEV",
+        "VST",
+        "CCJ"
+      ],
+      "detected_at": "2026-01-01T13:28:15.353079",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Cybersecurity",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "The cybersecurity landscape is shifting from external perimeter defense to a crisis of internal trust and supply chain integrity.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": -0.75,
+      "news_count": 0,
+      "key_catalysts": [
+        "Rise of insider threats and rogue cybersecurity professionals",
+        "Critical supply chain vulnerabilities in global manufacturing",
+        "Massive scale data breaches impacting consumer privacy and corporate IP"
+      ],
+      "sectors": [],
+      "symbols": [
+        "AAPL",
+        "CRWD",
+        "PANW",
+        "FTNT",
+        "ZS"
+      ],
+      "detected_at": "2026-01-01T13:28:15.353086",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Crypto Bull",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "Massive institutional capital inflows into ETFs and staking are creating significant supply-side pressure on major cryptocurrencies.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "XRP ETF inflows exceeding $1 billion",
+        "Bitmine's $1 billion Ethereum staking supply squeeze",
+        "Institutional and political adoption of digital assets"
+      ],
+      "sectors": [],
+      "symbols": [
+        "XRP",
+        "ETH",
+        "BTC",
+        "BMNR"
+      ],
+      "detected_at": "2026-01-01T13:28:15.353099",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Technology Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Technology",
+      "momentum_score": -0.6699824784312829,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Technology"
+      ],
+      "symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "META",
+        "NVDA"
+      ],
+      "detected_at": "2026-01-01T13:27:12.154397",
+      "sources": []
+    },
+    {
+      "name": "Healthcare Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Healthcare",
+      "momentum_score": -0.5404975078577582,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Healthcare"
+      ],
+      "symbols": [
+        "UNH",
+        "JNJ",
+        "PFE",
+        "ABBV",
+        "MRK"
+      ],
+      "detected_at": "2026-01-01T13:27:12.154410",
+      "sources": []
+    },
+    {
+      "name": "Finance Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Finance",
+      "momentum_score": -1.0,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Finance"
+      ],
+      "symbols": [
+        "JPM",
+        "BAC",
+        "GS",
+        "MS",
+        "WFC"
+      ],
+      "detected_at": "2026-01-01T13:27:12.154420",
+      "sources": []
+    },
+    {
+      "name": "Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Energy",
+      "momentum_score": 0.5838040608833127,
+      "volume_surge": 1.0,
+      "breadth_score": 0.3333333333333333,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Energy"
+      ],
+      "symbols": [
+        "XOM",
+        "CVX",
+        "COP",
+        "SLB",
+        "EOG"
+      ],
+      "detected_at": "2026-01-01T13:27:12.154430",
+      "sources": []
+    },
+    {
+      "name": "Quantum Computing",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "The shift from large-scale laboratory setups to miniaturized, chip-integrated quantum hardware is accelerating the path to commercial viability.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.45,
+      "news_count": 0,
+      "key_catalysts": [
+        "Miniaturization of quantum processors to chip-scale dimensions",
+        "Geopolitical competition for technological supremacy between US and China",
+        "Strategic R&D localization in innovation hubs like New York"
+      ],
+      "sectors": [],
+      "symbols": [
+        "IBM",
+        "IONQ",
+        "RGTI",
+        "GOOGL"
+      ],
+      "detected_at": "2026-01-01T13:28:15.353057",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Space Economy",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'économie spatiale transitionne d'une phase d'exploration à une phase de maturité commerciale compétitive, centrée sur la cadence de lancement et la viabilité environnementale.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.45,
+      "news_count": 0,
+      "key_catalysts": [
+        "Accélération du calendrier des missions spatiales prévues pour 2026",
+        "Intensification de la concurrence commerciale chinoise via des startups comme LandSpace",
+        "Émergence de solutions technologiques pour la durabilité orbitale et la gestion des débris"
+      ],
+      "sectors": [],
+      "symbols": [
+        "RKLB",
+        "LMT",
+        "BA",
+        "NOC"
+      ],
+      "detected_at": "2026-01-01T13:28:15.353065",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Reshoring",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Operational vulnerabilities in global supply chains, including cyberattacks and theft, are intensifying the strategic push toward reshoring and domestic control.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.2,
+      "news_count": 0,
+      "key_catalysts": [
+        "Cybersecurity risks in overseas manufacturing hubs",
+        "Increasing logistics security threats and cargo theft",
+        "Consolidation of domestic construction and building material supply chains"
+      ],
+      "sectors": [],
+      "symbols": [
+        "LOW",
+        "COST",
+        "AAPL",
+        "BLMN"
+      ],
+      "detected_at": "2026-01-01T13:28:15.353093",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    }
+  ],
+  "sector_momentum": {
+    "Technology": -0.6699824784312829,
+    "AI_Semiconductors": -0.07073979103133715,
+    "Healthcare": -0.5404975078577582,
+    "Finance": -1.0,
+    "Energy": 0.5838040608833127
+  },
+  "market_sentiment": -0.33948314328741314,
+  "top_movers": [],
+  "watchlist_additions": [
+    "COP",
+    "LLY",
+    "BA",
+    "VST",
+    "BMNR",
+    "XOM",
+    "NVDA",
+    "IBM",
+    "OKLO",
+    "CVX",
+    "SFTBY",
+    "ETH",
+    "RGTI",
+    "NVO",
+    "RKLB",
+    "NOC",
+    "LMT",
+    "GOOGL",
+    "IONQ",
+    "MSFT",
+    "GEV",
+    "BTC",
+    "XRP",
+    "CCJ"
+  ],
+  "narrative_updates": []
+}

@@ -1,0 +1,248 @@
+{
+  "date": "2025-12-26T23:50:44.836893",
+  "trends": [
+    {
+      "name": "Healthcare Momentum",
+      "type": "sector_momentum",
+      "strength": "established",
+      "confidence": 0.8,
+      "description": "Bullish momentum detected in Healthcare",
+      "momentum_score": 0.921397036302647,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Healthcare"
+      ],
+      "symbols": [
+        "UNH",
+        "JNJ",
+        "PFE",
+        "ABBV",
+        "MRK"
+      ],
+      "detected_at": "2025-12-26T23:50:44.836855",
+      "sources": []
+    },
+    {
+      "name": "Technology Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Technology",
+      "momentum_score": 0.4408043950953008,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Technology"
+      ],
+      "symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "META",
+        "NVDA"
+      ],
+      "detected_at": "2025-12-26T23:50:44.836838",
+      "sources": []
+    },
+    {
+      "name": "AI_Semiconductors Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in AI_Semiconductors",
+      "momentum_score": 0.5069829943951069,
+      "volume_surge": 1.0,
+      "breadth_score": 0.3333333333333333,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "AI_Semiconductors"
+      ],
+      "symbols": [
+        "NVDA",
+        "AMD",
+        "AVGO",
+        "QCOM",
+        "INTC"
+      ],
+      "detected_at": "2025-12-26T23:50:44.836849",
+      "sources": []
+    },
+    {
+      "name": "Clean_Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Clean_Energy",
+      "momentum_score": 0.5,
+      "volume_surge": 1.0,
+      "breadth_score": 0.7142857142857143,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Clean_Energy"
+      ],
+      "symbols": [
+        "ENPH",
+        "SEDG",
+        "FSLR",
+        "RUN",
+        "PLUG"
+      ],
+      "detected_at": "2025-12-26T23:50:44.836869",
+      "sources": []
+    },
+    {
+      "name": "Biotech Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Biotech",
+      "momentum_score": 0.3823950850139803,
+      "volume_surge": 1.0,
+      "breadth_score": 0.6666666666666666,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Biotech"
+      ],
+      "symbols": [
+        "AMGN",
+        "GILD",
+        "REGN",
+        "VRTX",
+        "BIIB"
+      ],
+      "detected_at": "2025-12-26T23:50:44.836858",
+      "sources": []
+    },
+    {
+      "name": "Finance Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Finance",
+      "momentum_score": 0.3372985314927373,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Finance"
+      ],
+      "symbols": [
+        "JPM",
+        "BAC",
+        "GS",
+        "MS",
+        "WFC"
+      ],
+      "detected_at": "2025-12-26T23:50:44.836862",
+      "sources": []
+    },
+    {
+      "name": "Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Energy",
+      "momentum_score": 0.32720253725544657,
+      "volume_surge": 1.0,
+      "breadth_score": 0.5,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Energy"
+      ],
+      "symbols": [
+        "XOM",
+        "CVX",
+        "COP",
+        "SLB",
+        "EOG"
+      ],
+      "detected_at": "2025-12-26T23:50:44.836865",
+      "sources": []
+    },
+    {
+      "name": "Defense Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Defense",
+      "momentum_score": 0.3146887785440974,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Defense"
+      ],
+      "symbols": [
+        "LMT",
+        "RTX",
+        "NOC",
+        "GD",
+        "BA"
+      ],
+      "detected_at": "2025-12-26T23:50:44.836873",
+      "sources": []
+    }
+  ],
+  "sector_momentum": {
+    "Technology": 0.4408043950953008,
+    "AI_Semiconductors": 0.5069829943951069,
+    "Healthcare": 0.921397036302647,
+    "Biotech": 0.3823950850139803,
+    "Finance": 0.3372985314927373,
+    "Energy": 0.32720253725544657,
+    "Clean_Energy": 0.5,
+    "Consumer": 0.07972475292126424,
+    "Crypto_Adjacent": 0.035092880020576714,
+    "Defense": 0.3146887785440974
+  },
+  "market_sentiment": 0.3845586991041157,
+  "top_movers": [
+    "TGT"
+  ],
+  "watchlist_additions": [
+    "AAPL",
+    "AMD",
+    "XOM",
+    "UNH",
+    "AVGO",
+    "GOOGL",
+    "COP",
+    "ENPH",
+    "GILD",
+    "REGN",
+    "RTX",
+    "PFE",
+    "JNJ",
+    "AMGN",
+    "BAC",
+    "MSFT",
+    "CVX",
+    "LMT",
+    "NVDA",
+    "GS",
+    "FSLR",
+    "JPM",
+    "SEDG",
+    "NOC"
+  ],
+  "narrative_updates": []
+}

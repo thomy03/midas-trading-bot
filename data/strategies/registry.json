@@ -1,0 +1,142 @@
+{
+  "strategies": {
+    "test_rsi_oversold_20251228114238": {
+      "id": "test_rsi_oversold_20251228114238",
+      "name": "Test RSI Oversold",
+      "description": "Buy when RSI is oversold with volume confirmation",
+      "status": "candidate",
+      "created_at": "2025-12-28T11:42:38.491448",
+      "updated_at": "2025-12-28T11:42:38.491448",
+      "created_by": "test",
+      "entry_conditions": [
+        {
+          "indicator": "RSI",
+          "params": {
+            "period": 14
+          },
+          "operator": "<",
+          "value": 30,
+          "output_column": "RSI"
+        },
+        {
+          "indicator": "VolumeRatio",
+          "params": {
+            "period": 20
+          },
+          "operator": ">=",
+          "value": 1.5,
+          "output_column": "VOLUME_RATIO"
+        }
+      ],
+      "exit_conditions": [
+        {
+          "indicator": "RSI",
+          "params": {
+            "period": 14
+          },
+          "operator": ">",
+          "value": 70,
+          "output_column": "RSI"
+        }
+      ],
+      "indicators_used": [
+        "RSI",
+        "VolumeRatio"
+      ],
+      "timeframe": "1d",
+      "stop_loss_pct": 0.05,
+      "take_profit_pct": 0.15,
+      "max_position_pct": 0.1,
+      "backtest_passed": false,
+      "backtest_metrics": {},
+      "paper_passed": false,
+      "paper_metrics": {},
+      "performance": {
+        "total_trades": 0,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "total_pnl": 0.0,
+        "total_pnl_pct": 0.0,
+        "max_drawdown": 0.0,
+        "sharpe_ratio": 0.0,
+        "win_rate": 0.0,
+        "avg_win": 0.0,
+        "avg_loss": 0.0,
+        "profit_factor": 0.0,
+        "last_trade_date": null,
+        "consecutive_losses": 0,
+        "best_trade_pct": 0.0,
+        "worst_trade_pct": 0.0
+      },
+      "creation_reasoning": "",
+      "archive_reason": ""
+    },
+    "test_rsi_ema_strateg_20251228112344": {
+      "id": "test_rsi_ema_strateg_20251228112344",
+      "name": "Test_RSI_EMA_Strategy",
+      "description": "Test strategy combining RSI and EMA signals",
+      "status": "candidate",
+      "created_at": "2025-12-28T11:23:44.831517",
+      "updated_at": "2025-12-28T11:23:44.831517",
+      "created_by": "test",
+      "entry_conditions": [
+        {
+          "indicator": "RSI",
+          "operator": "<",
+          "value": 30
+        },
+        {
+          "indicator": "EMA_CROSS",
+          "params": {
+            "fast": 12,
+            "slow": 26
+          }
+        }
+      ],
+      "exit_conditions": [
+        {
+          "indicator": "RSI",
+          "operator": ">",
+          "value": 70
+        }
+      ],
+      "indicators_used": [
+        "RSI",
+        "EMA"
+      ],
+      "timeframe": "1d",
+      "stop_loss_pct": 0.05,
+      "take_profit_pct": 0.15,
+      "max_position_pct": 0.1,
+      "backtest_passed": false,
+      "backtest_metrics": {},
+      "paper_passed": false,
+      "paper_metrics": {},
+      "performance": {
+        "total_trades": 0,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "total_pnl": 0.0,
+        "total_pnl_pct": 0.0,
+        "max_drawdown": 0.0,
+        "sharpe_ratio": 0.0,
+        "win_rate": 0.0,
+        "avg_win": 0.0,
+        "avg_loss": 0.0,
+        "profit_factor": 0.0,
+        "last_trade_date": null,
+        "consecutive_losses": 0,
+        "best_trade_pct": 0.0,
+        "worst_trade_pct": 0.0
+      },
+      "creation_reasoning": "",
+      "archive_reason": ""
+    }
+  },
+  "strategies_created_this_week": [
+    "test_rsi_oversold_20251228114238",
+    "test_rsi_ema_strateg_20251228112344"
+  ],
+  "week_start": "2025-W51",
+  "updated_at": "2025-12-28T11:23:44.831726"
+}

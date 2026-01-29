@@ -1,0 +1,544 @@
+{
+  "date": "2025-12-28T20:31:02.627240",
+  "trends": [
+    {
+      "name": "Healthcare Momentum",
+      "type": "sector_momentum",
+      "strength": "established",
+      "confidence": 0.8,
+      "description": "Bullish momentum detected in Healthcare",
+      "momentum_score": 0.921397036302647,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Healthcare"
+      ],
+      "symbols": [
+        "UNH",
+        "JNJ",
+        "PFE",
+        "ABBV",
+        "MRK"
+      ],
+      "detected_at": "2025-12-28T20:30:34.926608",
+      "sources": []
+    },
+    {
+      "name": "Space Economy",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "The space economy is rapidly expanding, driven by advancements in satellite technology, launch capabilities, and growing commercial and government interest.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.7,
+      "news_count": 0,
+      "key_catalysts": [
+        "Expansion of space-based communication networks",
+        "Increasing government and private investment in space technology",
+        "Potential SpaceX IPO"
+      ],
+      "sectors": [],
+      "symbols": [
+        "BATS",
+        "SPCE"
+      ],
+      "detected_at": "2025-12-28T20:30:57.730818",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Obesity Drugs",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "The obesity drug market is poised for strong growth, driven by increased demand and favorable regulatory changes, presenting an attractive investment opportunity.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.7,
+      "news_count": 0,
+      "key_catalysts": [
+        "Increased demand for obesity drugs like Ozempic",
+        "Medicare coverage changes benefiting obesity drug makers",
+        "Growing interest in protein-based products for weight loss and muscle building"
+      ],
+      "sectors": [],
+      "symbols": [
+        "NVO"
+      ],
+      "detected_at": "2025-12-28T20:30:57.730827",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Nuclear Renaissance",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "The nuclear energy sector is experiencing a resurgence, with innovative projects leveraging retired nuclear assets and government initiatives driving growth.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.7,
+      "news_count": 0,
+      "key_catalysts": [
+        "Repurposing of retired U.S. Navy nuclear reactors for AI data centers",
+        "Turkey's plans to increase domestic energy production to 25% by 2028",
+        "Texas' $350 million nuclear energy initiative"
+      ],
+      "sectors": [],
+      "symbols": [
+        "HGP"
+      ],
+      "detected_at": "2025-12-28T20:30:57.730834",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Cybersecurity",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "The cybersecurity industry is poised for strong growth driven by increasing digitalization and evolving cyber threats, creating opportunities for leading cybersecurity providers.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.7,
+      "news_count": 0,
+      "key_catalysts": [
+        "Increasing demand for cybersecurity solutions as organizations digitize and cyber threats evolve",
+        "Shift towards cloud-based and AI-powered cybersecurity architectures",
+        "Potential growth in offshore wind power generation as an alternative to fossil fuels"
+      ],
+      "sectors": [],
+      "symbols": [
+        "CRWD",
+        "PANW",
+        "FTNT",
+        "OKTA"
+      ],
+      "detected_at": "2025-12-28T20:30:57.730841",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Crypto Bull",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "The crypto market is showing signs of renewed momentum, driven by increased institutional adoption and positive macroeconomic forecasts.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.6,
+      "news_count": 0,
+      "key_catalysts": [
+        "Adoption of XRP Ledger by Japanese banking giants",
+        "Potential Bitcoin exposure by Indian billionaire Nikhil Kamath",
+        "Optimism around double-digit US growth by 2026 predicted by Elon Musk"
+      ],
+      "sectors": [],
+      "symbols": [
+        "XRP",
+        "BTC",
+        "ETH"
+      ],
+      "detected_at": "2025-12-28T20:30:57.730848",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Rate Pivot",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "Les signaux macroéconomiques positifs, comme les prévisions d'Elon Musk sur l'économie américaine et la hausse potentielle des salaires, pourraient stimuler la performance des actifs comme le Bitcoin et les obligations à long terme.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.6,
+      "news_count": 0,
+      "key_catalysts": [
+        "Prévisions d'expansion économique rapide aux États-Unis",
+        "Potentiel rebond du Bitcoin après les commentaires d'Elon Musk",
+        "Hausse potentielle des salaires en 2026"
+      ],
+      "sectors": [],
+      "symbols": [
+        "TLT",
+        "BTC-USD"
+      ],
+      "detected_at": "2025-12-28T20:30:57.730853",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Technology Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Technology",
+      "momentum_score": 0.4408043950953008,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Technology"
+      ],
+      "symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "META",
+        "NVDA"
+      ],
+      "detected_at": "2025-12-28T20:30:34.926593",
+      "sources": []
+    },
+    {
+      "name": "AI_Semiconductors Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in AI_Semiconductors",
+      "momentum_score": 0.5069829943951069,
+      "volume_surge": 1.0,
+      "breadth_score": 0.3333333333333333,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "AI_Semiconductors"
+      ],
+      "symbols": [
+        "NVDA",
+        "AMD",
+        "AVGO",
+        "QCOM",
+        "INTC"
+      ],
+      "detected_at": "2025-12-28T20:30:34.926603",
+      "sources": []
+    },
+    {
+      "name": "Clean_Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Clean_Energy",
+      "momentum_score": 0.5,
+      "volume_surge": 1.0,
+      "breadth_score": 0.7142857142857143,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Clean_Energy"
+      ],
+      "symbols": [
+        "ENPH",
+        "SEDG",
+        "FSLR",
+        "RUN",
+        "PLUG"
+      ],
+      "detected_at": "2025-12-28T20:30:34.926621",
+      "sources": []
+    },
+    {
+      "name": "Investissement dans l'espace et l'infrastructure spatiale",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'intérêt pour les investissements dans l'espace et l'infrastructure spatiale semble se développer, avec des entreprises comme ASTS et RKLB attrayant l'attention des investisseurs. Ce secteur pourrait bénéficier de l'essor de l'exploration spatiale et des applications commerciales liées à l'espace.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "progrès technologiques",
+        "intérêt croissant pour l'exploration spatiale"
+      ],
+      "sectors": [
+        "aérospatial",
+        "technologie"
+      ],
+      "symbols": [
+        "ASTS",
+        "RKLB"
+      ],
+      "detected_at": "2025-12-28T20:31:02.613976",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Métaux précieux comme valeur refuge",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Les investisseurs semblent se tourner vers les métaux précieux, comme l'argent (SLV), en tant qu'actifs refuge dans un contexte économique incertain. Cette tendance pourrait se renforcer si les conditions de marché restent volatiles.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "incertitude économique",
+        "recherche de valeurs refuges"
+      ],
+      "sectors": [
+        "matières premières",
+        "finance"
+      ],
+      "symbols": [
+        "SLV"
+      ],
+      "detected_at": "2025-12-28T20:31:02.627203",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Biotech Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Biotech",
+      "momentum_score": 0.3823950850139803,
+      "volume_surge": 1.0,
+      "breadth_score": 0.6666666666666666,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Biotech"
+      ],
+      "symbols": [
+        "AMGN",
+        "GILD",
+        "REGN",
+        "VRTX",
+        "BIIB"
+      ],
+      "detected_at": "2025-12-28T20:30:34.926611",
+      "sources": []
+    },
+    {
+      "name": "Finance Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Finance",
+      "momentum_score": 0.3372985314927373,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Finance"
+      ],
+      "symbols": [
+        "JPM",
+        "BAC",
+        "GS",
+        "MS",
+        "WFC"
+      ],
+      "detected_at": "2025-12-28T20:30:34.926614",
+      "sources": []
+    },
+    {
+      "name": "Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Energy",
+      "momentum_score": 0.32720253725544657,
+      "volume_surge": 1.0,
+      "breadth_score": 0.5,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Energy"
+      ],
+      "symbols": [
+        "XOM",
+        "CVX",
+        "COP",
+        "SLB",
+        "EOG"
+      ],
+      "detected_at": "2025-12-28T20:30:34.926618",
+      "sources": []
+    },
+    {
+      "name": "Defense Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Defense",
+      "momentum_score": 0.3146887785440974,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Defense"
+      ],
+      "symbols": [
+        "LMT",
+        "RTX",
+        "NOC",
+        "GD",
+        "BA"
+      ],
+      "detected_at": "2025-12-28T20:30:34.926625",
+      "sources": []
+    },
+    {
+      "name": "AI Revolution",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "The AI revolution is gaining momentum, with advancements in AGI, rising electricity costs, and potential regulatory changes shaping the landscape.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.2,
+      "news_count": 0,
+      "key_catalysts": [
+        "Advancements in artificial general intelligence (AGI) development",
+        "Increasing electricity demand and prices driven by AI data centers",
+        "Potential regulatory and policy changes around AI development and deployment"
+      ],
+      "sectors": [],
+      "symbols": [
+        "ZHPU"
+      ],
+      "detected_at": "2025-12-28T20:30:57.730800",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    }
+  ],
+  "sector_momentum": {
+    "Technology": 0.4408043950953008,
+    "AI_Semiconductors": 0.5069829943951069,
+    "Healthcare": 0.921397036302647,
+    "Biotech": 0.3823950850139803,
+    "Finance": 0.3372985314927373,
+    "Energy": 0.32720253725544657,
+    "Clean_Energy": 0.5,
+    "Consumer": 0.07972475292126424,
+    "Crypto_Adjacent": 0.035092880020576714,
+    "Defense": 0.3146887785440974
+  },
+  "market_sentiment": 0.3845586991041157,
+  "top_movers": [
+    "TGT"
+  ],
+  "watchlist_additions": [
+    "RTX",
+    "CVX",
+    "AMGN",
+    "JNJ",
+    "OKTA",
+    "LMT",
+    "RKLB",
+    "JPM",
+    "GS",
+    "AAPL",
+    "BAC",
+    "UNH",
+    "SLV",
+    "REGN",
+    "COP",
+    "NVDA",
+    "NOC",
+    "XRP",
+    "AMD",
+    "FSLR",
+    "BTC-USD",
+    "XOM",
+    "ETH",
+    "BTC",
+    "GOOGL",
+    "MSFT",
+    "GILD",
+    "TLT",
+    "ASTS",
+    "AVGO",
+    "PANW",
+    "PFE",
+    "SEDG",
+    "SPCE",
+    "NVO",
+    "CRWD",
+    "BATS",
+    "HGP",
+    "FTNT",
+    "ENPH"
+  ],
+  "narrative_updates": [
+    {
+      "name": "Investissement dans l'espace et l'infrastructure spatiale",
+      "description": "L'intérêt pour les investissements dans l'espace et l'infrastructure spatiale semble se développer, avec des entreprises comme ASTS et RKLB attrayant l'attention des investisseurs. Ce secteur pourrait bénéficier de l'essor de l'exploration spatiale et des applications commerciales liées à l'espace.",
+      "strength": "developing",
+      "sectors": [
+        "aérospatial",
+        "technologie"
+      ],
+      "symbols": [
+        "ASTS",
+        "RKLB"
+      ],
+      "catalysts": [
+        "progrès technologiques",
+        "intérêt croissant pour l'exploration spatiale"
+      ],
+      "risk_level": "medium"
+    },
+    {
+      "name": "Métaux précieux comme valeur refuge",
+      "description": "Les investisseurs semblent se tourner vers les métaux précieux, comme l'argent (SLV), en tant qu'actifs refuge dans un contexte économique incertain. Cette tendance pourrait se renforcer si les conditions de marché restent volatiles.",
+      "strength": "emerging",
+      "sectors": [
+        "matières premières",
+        "finance"
+      ],
+      "symbols": [
+        "SLV"
+      ],
+      "catalysts": [
+        "incertitude économique",
+        "recherche de valeurs refuges"
+      ],
+      "risk_level": "medium"
+    }
+  ]
+}

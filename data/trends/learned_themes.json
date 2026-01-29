@@ -1,0 +1,747 @@
+{
+  "Désillusion_Opérationnelle_de_l'IA_(AI_Reality_Check)": {
+    "name": "Désillusion Opérationnelle de l'IA (AI Reality Check)",
+    "description": "Après une phase d'euphorie, les entreprises réalisent que l'intégration des agents IA est plus complexe que prévu et ne garantit pas une efficacité immédiate malgré les licenciements massifs. Le focus se déplace de la simple adoption vers la mesure réelle du ROI et la fiabilité des LLM en environnement de production.",
+    "keywords": [
+      "environnement",
+      "entreprises",
+      "de",
+      "massifs",
+      "focus",
+      "l'intégration",
+      "efficacité",
+      "garantit",
+      "production",
+      "désillusion"
+    ],
+    "sectors": [
+      "SaaS",
+      "Enterprise Software",
+      "Consulting"
+    ],
+    "symbols": [
+      "CRM",
+      "MSFT",
+      "ACN",
+      "SAP"
+    ],
+    "discovered_at": "2025-12-26T23:11:00.682641",
+    "last_seen": "2025-12-26T23:11:00.682653",
+    "occurrence_count": 1,
+    "strength": "developing"
+  },
+  "Souveraineté_Énergétique_et_Infrastructurelle_du_Moyen-Orient": {
+    "name": "Souveraineté Énergétique et Infrastructurelle du Moyen-Orient",
+    "description": "L'Arabie Saoudite et les pays du Golfe pivotent pour devenir les hubs mondiaux du calcul haute performance (HPC) en capitalisant sur leur capital illimité et leurs ressources énergétiques. Ce narratif dépasse le pétrole pour se concentrer sur l'exportation de puissance de calcul et l'hébergement de data centers souverains.",
+    "keywords": [
+      "golfe",
+      "massifs",
+      "illimité",
+      "narratif",
+      "et",
+      "souveraineté",
+      "calcul",
+      "souverains",
+      "investissements",
+      "l'exportation"
+    ],
+    "sectors": [
+      "Data Centers",
+      "Energy",
+      "Semiconductors"
+    ],
+    "symbols": [
+      "ARM",
+      "NVDA",
+      "GCT",
+      "SMCI"
+    ],
+    "discovered_at": "2025-12-26T23:11:00.694866",
+    "last_seen": "2025-12-26T23:11:00.694885",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "Renaissance_des_Métaux_Précieux_comme_Refuge_de_Volatilité": {
+    "name": "Renaissance des Métaux Précieux comme Refuge de Volatilité",
+    "description": "Face à l'instabilité psychologique des investisseurs particuliers et aux pertes massives sur les options/tech, l'argent (Silver) émerge comme un levier de récupération rapide et un actif de protection. On observe un transfert de liquidités spéculatives vers les commodités physiques perçues comme sous-évaluées.",
+    "keywords": [
+      "pour",
+      "de",
+      "transfert",
+      "sous-évaluées",
+      "des",
+      "précieux",
+      "industrielle",
+      "l'instabilité",
+      "perçues",
+      "renaissance"
+    ],
+    "sectors": [
+      "Mining",
+      "Commodities",
+      "Precious Metals"
+    ],
+    "symbols": [
+      "SLV",
+      "PAAS",
+      "AG",
+      "PSLV"
+    ],
+    "discovered_at": "2025-12-26T23:11:00.706178",
+    "last_seen": "2025-12-26T23:11:00.706189",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "Souveraineté_Infrastructurelle_du_Moyen-Orient": {
+    "name": "Souveraineté Infrastructurelle du Moyen-Orient",
+    "description": "L'Arabie Saoudite et les pays du Golfe pivotent de simples investisseurs à hubs physiques mondiaux pour les centres de données et le calcul haute performance. Ce narratif déplace l'attention des concepteurs de puces vers les propriétaires d'infrastructures énergétiques et de hardware dans des zones géopolitiques à forte liquidité.",
+    "keywords": [
+      "calcul",
+      "puces",
+      "déplace",
+      "groq",
+      "future",
+      "avec",
+      "l'arabie",
+      "partenariats",
+      "zones",
+      "d'infrastructures"
+    ],
+    "sectors": [
+      "Infrastructure Data Center",
+      "Énergie",
+      "Hardware spécialisé"
+    ],
+    "symbols": [
+      "GROQ",
+      "NVDA",
+      "ARM",
+      "Aramco"
+    ],
+    "discovered_at": "2025-12-27T00:18:55.877203",
+    "last_seen": "2025-12-27T00:18:55.877219",
+    "occurrence_count": 1,
+    "strength": "developing"
+  },
+  "Désillusion_du_Software-as-a-Service_(SaaS)_traditionnel": {
+    "name": "Désillusion du Software-as-a-Service (SaaS) traditionnel",
+    "description": "Une remise en question profonde de la survie des éditeurs de logiciels face à l'automatisation par agents IA qui remplace le besoin d'interfaces utilisateurs classiques. Le marché commence à douter de la capacité des géants du logiciel à maintenir leurs marges face à une efficacité qui réduit le nombre de licences nécessaires.",
+    "keywords": [
+      "l'automatisation",
+      "doutes",
+      "utilisateurs",
+      "nécessaires",
+      "besoin",
+      "maintenir",
+      "chez",
+      "logiciels",
+      "logiciel",
+      "survie"
+    ],
+    "sectors": [
+      "SaaS",
+      "Enterprise Software",
+      "Cloud Computing"
+    ],
+    "symbols": [
+      "CRM",
+      "ADBE",
+      "SNOW",
+      "HUBS"
+    ],
+    "discovered_at": "2025-12-27T00:18:55.889731",
+    "last_seen": "2025-12-27T00:18:55.889744",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "Renaissance_des_Matières_Premières_de_Volatilité": {
+    "name": "Renaissance des Matières Premières de Volatilité",
+    "description": "Face à l'incertitude des marchés actions et à l'épuisement des thèses tech, on observe un retour agressif vers les métaux précieux et les matières premières comme vecteurs de croissance rapide. Ce narratif est porté par une spéculation de détail cherchant à compenser les pertes subies sur les options tech.",
+    "keywords": [
+      "l'incertitude",
+      "observe",
+      "rapide",
+      "premières",
+      "besoin",
+      "pertes",
+      "métaux",
+      "cherchant",
+      "renaissance",
+      "matières"
+    ],
+    "sectors": [
+      "Matières Premières",
+      "Mines",
+      "Métaux Précieux"
+    ],
+    "symbols": [
+      "SLV",
+      "GLD",
+      "PAAS",
+      "SILJ"
+    ],
+    "discovered_at": "2025-12-27T00:18:55.902636",
+    "last_seen": "2025-12-27T00:18:55.902649",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "Transition_énergétique_durable": {
+    "name": "Transition énergétique durable",
+    "description": "Malgré les remises en cause des politiques climatiques, les investisseurs continuent de s'intéresser aux actifs favorables au climat, notamment grâce à la demande croissante en infrastructures énergétiques alimentée par l'IA.",
+    "keywords": [
+      "à",
+      "grâce",
+      "politiques",
+      "climat",
+      "énergétiques",
+      "investisseurs",
+      "actifs",
+      "alimentée",
+      "continuent",
+      "s'intéresser"
+    ],
+    "sectors": [
+      "énergie renouvelable",
+      "infrastructure énergétique",
+      "technologies vertes"
+    ],
+    "symbols": [
+      "RKLB",
+      "ASTS"
+    ],
+    "discovered_at": "2025-12-28T20:28:04.791269",
+    "last_seen": "2025-12-28T20:28:04.791279",
+    "occurrence_count": 1,
+    "strength": "developing"
+  },
+  "Métaux_précieux": {
+    "name": "Métaux précieux",
+    "description": "Les investisseurs continuent de miser sur les métaux précieux comme l'argent et l'or, comme en témoigne les performances récentes de SLV.",
+    "keywords": [
+      "l'argent",
+      "investisseurs",
+      "comme",
+      "témoigne",
+      "précieux",
+      "récentes",
+      "performances",
+      "économique",
+      "continuent",
+      "inflation"
+    ],
+    "sectors": [
+      "métaux précieux"
+    ],
+    "symbols": [
+      "SLV"
+    ],
+    "discovered_at": "2025-12-28T20:28:04.804227",
+    "last_seen": "2025-12-28T20:28:04.804240",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "Nouveaux_acteurs_dans_l'espace": {
+    "name": "Nouveaux acteurs dans l'espace",
+    "description": "Des sociétés comme ASTS et RKLB semblent offrir un potentiel de croissance important dans le secteur spatial, au-delà des acteurs historiques.",
+    "keywords": [
+      "comme",
+      "technologiques",
+      "l'espace",
+      "potentiel",
+      "sociétés",
+      "croissance",
+      "opportunités",
+      "innovations",
+      "nouvelles",
+      "offrir"
+    ],
+    "sectors": [
+      "aérospatial",
+      "satellites"
+    ],
+    "symbols": [
+      "ASTS",
+      "RKLB"
+    ],
+    "discovered_at": "2025-12-28T20:28:04.818646",
+    "last_seen": "2025-12-28T20:28:04.818653",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "Investissement_dans_l'espace_et_l'infrastructure_spatiale": {
+    "name": "Investissement dans l'espace et l'infrastructure spatiale",
+    "description": "L'intérêt pour les investissements dans l'espace et l'infrastructure spatiale semble se développer, avec des entreprises comme ASTS et RKLB attrayant l'attention des investisseurs. Ce secteur pourrait bénéficier de l'essor de l'exploration spatiale et des applications commerciales liées à l'espace.",
+    "keywords": [
+      "liées",
+      "investissement",
+      "comme",
+      "intérêt",
+      "spatiale",
+      "et",
+      "l'intérêt",
+      "progrès",
+      "bénéficier",
+      "investissements"
+    ],
+    "sectors": [
+      "aérospatial",
+      "technologie"
+    ],
+    "symbols": [
+      "ASTS",
+      "RKLB"
+    ],
+    "discovered_at": "2025-12-28T20:31:02.612726",
+    "last_seen": "2025-12-28T20:31:02.612737",
+    "occurrence_count": 1,
+    "strength": "developing"
+  },
+  "Métaux_précieux_comme_valeur_refuge": {
+    "name": "Métaux précieux comme valeur refuge",
+    "description": "Les investisseurs semblent se tourner vers les métaux précieux, comme l'argent (SLV), en tant qu'actifs refuge dans un contexte économique incertain. Cette tendance pourrait se renforcer si les conditions de marché restent volatiles.",
+    "keywords": [
+      "l'argent",
+      "comme",
+      "précieux",
+      "cette",
+      "volatiles",
+      "incertitude",
+      "valeurs",
+      "de",
+      "refuge",
+      "qu'actifs"
+    ],
+    "sectors": [
+      "matières premières",
+      "finance"
+    ],
+    "symbols": [
+      "SLV"
+    ],
+    "discovered_at": "2025-12-28T20:31:02.625444",
+    "last_seen": "2025-12-28T20:31:02.625457",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "Convergence_IA-Infrastructure_Verte": {
+    "name": "Convergence IA-Infrastructure Verte",
+    "description": "L'explosion de la demande énergétique liée aux centres de données de l'IA revitalise le marché de la dette verte et des infrastructures durables. Ce narratif déplace l'intérêt de l'IA logicielle vers les besoins physiques massifs en énergie décarbonée nécessaires à son fonctionnement.",
+    "keywords": [
+      "besoins",
+      "énergie",
+      "logicielle",
+      "l'explosion",
+      "marché",
+      "centres",
+      "massifs",
+      "convergence",
+      "nécessaires",
+      "déplace"
+    ],
+    "sectors": [
+      "Énergie renouvelable",
+      "Infrastructures électriques",
+      "Finance durable"
+    ],
+    "symbols": [
+      "NEE",
+      "VST",
+      "BEP",
+      "GEV"
+    ],
+    "discovered_at": "2025-12-29T13:22:31.248890",
+    "last_seen": "2025-12-29T13:22:31.248898",
+    "occurrence_count": 2,
+    "strength": "developing"
+  },
+  "Découplage_Métaux_Précieux_/_Énergie": {
+    "name": "Découplage Métaux Précieux / Énergie",
+    "description": "L'argent métal surperforme le pétrole de manière historique, signalant une recherche de valeur refuge déconnectée de la croissance industrielle classique. Ce narratif suggère une méfiance systémique où les métaux deviennent des 'actifs de réassurance' face à l'instabilité monétaire.",
+    "keywords": [
+      "découplage",
+      "énergie",
+      "déconnectée",
+      "classique",
+      "historique",
+      "géopolitique",
+      "suggère",
+      "deviennent",
+      "'actifs",
+      "manière"
+    ],
+    "sectors": [
+      "Mines d'argent et d'or",
+      "Métaux précieux"
+    ],
+    "symbols": [
+      "SIL",
+      "SLV",
+      "PAAS",
+      "MAG"
+    ],
+    "discovered_at": "2025-12-29T10:16:08.248182",
+    "last_seen": "2025-12-29T10:16:08.248190",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "Arbitrage_Géographique_FIRE_(Geo-Arbitrage)": {
+    "name": "Arbitrage Géographique FIRE (Geo-Arbitrage)",
+    "description": "Une nouvelle vague d'investisseurs précoces (FIRE) optimise la sortie du marché du travail en transférant des portefeuilles constitués dans des économies fortes vers des pays à bas coût. Ce narratif se concentre sur la gestion de retrait de capital transfrontalier plutôt que sur l'accumulation.",
+    "keywords": [
+      "travail",
+      "les",
+      "nouvelle",
+      "transférant",
+      "marché",
+      "gestion",
+      "l'accumulation",
+      "retrait",
+      "transfrontalier",
+      "fortes"
+    ],
+    "sectors": [
+      "Gestion de patrimoine",
+      "Fintech de transfert de devises",
+      "Immobilier international"
+    ],
+    "symbols": [
+      "SCHD",
+      "JEPI",
+      "WISE",
+      "ABNB"
+    ],
+    "discovered_at": "2025-12-29T10:16:08.260923",
+    "last_seen": "2025-12-29T10:16:08.260940",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "Inversion_de_Valeur_Argent-Pétrole": {
+    "name": "Inversion de Valeur Argent-Pétrole",
+    "description": "L'argent métal surpasse historiquement le prix du baril de pétrole, signalant un changement de paradigme dans les matières premières. Ce narratif repose sur la rareté industrielle de l'argent (photovoltaïque, électronique) face à une stagnation relative de la demande pétrolière.",
+    "keywords": [
+      "découplage",
+      "relative",
+      "transition",
+      "photovoltaïque",
+      "l'offre",
+      "valeur",
+      "premières",
+      "baril",
+      "électronique",
+      "historiquement"
+    ],
+    "sectors": [
+      "Métaux précieux",
+      "Matières premières industrielles",
+      "Exploitation minière"
+    ],
+    "symbols": [
+      "SLV",
+      "PAAS",
+      "MAG",
+      "PSLV"
+    ],
+    "discovered_at": "2025-12-29T13:22:31.263691",
+    "last_seen": "2025-12-29T13:22:31.263700",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "Arbitrage_Géographique_FIRE_(Europe)": {
+    "name": "Arbitrage Géographique FIRE (Europe)",
+    "description": "Une tendance croissante d'investisseurs précoces (30-40 ans) utilisant des portefeuilles en devises fortes (USD/CHF) pour financer une retraite anticipée dans des zones à bas coût en Europe. Ce narratif met l'accent sur l'optimisation fiscale transfrontalière et la gestion de portefeuille multi-devises.",
+    "keywords": [
+      "gestion",
+      "érosion",
+      "tendance",
+      "multi-devises",
+      "modèle",
+      "post-pandémie",
+      "fortes",
+      "transfrontalière",
+      "mobilité",
+      "croissante"
+    ],
+    "sectors": [
+      "Gestion de patrimoine",
+      "Fintech",
+      "Immobilier international"
+    ],
+    "symbols": [
+      "VT",
+      "VUSA.L",
+      "SCHD",
+      "IBKR"
+    ],
+    "discovered_at": "2025-12-29T13:22:31.276547",
+    "last_seen": "2025-12-29T13:22:31.276557",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "CeDeFi_RWA_Infrastructure": {
+    "name": "CeDeFi RWA Infrastructure",
+    "description": "Integration of centralized and decentralized finance to facilitate the 'Exchange of Everything' via Real World Asset tokenization. It aims to build a global financial infrastructure for non-traditional asset trading.",
+    "keywords": [
+      "trading",
+      "launch",
+      "clarity",
+      "facilitate",
+      "rwa",
+      "everything'",
+      "build",
+      "of",
+      "regulatory",
+      "centralized"
+    ],
+    "sectors": [
+      "Fintech",
+      "Blockchain",
+      "Asset Management"
+    ],
+    "symbols": [
+      "BLK",
+      "LINK",
+      "STX"
+    ],
+    "discovered_at": "2026-01-01T14:06:08.311765",
+    "last_seen": "2026-01-01T14:06:08.311811",
+    "occurrence_count": 4,
+    "strength": "emerging"
+  },
+  "Regional_Bank_Recapitalization_&_M&A": {
+    "name": "Regional Bank Recapitalization & M&A",
+    "description": "Strategic consolidation of mid-sized banks backed by Private Equity to create high-performing regional entities. This trend targets balance sheet optimization and scale in competitive local markets.",
+    "keywords": [
+      "trend",
+      "swiss",
+      "high-performing",
+      "franc",
+      "local",
+      "entities",
+      "targets",
+      "for",
+      "backed",
+      "mid-sized"
+    ],
+    "sectors": [
+      "Banking",
+      "Private Equity"
+    ],
+    "symbols": [
+      "OCFC",
+      "FFIC",
+      "KRE"
+    ],
+    "discovered_at": "2026-01-01T12:40:19.626326",
+    "last_seen": "2026-01-01T12:40:19.626338",
+    "occurrence_count": 1,
+    "strength": "developing"
+  },
+  "Inclusive_Digital_Housing_Finance": {
+    "name": "Inclusive Digital Housing Finance",
+    "description": "Expansion of mortgage lending in emerging markets through digital-first, inclusive platforms. This leverages technology to reach underserved populations in high-growth regions like India.",
+    "keywords": [
+      "maturity",
+      "through",
+      "reach",
+      "mortgage",
+      "lending",
+      "markets",
+      "high-growth",
+      "emerging",
+      "digital",
+      "platforms"
+    ],
+    "sectors": [
+      "Real Estate",
+      "Fintech",
+      "Emerging Markets"
+    ],
+    "symbols": [
+      "HDB",
+      "IBN",
+      "NIFTY"
+    ],
+    "discovered_at": "2026-01-01T14:06:08.353047",
+    "last_seen": "2026-01-01T14:06:08.353058",
+    "occurrence_count": 2,
+    "strength": "emerging"
+  },
+  "Regional_Bank_PE-Recapitalization": {
+    "name": "Regional Bank PE-Recapitalization",
+    "description": "Private equity firms injecting massive capital into regional banks to drive consolidation and scale in specific geographic corridors. This trend focuses on creating high-performing regional hubs to compete with national giants.",
+    "keywords": [
+      "capital",
+      "national",
+      "firms",
+      "private",
+      "corridors",
+      "compete",
+      "injecting",
+      "trend",
+      "merger",
+      "oceanfirst/flushing"
+    ],
+    "sectors": [
+      "Regional Banking",
+      "Private Equity"
+    ],
+    "symbols": [
+      "OCFC",
+      "FFIC",
+      "KRE"
+    ],
+    "discovered_at": "2026-01-01T12:56:12.798002",
+    "last_seen": "2026-01-01T12:56:12.798016",
+    "occurrence_count": 1,
+    "strength": "developing"
+  },
+  "Digital_Inclusive_Housing_Finance": {
+    "name": "Digital Inclusive Housing Finance",
+    "description": "Expansion of housing credit in emerging markets through digital-first, inclusive lending platforms. This narrative targets underserved demographics by leveraging digital foundations to drive real estate growth.",
+    "keywords": [
+      "through",
+      "estate",
+      "narrative",
+      "lending",
+      "markets",
+      "demographics",
+      "emerging",
+      "digital",
+      "platforms",
+      "indian"
+    ],
+    "sectors": [
+      "Fintech",
+      "Real Estate",
+      "Emerging Markets"
+    ],
+    "symbols": [
+      "HDB",
+      "IBULHSGFIN",
+      "EPI"
+    ],
+    "discovered_at": "2026-01-01T13:33:23.648651",
+    "last_seen": "2026-01-01T13:33:23.648663",
+    "occurrence_count": 2,
+    "strength": "emerging"
+  },
+  "Regional_Bank_Recapitalization": {
+    "name": "Regional Bank Recapitalization",
+    "description": "Consolidation of regional banks supported by strategic private equity investments to enhance scale and profitability. This trend focuses on restructuring balance sheets and absorbing smaller cooperative entities.",
+    "keywords": [
+      "bank",
+      "banks",
+      "cooperative",
+      "recapitalization",
+      "entities",
+      "trend",
+      "warburg",
+      "profitability",
+      "franc",
+      "balance"
+    ],
+    "sectors": [
+      "Banking",
+      "Private Equity"
+    ],
+    "symbols": [
+      "OCFC",
+      "FFIC",
+      "KRE"
+    ],
+    "discovered_at": "2026-01-01T14:06:08.335007",
+    "last_seen": "2026-01-01T14:06:08.335025",
+    "occurrence_count": 2,
+    "strength": "developing"
+  },
+  "Social_Sentiment_Indexing": {
+    "name": "Social Sentiment Indexing",
+    "description": "Transition du trading spéculatif individuel vers des portefeuilles structurés basés sur l'intelligence collective des réseaux sociaux. Les investisseurs institutionnalisent le sentiment retail pour générer de l'alpha via des indices communautaires.",
+    "keywords": [
+      "l'intelligence",
+      "transition",
+      "sentiment",
+      "indices",
+      "réseaux",
+      "outils",
+      "social",
+      "spéculatif",
+      "investisseurs",
+      "démocratisation"
+    ],
+    "sectors": [
+      "Fintech",
+      "Gestion d'actifs",
+      "Analyse de données"
+    ],
+    "symbols": [
+      "HOOD",
+      "MSCI",
+      "BLK"
+    ],
+    "discovered_at": "2026-01-01T14:11:30.861915",
+    "last_seen": "2026-01-01T14:11:30.861951",
+    "occurrence_count": 1,
+    "strength": "developing"
+  },
+  "Financial_Wellness_&_Recovery": {
+    "name": "Financial Wellness & Recovery",
+    "description": "Émergence d'un secteur dédié à la gestion du stress et à la santé mentale des traders particuliers après des pertes massives. Cela inclut des services de réhabilitation financière et des soins liés au stress chronique.",
+    "keywords": [
+      "pertes",
+      "chronique",
+      "émergence",
+      "épuisement",
+      "après",
+      "soins",
+      "mentale",
+      "santé",
+      "augmentation",
+      "wellness"
+    ],
+    "sectors": [
+      "Santé mentale",
+      "Télémédecine",
+      "Bien-être"
+    ],
+    "symbols": [
+      "HIMS",
+      "TDOC",
+      "COMP"
+    ],
+    "discovered_at": "2026-01-01T14:11:30.894551",
+    "last_seen": "2026-01-01T14:11:30.894582",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  },
+  "Post-Speculative_Realism": {
+    "name": "Post-Speculative Realism",
+    "description": "Pivot massif des investisseurs particuliers déçus par les options vers des actifs tangibles et des secteurs de consommation de base. Retour aux fondamentaux et à l'emploi traditionnel après l'échec des stratégies de levier extrême.",
+    "keywords": [
+      "fondamentaux",
+      "épuisement",
+      "actifs",
+      "après",
+      "l'emploi",
+      "consommation",
+      "levier",
+      "l'épargne",
+      "extrême",
+      "déçus"
+    ],
+    "sectors": [
+      "Consommation discrétionnaire",
+      "Restauration rapide",
+      "Services d'emploi"
+    ],
+    "symbols": [
+      "WEN",
+      "MCD",
+      "COST"
+    ],
+    "discovered_at": "2026-01-01T14:11:30.927817",
+    "last_seen": "2026-01-01T14:11:30.927841",
+    "occurrence_count": 1,
+    "strength": "emerging"
+  }
+}

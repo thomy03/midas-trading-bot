@@ -1,0 +1,526 @@
+{
+  "date": "2025-12-29T13:22:31.277979",
+  "trends": [
+    {
+      "name": "AI_Infrastructure_and_Data_Centers Momentum",
+      "type": "sector_momentum",
+      "strength": "established",
+      "confidence": 0.8,
+      "description": "Bullish momentum detected in AI_Infrastructure_and_Data_Centers",
+      "momentum_score": 0.6560148256565015,
+      "volume_surge": 1.0,
+      "breadth_score": 0.6666666666666666,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "AI_Infrastructure_and_Data_Centers"
+      ],
+      "symbols": [
+        "NVDA",
+        "VRT",
+        "ANET",
+        "SMCI",
+        "DELL"
+      ],
+      "detected_at": "2025-12-29T13:22:01.203842",
+      "sources": []
+    },
+    {
+      "name": "Space Economy",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "Le secteur spatial transitionne d'une phase d'exploration étatique vers une économie commerciale mature portée par des infrastructures de communication et des IPO massives.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "Potentielle introduction en bourse (IPO) de SpaceX valorisée à 1,5 billion de dollars",
+        "Déploiement de réseaux cellulaires par satellite (AST SpaceMobile)",
+        "Innovation dans les infrastructures orbitales avec des stations spatiales modulaires"
+      ],
+      "sectors": [],
+      "symbols": [
+        "ASTS",
+        "SPACE_X",
+        "LMT",
+        "NOC"
+      ],
+      "detected_at": "2025-12-29T13:22:25.165866",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Obesity Drugs",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "Le succès des GLP-1 crée un écosystème économique secondaire axé sur la préservation musculaire et la nutrition spécialisée.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "Expansion de la couverture Medicare et négociations de prix pour 2026",
+        "Émergence de marchés adjacents (nutrition protéinée) pour contrer la perte de masse musculaire",
+        "Adoption massive des traitements GLP-1 au-delà de l'usage diabétique initial"
+      ],
+      "sectors": [],
+      "symbols": [
+        "NVO",
+        "PFE",
+        "LLY"
+      ],
+      "detected_at": "2025-12-29T13:22:25.165879",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Nuclear Renaissance",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "La renaissance nucléaire passe d'une phase conceptuelle à une phase d'exécution régionale concrète, portée par des incitations fiscales aux États-Unis et des ambitions d'indépendance énergétique au Moyen-Orient.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "Soutien législatif et financier massif au Texas (350M$)",
+        "Expansion stratégique du programme nucléaire en Turquie (Objectif 2028)",
+        "Volonté politique de souveraineté énergétique et décarbonation"
+      ],
+      "sectors": [],
+      "symbols": [
+        "CCJ",
+        "SMR",
+        "VST",
+        "CEG",
+        "BWXT"
+      ],
+      "detected_at": "2025-12-29T13:22:25.165892",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "GLP1_and_Metabolic_Health Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in GLP1_and_Metabolic_Health",
+      "momentum_score": 0.5320012276656726,
+      "volume_surge": 1.0,
+      "breadth_score": 0.7142857142857143,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "GLP1_and_Metabolic_Health"
+      ],
+      "symbols": [
+        "LLY",
+        "NVO",
+        "VKTX",
+        "AMGN",
+        "GPCR"
+      ],
+      "detected_at": "2025-12-29T13:22:01.203858",
+      "sources": []
+    },
+    {
+      "name": "Defense_and_Autonomous_Systems Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Defense_and_Autonomous_Systems",
+      "momentum_score": 0.46788883148841187,
+      "volume_surge": 1.0,
+      "breadth_score": 0.7777777777777778,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Defense_and_Autonomous_Systems"
+      ],
+      "symbols": [
+        "PLTR",
+        "AVAV",
+        "LMT",
+        "RTX",
+        "NOC"
+      ],
+      "detected_at": "2025-12-29T13:22:01.203865",
+      "sources": []
+    },
+    {
+      "name": "Space_and_Satellite_Communications Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Space_and_Satellite_Communications",
+      "momentum_score": -0.6798576047936357,
+      "volume_surge": 1.0,
+      "breadth_score": -0.2,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Space_and_Satellite_Communications"
+      ],
+      "symbols": [
+        "ASTS",
+        "RKLB",
+        "LUNR",
+        "RDW",
+        "BKSY"
+      ],
+      "detected_at": "2025-12-29T13:22:01.203874",
+      "sources": []
+    },
+    {
+      "name": "Electrical_Grid_Modernization Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Electrical_Grid_Modernization",
+      "momentum_score": 0.48736335914753626,
+      "volume_surge": 1.0,
+      "breadth_score": 0.75,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Electrical_Grid_Modernization"
+      ],
+      "symbols": [
+        "ETN",
+        "PH",
+        "EMR",
+        "HUBB",
+        "PWR"
+      ],
+      "detected_at": "2025-12-29T13:22:01.203880",
+      "sources": []
+    },
+    {
+      "name": "AI Revolution",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'IA transitionne d'un outil purement technique vers une intégration sociétale profonde, portée par une compétition géopolitique intense sur l'AGI.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.45,
+      "news_count": 0,
+      "key_catalysts": [
+        "Course à l'Intelligence Artificielle Générale (AGI) menée par les acteurs chinois comme Zhipu AI",
+        "Démocratisation de l'IA dans les usages quotidiens et personnels (dating, productivité)",
+        "Engagement vers l'Open Source favorisant une adoption massive et rapide des modèles"
+      ],
+      "sectors": [],
+      "symbols": [
+        "MSFT",
+        "GOOGL",
+        "BABA",
+        "BIDU",
+        "NVDA"
+      ],
+      "detected_at": "2025-12-29T13:22:25.165850",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Cybersecurity",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'intégration massive de l'IA crée de nouveaux vecteurs d'attaque (robotique) tout en garantissant une croissance durable pour les acteurs établis de la cybersécurité.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.4,
+      "news_count": 0,
+      "key_catalysts": [
+        "Demande structurelle liée à la numérisation et à l'évolution des cybermenaces jusqu'en 2026",
+        "Vulnérabilités critiques émergentes dans les systèmes de contrôle IA des robots humanoïdes",
+        "Besoins croissants en infrastructures énergétiques et cloud pour soutenir les charges de travail IA"
+      ],
+      "sectors": [],
+      "symbols": [
+        "ORCL",
+        "PANW",
+        "CRWD",
+        "FTNT",
+        "ZS"
+      ],
+      "detected_at": "2025-12-29T13:22:25.165900",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Rate Pivot",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Le marché anticipe un pivot des taux qui favorise les actifs obligataires à longue échéance et la stabilisation des coûts d'emprunt immobilier.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.4,
+      "news_count": 0,
+      "key_catalysts": [
+        "Anticipation de baisses de taux de la Réserve Fédérale",
+        "Recherche de rendement via les obligations à long terme (TLT)",
+        "Stabilisation des taux HELOC avant les prochaines décisions de la Fed"
+      ],
+      "sectors": [],
+      "symbols": [
+        "TLT",
+        "NVDA"
+      ],
+      "detected_at": "2025-12-29T13:22:25.165907",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Convergence IA-Infrastructure Verte",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'explosion de la demande énergétique liée aux centres de données de l'IA revitalise le marché de la dette verte et des infrastructures durables. Ce narratif déplace l'intérêt de l'IA logicielle vers les besoins physiques massifs en énergie décarbonée nécessaires à son fonctionnement.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Boom de la demande énergétique de l'IA",
+        "Ventes records de dette verte",
+        "Besoin de stabilité du réseau"
+      ],
+      "sectors": [
+        "Énergie renouvelable",
+        "Infrastructures électriques",
+        "Finance durable"
+      ],
+      "symbols": [
+        "NEE",
+        "VST",
+        "BEP",
+        "GEV"
+      ],
+      "detected_at": "2025-12-29T13:22:31.250121",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Inversion de Valeur Argent-Pétrole",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'argent métal surpasse historiquement le prix du baril de pétrole, signalant un changement de paradigme dans les matières premières. Ce narratif repose sur la rareté industrielle de l'argent (photovoltaïque, électronique) face à une stagnation relative de la demande pétrolière.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Rareté de l'offre d'argent",
+        "Transition énergétique",
+        "Découplage des actifs tangibles"
+      ],
+      "sectors": [
+        "Métaux précieux",
+        "Matières premières industrielles",
+        "Exploitation minière"
+      ],
+      "symbols": [
+        "SLV",
+        "PAAS",
+        "MAG",
+        "PSLV"
+      ],
+      "detected_at": "2025-12-29T13:22:31.264963",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Arbitrage Géographique FIRE (Europe)",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Une tendance croissante d'investisseurs précoces (30-40 ans) utilisant des portefeuilles en devises fortes (USD/CHF) pour financer une retraite anticipée dans des zones à bas coût en Europe. Ce narratif met l'accent sur l'optimisation fiscale transfrontalière et la gestion de portefeuille multi-devises.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Mobilité post-pandémie",
+        "Force du dollar/franc suisse",
+        "Érosion du modèle de travail traditionnel"
+      ],
+      "sectors": [
+        "Gestion de patrimoine",
+        "Fintech",
+        "Immobilier international"
+      ],
+      "symbols": [
+        "VT",
+        "VUSA.L",
+        "SCHD",
+        "IBKR"
+      ],
+      "detected_at": "2025-12-29T13:22:31.277940",
+      "sources": [
+        "LLM Discovery"
+      ]
+    }
+  ],
+  "sector_momentum": {
+    "AI_Infrastructure_and_Data_Centers": 0.6560148256565015,
+    "Nuclear_and_Small_Modular_Reactors": 0.168822849332326,
+    "GLP1_and_Metabolic_Health": 0.5320012276656726,
+    "Defense_and_Autonomous_Systems": 0.46788883148841187,
+    "Bitcoin_Proxy_and_Mining": 0.03991457194864666,
+    "Semiconductor_Equipment": 0.1700405731252233,
+    "Space_and_Satellite_Communications": -0.6798576047936357,
+    "Electrical_Grid_Modernization": 0.48736335914753626
+  },
+  "market_sentiment": 0.23027357919633534,
+  "top_movers": [
+    "SIDU"
+  ],
+  "watchlist_additions": [
+    "PAAS",
+    "VUSA.L",
+    "LMT",
+    "BEP",
+    "PSLV",
+    "VRT",
+    "CCJ",
+    "CEG",
+    "SLV",
+    "LLY",
+    "SCHD",
+    "IBKR",
+    "EMR",
+    "VT",
+    "VKTX",
+    "GOOGL",
+    "BABA",
+    "SMR",
+    "BIDU",
+    "VST",
+    "NVO",
+    "ZS",
+    "AVAV",
+    "CRWD",
+    "FTNT",
+    "ASTS",
+    "BWXT",
+    "TLT",
+    "ETN",
+    "NVDA",
+    "PFE",
+    "PANW",
+    "SPACE_X",
+    "MSFT",
+    "ANET",
+    "PLTR",
+    "GEV",
+    "ORCL",
+    "NEE",
+    "MAG",
+    "PH",
+    "NOC"
+  ],
+  "narrative_updates": [
+    {
+      "name": "Convergence IA-Infrastructure Verte",
+      "description": "L'explosion de la demande énergétique liée aux centres de données de l'IA revitalise le marché de la dette verte et des infrastructures durables. Ce narratif déplace l'intérêt de l'IA logicielle vers les besoins physiques massifs en énergie décarbonée nécessaires à son fonctionnement.",
+      "strength": "developing",
+      "sectors": [
+        "Énergie renouvelable",
+        "Infrastructures électriques",
+        "Finance durable"
+      ],
+      "symbols": [
+        "NEE",
+        "VST",
+        "BEP",
+        "GEV"
+      ],
+      "catalysts": [
+        "Boom de la demande énergétique de l'IA",
+        "Ventes records de dette verte",
+        "Besoin de stabilité du réseau"
+      ],
+      "risk_level": "medium"
+    },
+    {
+      "name": "Inversion de Valeur Argent-Pétrole",
+      "description": "L'argent métal surpasse historiquement le prix du baril de pétrole, signalant un changement de paradigme dans les matières premières. Ce narratif repose sur la rareté industrielle de l'argent (photovoltaïque, électronique) face à une stagnation relative de la demande pétrolière.",
+      "strength": "emerging",
+      "sectors": [
+        "Métaux précieux",
+        "Matières premières industrielles",
+        "Exploitation minière"
+      ],
+      "symbols": [
+        "SLV",
+        "PAAS",
+        "MAG",
+        "PSLV"
+      ],
+      "catalysts": [
+        "Rareté de l'offre d'argent",
+        "Transition énergétique",
+        "Découplage des actifs tangibles"
+      ],
+      "risk_level": "high"
+    },
+    {
+      "name": "Arbitrage Géographique FIRE (Europe)",
+      "description": "Une tendance croissante d'investisseurs précoces (30-40 ans) utilisant des portefeuilles en devises fortes (USD/CHF) pour financer une retraite anticipée dans des zones à bas coût en Europe. Ce narratif met l'accent sur l'optimisation fiscale transfrontalière et la gestion de portefeuille multi-devises.",
+      "strength": "emerging",
+      "sectors": [
+        "Gestion de patrimoine",
+        "Fintech",
+        "Immobilier international"
+      ],
+      "symbols": [
+        "VT",
+        "VUSA.L",
+        "SCHD",
+        "IBKR"
+      ],
+      "catalysts": [
+        "Mobilité post-pandémie",
+        "Force du dollar/franc suisse",
+        "Érosion du modèle de travail traditionnel"
+      ],
+      "risk_level": "medium"
+    }
+  ]
+}

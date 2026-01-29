@@ -1,0 +1,669 @@
+{
+  "date": "2025-12-27T00:18:55.904496",
+  "trends": [
+    {
+      "name": "Healthcare Momentum",
+      "type": "sector_momentum",
+      "strength": "established",
+      "confidence": 0.8,
+      "description": "Bullish momentum detected in Healthcare",
+      "momentum_score": 0.921397036302647,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Healthcare"
+      ],
+      "symbols": [
+        "UNH",
+        "JNJ",
+        "PFE",
+        "ABBV",
+        "MRK"
+      ],
+      "detected_at": "2025-12-27T00:18:27.681443",
+      "sources": []
+    },
+    {
+      "name": "Space Economy",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "L'économie spatiale bascule d'une phase d'exploration orbitale à une phase d'infrastructure lunaire durable portée par la rivalité géopolitique.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "Coopération sino-russe pour l'infrastructure énergétique lunaire (nucléaire)",
+        "Accélération des tests de lanceurs réutilisables par la Chine",
+        "Multiplication des missions habitées et d'exploration lointaine"
+      ],
+      "sectors": [],
+      "symbols": [
+        "LMT",
+        "NOC",
+        "BA",
+        "RKLB",
+        "PL"
+      ],
+      "detected_at": "2025-12-27T00:18:49.616521",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Obesity Drugs",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "Le passage des injections aux formes orales abordables marque une étape de démocratisation massive du marché des anti-obésité.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.85,
+      "news_count": 0,
+      "key_catalysts": [
+        "Approbation par la FDA de la version orale (pilule) du GLP-1 de Novo Nordisk",
+        "Accessibilité accrue avec un prix de lancement compétitif de 149 $ par mois",
+        "Validation culturelle et médiatique massive de l'efficacité des traitements GLP-1"
+      ],
+      "sectors": [],
+      "symbols": [
+        "NVO",
+        "LLY"
+      ],
+      "detected_at": "2025-12-27T00:18:49.616527",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Nuclear Renaissance",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "La convergence entre les besoins énergétiques critiques des centres de données IA et les solutions nucléaires modulaires ou recyclées crée un nouveau marché de niche à haute valeur ajoutée.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.75,
+      "news_count": 0,
+      "key_catalysts": [
+        "Demande énergétique massive des infrastructures d'IA",
+        "Réutilisation innovante de réacteurs nucléaires navals (économie circulaire)",
+        "Soutien gouvernemental via des garanties de prêt du Département de l'Énergie (DOE)"
+      ],
+      "sectors": [],
+      "symbols": [
+        "Vistra Corp (VST)",
+        "Constellation Energy (CEG)",
+        "Cameco (CCJ)",
+        "BWX Technologies (BWXT)"
+      ],
+      "detected_at": "2025-12-27T00:18:49.616532",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Technology Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Technology",
+      "momentum_score": 0.4408043950953008,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Technology"
+      ],
+      "symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "META",
+        "NVDA"
+      ],
+      "detected_at": "2025-12-27T00:18:27.681419",
+      "sources": []
+    },
+    {
+      "name": "AI_Semiconductors Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in AI_Semiconductors",
+      "momentum_score": 0.5069829943951069,
+      "volume_surge": 1.0,
+      "breadth_score": 0.3333333333333333,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "AI_Semiconductors"
+      ],
+      "symbols": [
+        "NVDA",
+        "AMD",
+        "AVGO",
+        "QCOM",
+        "INTC"
+      ],
+      "detected_at": "2025-12-27T00:18:27.681436",
+      "sources": []
+    },
+    {
+      "name": "Clean_Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Clean_Energy",
+      "momentum_score": 0.5,
+      "volume_surge": 1.0,
+      "breadth_score": 0.7142857142857143,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Clean_Energy"
+      ],
+      "symbols": [
+        "ENPH",
+        "SEDG",
+        "FSLR",
+        "RUN",
+        "PLUG"
+      ],
+      "detected_at": "2025-12-27T00:18:27.681464",
+      "sources": []
+    },
+    {
+      "name": "AI Revolution",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'IA transforme les contraintes énergétiques et matérielles en nouveaux leviers de croissance, forçant une restructuration des secteurs de l'énergie et du minage crypto.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.45,
+      "news_count": 0,
+      "key_catalysts": [
+        "Pivot stratégique des mineurs de Bitcoin vers l'hébergement d'infrastructures IA",
+        "Consolidation technologique majeure via l'accord Nvidia-Groq",
+        "Demande structurelle croissante pour l'énergie et les centres de données"
+      ],
+      "sectors": [],
+      "symbols": [
+        "NVDA",
+        "GOOGL",
+        "WGMI",
+        "CORZ",
+        "VRT"
+      ],
+      "detected_at": "2025-12-27T00:18:49.616504",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Cybersecurity",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "La recrudescence des violations de données de grande ampleur et la sophistication des attaques forcent une transition vers des infrastructures de sécurité plus robustes et spécialisées.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": -0.45,
+      "news_count": 0,
+      "key_catalysts": [
+        "Augmentation massive de l'exfiltration de données sensibles (cas Aflac : 22,6M de victimes)",
+        "Vulnérabilités persistantes des gestionnaires de mots de passe et actifs crypto",
+        "Évolution des cyberattaques vers des méthodes plus sophistiquées d'ici 2026"
+      ],
+      "sectors": [],
+      "symbols": [
+        "MSFT",
+        "AFL",
+        "CRWD",
+        "PANW",
+        "ZS"
+      ],
+      "detected_at": "2025-12-27T00:18:49.616537",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Reshoring",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "La multiplication des rappels de produits et les fermetures de commerces physiques soulignent l'urgence d'une relocalisation pour sécuriser la qualité et la logistique.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": -0.4,
+      "news_count": 0,
+      "key_catalysts": [
+        "Fragilité des chaînes d'approvisionnement mondiales complexes",
+        "Risques sanitaires et rappels de produits liés à l'importation",
+        "Défaillances opérationnelles des modèles de franchise traditionnels"
+      ],
+      "sectors": [],
+      "symbols": [
+        "WMT",
+        "AMZN",
+        "COST",
+        "SYY"
+      ],
+      "detected_at": "2025-12-27T00:18:49.616541",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Crypto Bull",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Le marché crypto traverse une phase de consolidation sévère marquée par l'absence de 'Santa Rally' et une pression vendeuse persistante malgré des vents favorables macroéconomiques.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": -0.4,
+      "news_count": 0,
+      "key_catalysts": [
+        "Correction post-ATH de 30% et baisse de 40 000 $ depuis le pic d'octobre",
+        "Décorrélation négative face à la baisse du dollar et à la hausse des actions",
+        "Prévisions techniques pessimistes ciblant un plancher à 37 500 $ d'ici 2026"
+      ],
+      "sectors": [],
+      "symbols": [
+        "BTC",
+        "ETH",
+        "DOGE",
+        "XRP"
+      ],
+      "detected_at": "2025-12-27T00:18:49.616544",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Rate Pivot",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Le marché anticipe une convergence favorable entre une économie robuste et une pression politique accrue pour un assouplissement monétaire, favorisant les actifs à risque.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.45,
+      "news_count": 0,
+      "key_catalysts": [
+        "Résilience du marché de l'emploi américain (faibles demandes d'allocations chômage)",
+        "Pression politique de Trump pour maintenir des taux d'intérêt bas",
+        "Optimisme technologique lié au 'Santa Rally' et aux prévisions de croissance économique"
+      ],
+      "sectors": [],
+      "symbols": [
+        "SPY",
+        "QQQ",
+        "BTC"
+      ],
+      "detected_at": "2025-12-27T00:18:49.616548",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Souveraineté Infrastructurelle du Moyen-Orient",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "L'Arabie Saoudite et les pays du Golfe pivotent de simples investisseurs à hubs physiques mondiaux pour les centres de données et le calcul haute performance. Ce narratif déplace l'attention des concepteurs de puces vers les propriétaires d'infrastructures énergétiques et de hardware dans des zones géopolitiques à forte liquidité.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Accords Future Investment Initiative (FII)",
+        "Investissements massifs du fonds PIF saoudien",
+        "Partenariats avec Groq et Musk"
+      ],
+      "sectors": [
+        "Infrastructure Data Center",
+        "Énergie",
+        "Hardware spécialisé"
+      ],
+      "symbols": [
+        "GROQ",
+        "NVDA",
+        "ARM",
+        "Aramco"
+      ],
+      "detected_at": "2025-12-27T00:18:55.878720",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Désillusion du Software-as-a-Service (SaaS) traditionnel",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Une remise en question profonde de la survie des éditeurs de logiciels face à l'automatisation par agents IA qui remplace le besoin d'interfaces utilisateurs classiques. Le marché commence à douter de la capacité des géants du logiciel à maintenir leurs marges face à une efficacité qui réduit le nombre de licences nécessaires.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Licenciements massifs chez Salesforce",
+        "Admissions de doutes des dirigeants sur les LLM",
+        "Saturation du marché AI-integrated software"
+      ],
+      "sectors": [
+        "SaaS",
+        "Enterprise Software",
+        "Cloud Computing"
+      ],
+      "symbols": [
+        "CRM",
+        "ADBE",
+        "SNOW",
+        "HUBS"
+      ],
+      "detected_at": "2025-12-27T00:18:55.891505",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Renaissance des Matières Premières de Volatilité",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Face à l'incertitude des marchés actions et à l'épuisement des thèses tech, on observe un retour agressif vers les métaux précieux et les matières premières comme vecteurs de croissance rapide. Ce narratif est porté par une spéculation de détail cherchant à compenser les pertes subies sur les options tech.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Gains atypiques sur l'argent (Silver)",
+        "Pertes massives sur les options tech individuelles",
+        "Besoin de diversification hors IA"
+      ],
+      "sectors": [
+        "Matières Premières",
+        "Mines",
+        "Métaux Précieux"
+      ],
+      "symbols": [
+        "SLV",
+        "GLD",
+        "PAAS",
+        "SILJ"
+      ],
+      "detected_at": "2025-12-27T00:18:55.904458",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Biotech Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Biotech",
+      "momentum_score": 0.3823950850139803,
+      "volume_surge": 1.0,
+      "breadth_score": 0.6666666666666666,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Biotech"
+      ],
+      "symbols": [
+        "AMGN",
+        "GILD",
+        "REGN",
+        "VRTX",
+        "BIIB"
+      ],
+      "detected_at": "2025-12-27T00:18:27.681449",
+      "sources": []
+    },
+    {
+      "name": "Finance Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Finance",
+      "momentum_score": 0.3372985314927373,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Finance"
+      ],
+      "symbols": [
+        "JPM",
+        "BAC",
+        "GS",
+        "MS",
+        "WFC"
+      ],
+      "detected_at": "2025-12-27T00:18:27.681454",
+      "sources": []
+    },
+    {
+      "name": "Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Energy",
+      "momentum_score": 0.32720253725544657,
+      "volume_surge": 1.0,
+      "breadth_score": 0.5,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Energy"
+      ],
+      "symbols": [
+        "XOM",
+        "CVX",
+        "COP",
+        "SLB",
+        "EOG"
+      ],
+      "detected_at": "2025-12-27T00:18:27.681459",
+      "sources": []
+    },
+    {
+      "name": "Defense Momentum",
+      "type": "sector_momentum",
+      "strength": "emerging",
+      "confidence": 0.4,
+      "description": "Bullish momentum detected in Defense",
+      "momentum_score": 0.3146887785440974,
+      "volume_surge": 1.0,
+      "breadth_score": 1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Defense"
+      ],
+      "symbols": [
+        "LMT",
+        "RTX",
+        "NOC",
+        "GD",
+        "BA"
+      ],
+      "detected_at": "2025-12-27T00:18:27.681468",
+      "sources": []
+    }
+  ],
+  "sector_momentum": {
+    "Technology": 0.4408043950953008,
+    "AI_Semiconductors": 0.5069829943951069,
+    "Healthcare": 0.921397036302647,
+    "Biotech": 0.3823950850139803,
+    "Finance": 0.3372985314927373,
+    "Energy": 0.32720253725544657,
+    "Clean_Energy": 0.5,
+    "Consumer": 0.07972475292126424,
+    "Crypto_Adjacent": 0.035092880020576714,
+    "Defense": 0.3146887785440974
+  },
+  "market_sentiment": 0.3845586991041157,
+  "top_movers": [
+    "TGT"
+  ],
+  "watchlist_additions": [
+    "PFE",
+    "AMD",
+    "BWX Technologies (BWXT)",
+    "Cameco (CCJ)",
+    "BTC",
+    "LMT",
+    "NVO",
+    "QQQ",
+    "SNOW",
+    "CVX",
+    "HUBS",
+    "AAPL",
+    "SLV",
+    "GILD",
+    "BA",
+    "SILJ",
+    "JPM",
+    "ARM",
+    "COP",
+    "PL",
+    "REGN",
+    "RTX",
+    "XOM",
+    "Constellation Energy (CEG)",
+    "GS",
+    "MSFT",
+    "CRM",
+    "UNH",
+    "BAC",
+    "FSLR",
+    "NVDA",
+    "CORZ",
+    "VRT",
+    "WGMI",
+    "LLY",
+    "Vistra Corp (VST)",
+    "SEDG",
+    "GROQ",
+    "PAAS",
+    "RKLB",
+    "Aramco",
+    "SPY",
+    "AMGN",
+    "JNJ",
+    "GOOGL",
+    "ADBE",
+    "ENPH",
+    "GLD",
+    "AVGO",
+    "NOC"
+  ],
+  "narrative_updates": [
+    {
+      "name": "Souveraineté Infrastructurelle du Moyen-Orient",
+      "description": "L'Arabie Saoudite et les pays du Golfe pivotent de simples investisseurs à hubs physiques mondiaux pour les centres de données et le calcul haute performance. Ce narratif déplace l'attention des concepteurs de puces vers les propriétaires d'infrastructures énergétiques et de hardware dans des zones géopolitiques à forte liquidité.",
+      "strength": "developing",
+      "sectors": [
+        "Infrastructure Data Center",
+        "Énergie",
+        "Hardware spécialisé"
+      ],
+      "symbols": [
+        "GROQ",
+        "NVDA",
+        "ARM",
+        "Aramco"
+      ],
+      "catalysts": [
+        "Accords Future Investment Initiative (FII)",
+        "Investissements massifs du fonds PIF saoudien",
+        "Partenariats avec Groq et Musk"
+      ],
+      "risk_level": "medium"
+    },
+    {
+      "name": "Désillusion du Software-as-a-Service (SaaS) traditionnel",
+      "description": "Une remise en question profonde de la survie des éditeurs de logiciels face à l'automatisation par agents IA qui remplace le besoin d'interfaces utilisateurs classiques. Le marché commence à douter de la capacité des géants du logiciel à maintenir leurs marges face à une efficacité qui réduit le nombre de licences nécessaires.",
+      "strength": "emerging",
+      "sectors": [
+        "SaaS",
+        "Enterprise Software",
+        "Cloud Computing"
+      ],
+      "symbols": [
+        "CRM",
+        "ADBE",
+        "SNOW",
+        "HUBS"
+      ],
+      "catalysts": [
+        "Licenciements massifs chez Salesforce",
+        "Admissions de doutes des dirigeants sur les LLM",
+        "Saturation du marché AI-integrated software"
+      ],
+      "risk_level": "high"
+    },
+    {
+      "name": "Renaissance des Matières Premières de Volatilité",
+      "description": "Face à l'incertitude des marchés actions et à l'épuisement des thèses tech, on observe un retour agressif vers les métaux précieux et les matières premières comme vecteurs de croissance rapide. Ce narratif est porté par une spéculation de détail cherchant à compenser les pertes subies sur les options tech.",
+      "strength": "emerging",
+      "sectors": [
+        "Matières Premières",
+        "Mines",
+        "Métaux Précieux"
+      ],
+      "symbols": [
+        "SLV",
+        "GLD",
+        "PAAS",
+        "SILJ"
+      ],
+      "catalysts": [
+        "Gains atypiques sur l'argent (Silver)",
+        "Pertes massives sur les options tech individuelles",
+        "Besoin de diversification hors IA"
+      ],
+      "risk_level": "high"
+    }
+  ]
+}

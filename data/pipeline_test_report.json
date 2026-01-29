@@ -1,0 +1,180 @@
+{
+  "timestamp": "2025-12-28T11:40:53.512469",
+  "total_tests": 10,
+  "passed": 10,
+  "failed": 0,
+  "duration_seconds": 100.732439,
+  "results": [
+    {
+      "name": "1. Market Context Analysis",
+      "passed": true,
+      "duration_ms": 1504.669,
+      "details": {
+        "regime": "strong_bull",
+        "volatility": "low",
+        "vix": 13.600000381469727,
+        "risk_appetite": "risk_on",
+        "position_multiplier": 1.1,
+        "leading_sectors": [
+          "Financials",
+          "Materials",
+          "Consumer Discretionary"
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "2. Reasoning Engine (Single)",
+      "passed": true,
+      "duration_ms": 7447.87,
+      "details": {
+        "symbol": "AAPL",
+        "total_score": 7.439477513227513,
+        "decision": "hold",
+        "confidence": 0.7085492227979274,
+        "pillar_scores": {
+          "technical": "-7.2",
+          "fundamental": "14.4",
+          "sentiment": "40.8",
+          "news": "0.0"
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "3. Reasoning + Context Integration",
+      "passed": true,
+      "duration_ms": 8408.253,
+      "details": {
+        "symbol": "AAPL",
+        "regime": "strong_bull",
+        "adjusted_weights": {
+          "technical": "0.24",
+          "fundamental": "0.24",
+          "sentiment": "0.26",
+          "news": "0.26"
+        },
+        "total_score": 7.439477513227513,
+        "confidence": 0.7085492227979274
+      },
+      "error": null
+    },
+    {
+      "name": "4. Multi-Symbol Analysis",
+      "passed": true,
+      "duration_ms": 20728.148999999998,
+      "details": {
+        "symbols_analyzed": 3,
+        "results": {
+          "AAPL": {
+            "score": 6.0566203703703705,
+            "decision": "hold",
+            "confidence": 0.7085492227979274
+          },
+          "MSFT": {
+            "score": 12.128664021164019,
+            "decision": "hold",
+            "confidence": 0.7412780656303972
+          },
+          "NVDA": {
+            "score": 15.26039021164021,
+            "decision": "hold",
+            "confidence": 0.7758203799654577
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "5. Strategy Composer",
+      "passed": true,
+      "duration_ms": 24732.403000000002,
+      "details": {
+        "strategy_name": "StrongBull_Trend_Momentum",
+        "entry_conditions": 5,
+        "exit_conditions": 3,
+        "indicators_used": [
+          "Supertrend",
+          "MACD",
+          "RSI",
+          "ADX",
+          "VolumeRatio"
+        ],
+        "stop_loss_type": "atr"
+      },
+      "error": null
+    },
+    {
+      "name": "6. Strategy Registry",
+      "passed": true,
+      "duration_ms": 0.095,
+      "details": {
+        "registration": "Weekly limit reached (2 strategies/week)",
+        "total_strategies": 2,
+        "active_strategies": 0,
+        "max_active": 3,
+        "note": "Weekly limit is expected behavior for production safety"
+      },
+      "error": null
+    },
+    {
+      "name": "7. Strategy Sandbox (Backtest)",
+      "passed": true,
+      "duration_ms": 270.34999999999997,
+      "details": {
+        "strategy": "Test_RSI_Strategy",
+        "total_trades": 2,
+        "win_rate": "50.0%",
+        "total_pnl": "3.72%",
+        "max_drawdown": "5.00%",
+        "sharpe_ratio": "4.30",
+        "passed": false
+      },
+      "error": null
+    },
+    {
+      "name": "8. Full Pipeline Integration",
+      "passed": true,
+      "duration_ms": 30276.732,
+      "details": {
+        "pipeline": "complete",
+        "regime": "strong_bull",
+        "symbol": "AAPL",
+        "decision": "hold",
+        "score": 7.439477513227513,
+        "strategy": "Bullish_Pullback_Strategy",
+        "backtest_trades": 0,
+        "backtest_return": "0.00%"
+      },
+      "error": null
+    },
+    {
+      "name": "9. Trend Discovery (OpenRouter)",
+      "passed": true,
+      "duration_ms": 693.036,
+      "details": {
+        "model": "google/gemini-3-flash-preview",
+        "sector": "Technology",
+        "symbols_analyzed": 0,
+        "momentum": 0,
+        "volume_anomalies": 0,
+        "trend_detected": "N/A",
+        "status": "success"
+      },
+      "error": null
+    },
+    {
+      "name": "10. Trading Guardrails",
+      "passed": true,
+      "duration_ms": 0.536,
+      "details": {
+        "valid_trade_accepted": false,
+        "large_trade_rejected": true,
+        "rejection_reason": "MAX_POSITION: 1500.00\u20ac > 150.00\u20ac (10.0%)",
+        "max_position_pct": "10%",
+        "max_daily_loss_pct": "3%"
+      },
+      "error": null
+    }
+  ]
+}

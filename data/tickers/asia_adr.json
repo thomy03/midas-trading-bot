@@ -1,0 +1,33 @@
+{
+  "updated": "2025-12-08T10:00:00Z",
+  "source": "initial",
+  "market": "asia_adr",
+  "count": 25,
+  "tickers": [
+    {"symbol": "BABA", "name": "Alibaba Group Holding Limited", "sector": "Consumer Discretionary", "country": "China"},
+    {"symbol": "JD", "name": "JD.com Inc.", "sector": "Consumer Discretionary", "country": "China"},
+    {"symbol": "PDD", "name": "PDD Holdings Inc.", "sector": "Consumer Discretionary", "country": "China"},
+    {"symbol": "NIO", "name": "NIO Inc.", "sector": "Consumer Discretionary", "country": "China"},
+    {"symbol": "BIDU", "name": "Baidu Inc.", "sector": "Communication Services", "country": "China"},
+    {"symbol": "NTES", "name": "NetEase Inc.", "sector": "Communication Services", "country": "China"},
+    {"symbol": "TME", "name": "Tencent Music Entertainment Group", "sector": "Communication Services", "country": "China"},
+    {"symbol": "BILI", "name": "Bilibili Inc.", "sector": "Communication Services", "country": "China"},
+    {"symbol": "LI", "name": "Li Auto Inc.", "sector": "Consumer Discretionary", "country": "China"},
+    {"symbol": "XPEV", "name": "XPeng Inc.", "sector": "Consumer Discretionary", "country": "China"},
+    {"symbol": "SONY", "name": "Sony Group Corporation", "sector": "Consumer Discretionary", "country": "Japan"},
+    {"symbol": "TM", "name": "Toyota Motor Corporation", "sector": "Consumer Discretionary", "country": "Japan"},
+    {"symbol": "HMC", "name": "Honda Motor Co. Ltd.", "sector": "Consumer Discretionary", "country": "Japan"},
+    {"symbol": "MUFG", "name": "Mitsubishi UFJ Financial Group Inc.", "sector": "Financials", "country": "Japan"},
+    {"symbol": "TSM", "name": "Taiwan Semiconductor Manufacturing Co.", "sector": "Technology", "country": "Taiwan"},
+    {"symbol": "UMC", "name": "United Microelectronics Corporation", "sector": "Technology", "country": "Taiwan"},
+    {"symbol": "SE", "name": "Sea Limited", "sector": "Consumer Discretionary", "country": "Singapore"},
+    {"symbol": "GRAB", "name": "Grab Holdings Limited", "sector": "Technology", "country": "Singapore"},
+    {"symbol": "INFY", "name": "Infosys Limited", "sector": "Technology", "country": "India"},
+    {"symbol": "WIT", "name": "Wipro Limited", "sector": "Technology", "country": "India"},
+    {"symbol": "HDB", "name": "HDFC Bank Limited", "sector": "Financials", "country": "India"},
+    {"symbol": "IBN", "name": "ICICI Bank Limited", "sector": "Financials", "country": "India"},
+    {"symbol": "KB", "name": "KB Financial Group Inc.", "sector": "Financials", "country": "South Korea"},
+    {"symbol": "SHG", "name": "Shinhan Financial Group Co. Ltd.", "sector": "Financials", "country": "South Korea"},
+    {"symbol": "PKX", "name": "POSCO Holdings Inc.", "sector": "Materials", "country": "South Korea"}
+  ]
+}

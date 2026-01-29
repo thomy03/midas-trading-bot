@@ -1,0 +1,529 @@
+{
+  "date": "2026-01-01T13:33:23.650840",
+  "trends": [
+    {
+      "name": "AI Revolution",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "The AI sector is shifting from raw technological breakthroughs toward strategic market consolidation and enhanced user experience personalization.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "High-profile M&A activity and strategic partnerships",
+        "Product personalization and human-centric AI refinement",
+        "Widespread enterprise adoption for operational efficiency"
+      ],
+      "sectors": [],
+      "symbols": [
+        "NVDA",
+        "SFTBY",
+        "MSFT"
+      ],
+      "detected_at": "2026-01-01T13:33:12.864672",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Obesity Drugs",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "The transition from injectable to oral delivery and the expansion into non-metabolic indications like addiction are primary growth drivers offsetting pricing pressures.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "FDA approval of oral GLP-1 formulations for weight management",
+        "Potential expansion of indications into addiction treatment",
+        "Market penetration in China through strategic price adjustments"
+      ],
+      "sectors": [],
+      "symbols": [
+        "NVO",
+        "LLY"
+      ],
+      "detected_at": "2026-01-01T13:33:12.864717",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Nuclear Renaissance",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "Nuclear energy is pivoting from a legacy utility sector to a high-growth tech-enabler driven by the non-negotiable power requirements of AI infrastructure.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.75,
+      "news_count": 0,
+      "key_catalysts": [
+        "Exponential energy demand from AI data centers and hyperscalers",
+        "Institutional validation through ARK Investment's stake in SMR technology",
+        "Global advancement and deployment of Small Modular Reactor (SMR) designs"
+      ],
+      "sectors": [],
+      "symbols": [
+        "OKLO",
+        "GEV"
+      ],
+      "detected_at": "2026-01-01T13:33:12.864724",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Cybersecurity",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "The cybersecurity landscape is shifting from external perimeter defense to a crisis of internal trust and supply chain integrity.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": -0.75,
+      "news_count": 0,
+      "key_catalysts": [
+        "Rise of sophisticated insider threats within the security industry",
+        "Critical supply chain vulnerabilities in global manufacturing hubs",
+        "Massive scale data breaches driving regulatory and reputational risk"
+      ],
+      "sectors": [],
+      "symbols": [
+        "AAPL",
+        "CRWD",
+        "PANW",
+        "ZS",
+        "FTNT"
+      ],
+      "detected_at": "2026-01-01T13:33:12.864733",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Crypto Bull",
+      "type": "thematic",
+      "strength": "developing",
+      "confidence": 0.7,
+      "description": "Institutional liquidity is rapidly professionalizing the market through ETFs and large-scale staking, outweighing negative security headlines.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.65,
+      "news_count": 0,
+      "key_catalysts": [
+        "Institutional ETF inflows exceeding $1bn in XRP",
+        "Massive ETH staking by Bitmine creating supply squeeze potential",
+        "Increased governmental integration and adoption initiatives"
+      ],
+      "sectors": [],
+      "symbols": [
+        "XRP",
+        "ETH",
+        "BTC",
+        "BMNR"
+      ],
+      "detected_at": "2026-01-01T13:33:12.864747",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Technology Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Technology",
+      "momentum_score": -0.6699824784312829,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Technology"
+      ],
+      "symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "META",
+        "NVDA"
+      ],
+      "detected_at": "2026-01-01T13:32:04.824915",
+      "sources": []
+    },
+    {
+      "name": "Healthcare Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Healthcare",
+      "momentum_score": -0.5404975078577582,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Healthcare"
+      ],
+      "symbols": [
+        "UNH",
+        "JNJ",
+        "PFE",
+        "ABBV",
+        "MRK"
+      ],
+      "detected_at": "2026-01-01T13:32:04.824932",
+      "sources": []
+    },
+    {
+      "name": "Finance Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Finance",
+      "momentum_score": -1.0,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Finance"
+      ],
+      "symbols": [
+        "JPM",
+        "BAC",
+        "GS",
+        "MS",
+        "WFC"
+      ],
+      "detected_at": "2026-01-01T13:32:04.824938",
+      "sources": []
+    },
+    {
+      "name": "Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Energy",
+      "momentum_score": 0.5838040608833127,
+      "volume_surge": 1.0,
+      "breadth_score": 0.3333333333333333,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Energy"
+      ],
+      "symbols": [
+        "XOM",
+        "CVX",
+        "COP",
+        "SLB",
+        "EOG"
+      ],
+      "detected_at": "2026-01-01T13:32:04.824944",
+      "sources": []
+    },
+    {
+      "name": "Quantum Computing",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "The quantum sector is shifting from theoretical research to practical hardware miniaturization driven by national security and geopolitical competition.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.4,
+      "news_count": 0,
+      "key_catalysts": [
+        "Miniaturization of quantum processors",
+        "Geopolitical race for technological supremacy between US and China",
+        "Increased strategic investment in hardware localization"
+      ],
+      "sectors": [],
+      "symbols": [
+        "IBM",
+        "IONQ",
+        "RGTI",
+        "GOOGL"
+      ],
+      "detected_at": "2026-01-01T13:33:12.864697",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Space Economy",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "The space economy is transitioning from government-led exploration to a high-frequency commercial race characterized by intense US-China competition and emerging environmental regulations.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.45,
+      "news_count": 0,
+      "key_catalysts": [
+        "High-volume 2026 mission pipeline and deep space exploration milestones",
+        "Intensifying global competition from Chinese commercial startups like LandSpace",
+        "Technological shift toward satellite sustainability and orbital debris mitigation"
+      ],
+      "sectors": [],
+      "symbols": [
+        "RKLB",
+        "LMT",
+        "BA",
+        "NOC"
+      ],
+      "detected_at": "2026-01-01T13:33:12.864708",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Reshoring",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Increasing operational risks in global logistics and overseas assembly are driving the strategic necessity for reshoring and domestic supply chain hardening.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.35,
+      "news_count": 0,
+      "key_catalysts": [
+        "Supply chain security risks and cargo theft",
+        "Cybersecurity vulnerabilities in overseas manufacturing hubs",
+        "Strategic domestic consolidation in construction and infrastructure"
+      ],
+      "sectors": [],
+      "symbols": [
+        "LOW",
+        "AAPL",
+        "COST",
+        "BLMN"
+      ],
+      "detected_at": "2026-01-01T13:33:12.864739",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "CeDeFi RWA Infrastructure",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "The emergence of 'Exchange of Everything' platforms bridging centralized and decentralized finance to tokenize Real World Assets (RWA). This infrastructure aims to provide global liquidity for traditional assets through blockchain-based financial rails.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Launch of All InX platform",
+        "Regulatory frameworks for tokenized securities"
+      ],
+      "sectors": [
+        "Fintech",
+        "Asset Management",
+        "Blockchain Infrastructure"
+      ],
+      "symbols": [
+        "BLK",
+        "COIN",
+        "STX"
+      ],
+      "detected_at": "2026-01-01T13:33:23.605308",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Regional Bank Recapitalization",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Strategic consolidation of regional and cooperative banks supported by private equity infusions to stabilize balance sheets. This trend focuses on restructuring distressed debt (e.g., Swiss franc loans) and achieving scale in local markets.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Warburg Pincus strategic investments",
+        "European cooperative bank restructuring"
+      ],
+      "sectors": [
+        "Regional Banking",
+        "Private Equity"
+      ],
+      "symbols": [
+        "OCFC",
+        "FFIC",
+        "KRE"
+      ],
+      "detected_at": "2026-01-01T13:33:23.630632",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Digital Inclusive Housing Finance",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Expansion of housing credit in emerging markets through digital-first, inclusive lending platforms. This narrative targets underserved demographics by leveraging digital foundations to drive real estate growth.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Indian digital infrastructure expansion",
+        "Urbanization trends in South Asia"
+      ],
+      "sectors": [
+        "Fintech",
+        "Real Estate",
+        "Emerging Markets"
+      ],
+      "symbols": [
+        "HDB",
+        "IBULHSGFIN",
+        "EPI"
+      ],
+      "detected_at": "2026-01-01T13:33:23.650799",
+      "sources": [
+        "LLM Discovery"
+      ]
+    }
+  ],
+  "sector_momentum": {
+    "Technology": -0.6699824784312829,
+    "AI_Semiconductors": -0.07073979103133715,
+    "Healthcare": -0.5404975078577582,
+    "Finance": -1.0,
+    "Energy": 0.5838040608833127
+  },
+  "market_sentiment": -0.33948314328741314,
+  "top_movers": [],
+  "watchlist_additions": [
+    "OCFC",
+    "BMNR",
+    "XRP",
+    "STX",
+    "COIN",
+    "HDB",
+    "GOOGL",
+    "NOC",
+    "CVX",
+    "COP",
+    "GEV",
+    "IONQ",
+    "MSFT",
+    "XOM",
+    "NVDA",
+    "BLK",
+    "ETH",
+    "FFIC",
+    "RGTI",
+    "EPI",
+    "COST",
+    "AAPL",
+    "BA",
+    "OKLO",
+    "SFTBY",
+    "LMT",
+    "BLMN",
+    "RKLB",
+    "NVO",
+    "LLY",
+    "IBULHSGFIN",
+    "IBM",
+    "KRE",
+    "LOW",
+    "BTC"
+  ],
+  "narrative_updates": [
+    {
+      "name": "CeDeFi RWA Infrastructure",
+      "description": "The emergence of 'Exchange of Everything' platforms bridging centralized and decentralized finance to tokenize Real World Assets (RWA). This infrastructure aims to provide global liquidity for traditional assets through blockchain-based financial rails.",
+      "strength": "emerging",
+      "sectors": [
+        "Fintech",
+        "Asset Management",
+        "Blockchain Infrastructure"
+      ],
+      "symbols": [
+        "BLK",
+        "COIN",
+        "STX"
+      ],
+      "catalysts": [
+        "Launch of All InX platform",
+        "Regulatory frameworks for tokenized securities"
+      ],
+      "risk_level": "high"
+    },
+    {
+      "name": "Regional Bank Recapitalization",
+      "description": "Strategic consolidation of regional and cooperative banks supported by private equity infusions to stabilize balance sheets. This trend focuses on restructuring distressed debt (e.g., Swiss franc loans) and achieving scale in local markets.",
+      "strength": "developing",
+      "sectors": [
+        "Regional Banking",
+        "Private Equity"
+      ],
+      "symbols": [
+        "OCFC",
+        "FFIC",
+        "KRE"
+      ],
+      "catalysts": [
+        "Warburg Pincus strategic investments",
+        "European cooperative bank restructuring"
+      ],
+      "risk_level": "medium"
+    },
+    {
+      "name": "Digital Inclusive Housing Finance",
+      "description": "Expansion of housing credit in emerging markets through digital-first, inclusive lending platforms. This narrative targets underserved demographics by leveraging digital foundations to drive real estate growth.",
+      "strength": "emerging",
+      "sectors": [
+        "Fintech",
+        "Real Estate",
+        "Emerging Markets"
+      ],
+      "symbols": [
+        "HDB",
+        "IBULHSGFIN",
+        "EPI"
+      ],
+      "catalysts": [
+        "Indian digital infrastructure expansion",
+        "Urbanization trends in South Asia"
+      ],
+      "risk_level": "medium"
+    }
+  ]
+}

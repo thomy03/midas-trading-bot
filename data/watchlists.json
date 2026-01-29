@@ -1,0 +1,19 @@
+{
+  "watchlists": {
+    "Tech Leaders": [
+      "AAPL",
+      "MSFT",
+      "NVDA",
+      "GOOGL",
+      "META",
+      "AMZN"
+    ],
+    "Crypto": [
+      "BTC-USD",
+      "ETH-USD",
+      "SOL-USD"
+    ],
+    "Favorites": []
+  },
+  "last_updated": "2025-12-25T11:10:42.330477"
+}

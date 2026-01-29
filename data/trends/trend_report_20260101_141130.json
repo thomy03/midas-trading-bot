@@ -1,0 +1,311 @@
+{
+  "date": "2026-01-01T14:11:30.931883",
+  "trends": [
+    {
+      "name": "Technology Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Technology",
+      "momentum_score": -0.6699824784312829,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Technology"
+      ],
+      "symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "META",
+        "NVDA"
+      ],
+      "detected_at": "2026-01-01T14:11:11.352922",
+      "sources": []
+    },
+    {
+      "name": "Healthcare Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Healthcare",
+      "momentum_score": -0.5404975078577582,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Healthcare"
+      ],
+      "symbols": [
+        "UNH",
+        "JNJ",
+        "PFE",
+        "ABBV",
+        "MRK"
+      ],
+      "detected_at": "2026-01-01T14:11:11.352947",
+      "sources": []
+    },
+    {
+      "name": "Finance Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bearish momentum detected in Finance",
+      "momentum_score": -1.0,
+      "volume_surge": 1.0,
+      "breadth_score": -1.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Finance"
+      ],
+      "symbols": [
+        "JPM",
+        "BAC",
+        "GS",
+        "MS",
+        "WFC"
+      ],
+      "detected_at": "2026-01-01T14:11:11.352955",
+      "sources": []
+    },
+    {
+      "name": "Energy Momentum",
+      "type": "sector_momentum",
+      "strength": "developing",
+      "confidence": 0.6,
+      "description": "Bullish momentum detected in Energy",
+      "momentum_score": 0.5838040608833127,
+      "volume_surge": 1.0,
+      "breadth_score": 0.3333333333333333,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [],
+      "sectors": [
+        "Energy"
+      ],
+      "symbols": [
+        "XOM",
+        "CVX",
+        "COP",
+        "SLB",
+        "EOG"
+      ],
+      "detected_at": "2026-01-01T14:11:11.352963",
+      "sources": []
+    },
+    {
+      "name": "AI Revolution",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "The AI sector is shifting from speculative hype toward structural consolidation and refined product-market fit through massive capital deals.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.45,
+      "news_count": 0,
+      "key_catalysts": [
+        "Strategic M&A and large-scale capital deployment by industry leaders",
+        "Rapid iteration of AI personalization and user interface features",
+        "Deepening integration of AI into governance and professional workflows"
+      ],
+      "sectors": [],
+      "symbols": [
+        "NVDA",
+        "SFTBY",
+        "MSFT"
+      ],
+      "detected_at": "2026-01-01T14:11:18.777368",
+      "sources": [
+        "NewsAPI",
+        "LLM Analysis"
+      ]
+    },
+    {
+      "name": "Social Sentiment Indexing",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Transition du trading spéculatif individuel vers des portefeuilles structurés basés sur l'intelligence collective des réseaux sociaux. Les investisseurs institutionnalisent le sentiment retail pour générer de l'alpha via des indices communautaires.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Surperformance des indices communautaires",
+        "Démocratisation des outils d'analyse de sentiment"
+      ],
+      "sectors": [
+        "Fintech",
+        "Gestion d'actifs",
+        "Analyse de données"
+      ],
+      "symbols": [
+        "HOOD",
+        "MSCI",
+        "BLK"
+      ],
+      "detected_at": "2026-01-01T14:11:30.866774",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Financial Wellness & Recovery",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Émergence d'un secteur dédié à la gestion du stress et à la santé mentale des traders particuliers après des pertes massives. Cela inclut des services de réhabilitation financière et des soins liés au stress chronique.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Épuisement psychologique des investisseurs retail",
+        "Augmentation des pertes sur produits dérivés"
+      ],
+      "sectors": [
+        "Santé mentale",
+        "Télémédecine",
+        "Bien-être"
+      ],
+      "symbols": [
+        "HIMS",
+        "TDOC",
+        "COMP"
+      ],
+      "detected_at": "2026-01-01T14:11:30.899039",
+      "sources": [
+        "LLM Discovery"
+      ]
+    },
+    {
+      "name": "Post-Speculative Realism",
+      "type": "thematic",
+      "strength": "emerging",
+      "confidence": 0.5,
+      "description": "Pivot massif des investisseurs particuliers déçus par les options vers des actifs tangibles et des secteurs de consommation de base. Retour aux fondamentaux et à l'emploi traditionnel après l'échec des stratégies de levier extrême.",
+      "momentum_score": 0.0,
+      "volume_surge": 1.0,
+      "breadth_score": 0.0,
+      "news_sentiment": 0.0,
+      "news_count": 0,
+      "key_catalysts": [
+        "Capitulation sur les options",
+        "Épuisement de l'épargne spéculative"
+      ],
+      "sectors": [
+        "Consommation discrétionnaire",
+        "Restauration rapide",
+        "Services d'emploi"
+      ],
+      "symbols": [
+        "WEN",
+        "MCD",
+        "COST"
+      ],
+      "detected_at": "2026-01-01T14:11:30.931807",
+      "sources": [
+        "LLM Discovery"
+      ]
+    }
+  ],
+  "sector_momentum": {
+    "Technology": -0.6699824784312829,
+    "AI_Semiconductors": -0.07073979103133715,
+    "Healthcare": -0.5404975078577582,
+    "Finance": -1.0,
+    "Energy": 0.5838040608833127
+  },
+  "market_sentiment": -0.33948314328741314,
+  "top_movers": [],
+  "watchlist_additions": [
+    "MSFT",
+    "TDOC",
+    "WEN",
+    "MSCI",
+    "XOM",
+    "COST",
+    "COP",
+    "SFTBY",
+    "HOOD",
+    "BLK",
+    "HIMS",
+    "COMP",
+    "NVDA",
+    "CVX",
+    "MCD"
+  ],
+  "narrative_updates": [
+    {
+      "name": "Social Sentiment Indexing",
+      "description": "Transition du trading spéculatif individuel vers des portefeuilles structurés basés sur l'intelligence collective des réseaux sociaux. Les investisseurs institutionnalisent le sentiment retail pour générer de l'alpha via des indices communautaires.",
+      "strength": "developing",
+      "sectors": [
+        "Fintech",
+        "Gestion d'actifs",
+        "Analyse de données"
+      ],
+      "symbols": [
+        "HOOD",
+        "MSCI",
+        "BLK"
+      ],
+      "catalysts": [
+        "Surperformance des indices communautaires",
+        "Démocratisation des outils d'analyse de sentiment"
+      ],
+      "risk_level": "high"
+    },
+    {
+      "name": "Financial Wellness & Recovery",
+      "description": "Émergence d'un secteur dédié à la gestion du stress et à la santé mentale des traders particuliers après des pertes massives. Cela inclut des services de réhabilitation financière et des soins liés au stress chronique.",
+      "strength": "emerging",
+      "sectors": [
+        "Santé mentale",
+        "Télémédecine",
+        "Bien-être"
+      ],
+      "symbols": [
+        "HIMS",
+        "TDOC",
+        "COMP"
+      ],
+      "catalysts": [
+        "Épuisement psychologique des investisseurs retail",
+        "Augmentation des pertes sur produits dérivés"
+      ],
+      "risk_level": "medium"
+    },
+    {
+      "name": "Post-Speculative Realism",
+      "description": "Pivot massif des investisseurs particuliers déçus par les options vers des actifs tangibles et des secteurs de consommation de base. Retour aux fondamentaux et à l'emploi traditionnel après l'échec des stratégies de levier extrême.",
+      "strength": "emerging",
+      "sectors": [
+        "Consommation discrétionnaire",
+        "Restauration rapide",
+        "Services d'emploi"
+      ],
+      "symbols": [
+        "WEN",
+        "MCD",
+        "COST"
+      ],
+      "catalysts": [
+        "Capitulation sur les options",
+        "Épuisement de l'épargne spéculative"
+      ],
+      "risk_level": "low"
+    }
+  ]
+}
