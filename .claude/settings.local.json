@@ -1,11 +1,26 @@
 {
   "permissions": {
     "allow": [
-      "Bash(rm:*)",
-      "Bash(git rm:*)",
-      "Bash(git add:*)",
-      "Bash(mkdir:*)",
-      "Bash(mv:*)"
+      "Bash(python -m pytest:*)",
+      "Bash(python scripts/run_trend_discovery.py:*)",
+      "Bash(copy \"c:\\Users\\tkado\\Documents\\Tradingbot_V3\\.env.example\" \"c:\\Users\\tkado\\Documents\\Tradingbot_V3\\.env\")",
+      "Bash(python:*)",
+      "Bash(timeout /t 5)",
+      "Bash(curl:*)",
+      "Bash(dir /b \"c:\\Users\\tkado\\Documents\\Tradingbot_V3\\.env*\")",
+      "Bash(pip install:*)",
+      "Bash(dir:*)",
+      "Bash(pip show:*)",
+      "Bash(pip uninstall:*)",
+      "Bash(taskkill:*)",
+      "Bash(timeout /t 3)",
+      "Bash(tasklist /FI 'IMAGENAME eq python.exe' /FO CSV)",
+      "Bash(findstr:*)",
+      "Bash(sqlite3:*)",
+      "Bash(cd:*)",
+      "Bash(tasklist:*)",
+      "Bash(cmd //c \"taskkill /F /IM python.exe\")",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
