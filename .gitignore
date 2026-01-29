@@ -82,3 +82,17 @@ cleanup_*.sh
 htmlcov/
 .pytest_cache/
 .tox/
+
+# Large data files (exceed GitHub 100MB limit)
+data/shadow_tracking/pretrain_signals.json
+
+# Backtest results
+backtest_*.csv
+
+# Claude sessions
+.claude/sessions/
+
+# Windows temp files
+nul
+taskkill
+tmpclaude-*
