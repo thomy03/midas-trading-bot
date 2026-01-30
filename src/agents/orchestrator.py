@@ -85,6 +85,14 @@ except ImportError:
     INTUITIVE_REASONING_AVAILABLE = False
     IntuitiveReasoning = None
 
+# V5.3 - ML Pillar for trade validation
+try:
+    from src.agents.ml_integration import validate_trade_ml, get_ml_validator
+    ML_VALIDATOR_AVAILABLE = True
+except ImportError:
+    ML_VALIDATOR_AVAILABLE = False
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -1359,6 +1367,32 @@ class MarketAgent:
             result["reason"] = f"Signal trop faible: {signal} (requis: BUY ou STRONG_BUY)"
             return result
 
+        # V5.3 - ML Pillar Validation (veto power)
+        if 'ML_VALIDATOR_AVAILABLE' in dir() and ML_VALIDATOR_AVAILABLE:
+            try:
+                scoring = alert.get("scoring_details", {})
+                ml_result = validate_trade_ml(
+                    symbol=symbol,
+                    technical_score=scoring.get("technical", 50),
+                    fundamental_score=scoring.get("fundamental", 50),
+                    sentiment_score=scoring.get("sentiment", 50),
+                    news_score=scoring.get("news", 50),
+                    combined_score=confidence,
+                    rsi=scoring.get("rsi", 50),
+                    market_regime=alert.get("market_regime", "neutral")
+                )
+                result["ml_score"] = ml_result.get("ml_score", 50)
+                result["ml_probability"] = ml_result.get("ml_probability", 0.5)
+                if ml_result.get("ml_veto", False):
+                    result["rejected"] = True
+                    result["reason"] = f"ML Veto: {ml_result['ml_probability']*100:.0f}% win prob (min 30%)"
+                    logger.info(f"[ML] Trade {symbol} vetoed: {ml_result['ml_probability']*100:.1f}%")
+                    return result
+                logger.info(f"[ML] Trade {symbol} approved: {ml_result['ml_probability']*100:.1f}%")
+            except Exception as e:
+                logger.warning(f"[ML] Validation error for {symbol}: {e}")
+
+
         # Ignorer si confiance trop basse
         if confidence < 55:
             result["rejected"] = True
@@ -1529,15 +1563,15 @@ class MarketAgent:
         )
         self.state_manager.add_position(position)
 
-                # V5.1 - Track with Adaptive Position Manager
-                if self.position_manager:
-                    self.position_manager.add_position(
-                        symbol=trade.symbol,
-                        entry_price=trade.price,
-                        quantity=trade.quantity,
-                        entry_score=trade.confidence_score or 50
-                    )
-                    logger.info(f"[V5.1] Position tracked: {trade.symbol}")
+        # V5.1 - Track with Adaptive Position Manager
+        if self.position_manager:
+            self.position_manager.add_position(
+                symbol=trade.symbol,
+                entry_price=trade.price,
+                quantity=trade.quantity,
+                entry_score=trade.confidence_score or 50
+            )
+            logger.info(f"[V5.1] Position tracked: {trade.symbol}")
 
         self.guardrails.record_trade(
             trade.symbol, trade.action, trade.position_value
