@@ -21,6 +21,15 @@ from .decision_journal import DecisionJournal, get_decision_journal
 from ..intelligence.heat_detector import HeatDetector, get_heat_detector
 from ..intelligence.attention_manager import AttentionManager, get_attention_manager
 
+# V4 - Multi-pillar reasoning (4 pillars: technique, fondamental, sentiment, news)
+try:
+    from .reasoning_engine import ReasoningEngine, get_reasoning_engine, DecisionType
+    REASONING_ENGINE_AVAILABLE = True
+except ImportError:
+    REASONING_ENGINE_AVAILABLE = False
+    ReasoningEngine = None
+    DecisionType = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -315,9 +324,47 @@ class LiveLoop:
         logger.info("Main trading loop ended")
 
     async def _screen_symbols(self, symbols: List[str]):
-        """Screene une liste de symboles"""
+        """Screene une liste de symboles avec les 4 piliers"""
+        
+        # V4 - Use ReasoningEngine if available
+        if REASONING_ENGINE_AVAILABLE:
+            try:
+                reasoning_engine = await get_reasoning_engine()
+                
+                for symbol in symbols:
+                    try:
+                        await self.attention_manager.mark_screened(symbol)
+                        
+                        # Analyse 4 piliers
+                        result = await reasoning_engine.analyze(symbol)
+                        
+                        if result and result.decision in [DecisionType.BUY, DecisionType.STRONG_BUY]:
+                            alert = {
+                                'symbol': symbol,
+                                'confidence_score': result.final_score,
+                                'confidence_signal': result.decision.value.upper(),
+                                'pillar_technical': result.technical_score,
+                                'pillar_fundamental': result.fundamental_score,
+                                'pillar_sentiment': result.sentiment_score,
+                                'pillar_news': result.news_score,
+                                'reasoning': result.reasoning,
+                                'timestamp': result.timestamp
+                            }
+                            self._metrics.signals_found += 1
+                            await self.attention_manager.mark_signal_found(symbol)
+                            await self._process_signal(alert)
+                        
+                        self._metrics.screens_performed += 1
+                        
+                    except Exception as e:
+                        logger.error(f"Error screening {symbol} with ReasoningEngine: {e}")
+                        
+                return
+            except Exception as e:
+                logger.warning(f"ReasoningEngine failed, falling back to MarketScreener: {e}")
+        
+        # Fallback to simple screener
         from ..screening.screener import MarketScreener
-
         screener = MarketScreener()
 
         for symbol in symbols:
@@ -349,11 +396,14 @@ class LiveLoop:
         
         logger.info(f"📊 Signal detected: {symbol} - {signal_type} (score: {confidence})")
         
-        # Log detailed scores (piliers)
-        if 'score_ema' in alert:
+        # Log detailed scores (4 piliers)
+        if 'pillar_technical' in alert:
+            logger.info(f"   📊 4 PILIERS: Tech={alert.get('pillar_technical',0)}/25, Fonda={alert.get('pillar_fundamental',0)}/25, Sentiment={alert.get('pillar_sentiment',0)}/25, News={alert.get('pillar_news',0)}/25")
+        elif 'score_ema' in alert:
+            # Fallback to old L1/L2 format
             logger.info(f"   📈 Piliers L1: EMA={alert.get('score_ema',0)}/20, Support={alert.get('score_support',0)}/20, RSI={alert.get('score_rsi',0)}/25, Fresh={alert.get('score_freshness',0)}/20, Vol={alert.get('score_volume',0)}/15")
-        if 'l2_total_score' in alert:
-            logger.info(f"   🏢 Piliers L2: Health={alert.get('l2_health_score',0)}/20, Context={alert.get('l2_context_score',0)}/10, Sentiment={alert.get('l2_sentiment_score',0)}/30 | ELITE={alert.get('l2_is_elite', False)}")
+            if 'l2_total_score' in alert:
+                logger.info(f"   🏢 Piliers L2: Health={alert.get('l2_health_score',0)}/20, Context={alert.get('l2_context_score',0)}/10, Sentiment={alert.get('l2_sentiment_score',0)}/30 | ELITE={alert.get('l2_is_elite', False)}")
 
         # Filtrer par score minimum (BUY >= 55, STRONG_BUY >= 75)
         min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 55
