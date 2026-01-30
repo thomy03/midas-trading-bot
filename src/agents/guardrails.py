@@ -233,6 +233,37 @@ class TradingGuardrails:
             )
 
 
+    async def validate_trade_request(self, alert: dict):
+        """
+        Validate a trade request from an alert dict.
+        Raises GuardrailViolation if trade should be blocked.
+        """
+        if self._kill_switch_active:
+            raise GuardrailViolation(
+                rule='KILL_SWITCH',
+                message=f'Kill switch active: {self._kill_switch_reason}',
+                severity='CRITICAL'
+            )
+        
+        if self._daily_trades >= self.MAX_TRADES_PER_DAY:
+            raise GuardrailViolation(
+                rule='MAX_DAILY_TRADES', 
+                message=f'Daily trade limit: {self._daily_trades}/{self.MAX_TRADES_PER_DAY}',
+                severity='WARNING'
+            )
+        
+        if len(self._open_positions) >= self.MAX_OPEN_POSITIONS:
+            symbol = alert.get('symbol', 'UNKNOWN')
+            if symbol not in self._open_positions:
+                raise GuardrailViolation(
+                    rule='MAX_POSITIONS',
+                    message=f'Max positions: {len(self._open_positions)}/{self.MAX_OPEN_POSITIONS}',
+                    severity='WARNING'
+                )
+        
+        logger.info(f"Trade validated: {alert.get('symbol', 'UNKNOWN')}")
+
+
     def validate_trade(self, trade: TradeRequest) -> ValidationResult:
         """
         Valide un trade contre tous les guardrails.

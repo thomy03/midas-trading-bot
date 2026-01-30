@@ -102,8 +102,11 @@ class AttentionManager:
         # Topics en focus
         self._focus_topics: Dict[str, FocusTopic] = {}
 
-        # Watchlist utilisateur
-        self._watchlist: Set[str] = set()
+        # Watchlist utilisateur (avec défauts)
+        self._watchlist: Set[str] = {
+            "SPY", "QQQ", "NVDA", "AMD", "AAPL", "MSFT", 
+            "GOOGL", "TSLA", "AMZN", "META", "AVGO", "TSM"
+        }
 
         # Focus manuel (priorite max)
         self._manual_focus: Set[str] = set()
@@ -385,16 +388,18 @@ class AttentionManager:
     # -------------------------------------------------------------------------
 
     async def _load_watchlist(self):
-        """Charge la watchlist depuis le disque"""
+        """Charge la watchlist depuis le disque (merge avec defauts)"""
         path = self._data_dir / "watchlist.json"
         if path.exists():
             try:
                 with open(path, 'r') as f:
                     data = json.load(f)
-                    self._watchlist = set(data.get('symbols', []))
-                logger.info(f"Loaded watchlist: {len(self._watchlist)} symbols")
+                    loaded = set(data.get('symbols', []))
+                    if loaded:  # Only update if file has symbols
+                        self._watchlist = self._watchlist.union(loaded)
             except Exception as e:
                 logger.warning(f"Could not load watchlist: {e}")
+        logger.info(f"Loaded watchlist: {len(self._watchlist)} symbols")
 
     async def save_watchlist(self):
         """Sauvegarde la watchlist"""

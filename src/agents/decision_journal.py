@@ -187,6 +187,25 @@ class DecisionJournal:
     # CREATION DE DECISION
     # -------------------------------------------------------------------------
 
+
+    async def log_decision(self, symbol: str, action: str, signal_data: dict) -> dict:
+        """
+        Simple logging method for quick decisions.
+        Returns a minimal decision dict.
+        """
+        decision_id = f"{symbol}_{action}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        logger.info(f"Decision logged: {decision_id} - {action} {symbol}")
+        
+        decision = {
+            'id': decision_id,
+            'symbol': symbol,
+            'action': action,
+            'signal_data': signal_data,
+            'timestamp': datetime.now().isoformat()
+        }
+        self._decisions[decision_id] = decision
+        return decision
+
     async def create_decision(
         self,
         symbol: str,
