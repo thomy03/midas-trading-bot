@@ -25,6 +25,10 @@ from src.agents.guardrails import TradingGuardrails, TradeRequest, ValidationRes
 from src.intelligence.analysis_store import AnalysisStore, get_analysis_store
 from src.data.market_data import MarketDataFetcher
 
+# V5.1 - Adaptive Position Manager & Portfolio Rotation
+from src.execution.position_manager import AdaptivePositionManager, get_position_manager
+from src.execution.portfolio_rotation import PortfolioRotationManager, get_rotation_manager
+
 # V4.5 - Hybrid Screening (FMP pre-screening + IBKR validation)
 try:
     from src.screening.hybrid_screener import HybridScreener, HybridScreenerConfig, get_hybrid_screener
@@ -187,6 +191,8 @@ class MarketAgent:
         self.market_screener = None  # Fallback V3
         self.social_scanner = None
         self.grok_scanner = None
+        self.position_manager = None
+        self.rotation_manager = None
         self.stock_discovery = None
         self.ibkr_executor = None
 
@@ -326,6 +332,14 @@ class MarketAgent:
             )
             await self.grok_scanner.initialize()
             logger.info("GrokScanner initialized")
+            # V5.1 - Initialize Position Manager
+            self.position_manager = get_position_manager(grok_scanner=self.grok_scanner)
+            self.rotation_manager = get_rotation_manager(
+                position_manager=self.position_manager,
+                grok_scanner=self.grok_scanner,
+                max_positions=10
+            )
+            logger.info("AdaptivePositionManager & RotationManager initialized")
         except Exception as e:
             logger.warning(f"GrokScanner not available: {e}")
 
@@ -1380,10 +1394,28 @@ class MarketAgent:
         validation = self.guardrails.validate_trade(trade_request)
 
         if not validation.is_allowed():
-            result["rejected"] = True
-            result["reason"] = f"Guardrail: {validation.reason}"
-            logger.info(f"Trade rejected for {symbol}: {validation.reason}")
-            return result
+            # V5.2 - Check portfolio rotation
+            if self.rotation_manager and "position" in validation.reason.lower():
+                logger.info(f"Portfolio full, checking rotation for {symbol}...")
+                try:
+                    rotation = await self.rotation_manager.check_and_rotate(
+                        new_signal_symbol=symbol,
+                        new_signal_score=confidence,
+                        executor=self.ibkr_executor
+                    )
+                    if rotation.should_rotate:
+                        logger.info(f"Rotation OK: sold {rotation.sell_symbol}")
+                        validation = self.guardrails.validate_trade(trade_request)
+                    else:
+                        logger.info(f"No rotation: {rotation.sell_reason}")
+                except Exception as e:
+                    logger.warning(f"Rotation check failed: {e}")
+
+            if not validation.is_allowed():
+                result["rejected"] = True
+                result["reason"] = f"Guardrail: {validation.reason}"
+                logger.info(f"Trade rejected for {symbol}: {validation.reason}")
+                return result
 
         # Exécuter selon le niveau de validation
         if validation.status == TradeValidation.APPROVED:
@@ -1446,6 +1478,16 @@ class MarketAgent:
                 )
                 self.state_manager.add_position(position)
 
+                # V5.1 - Track with Adaptive Position Manager
+                if self.position_manager:
+                    self.position_manager.add_position(
+                        symbol=trade.symbol,
+                        entry_price=trade.price,
+                        quantity=trade.quantity,
+                        entry_score=trade.confidence_score or 50
+                    )
+                    logger.info(f"[V5.1] Position tracked: {trade.symbol}")
+
                 # Enregistrer dans les guardrails
                 self.guardrails.record_trade(
                     trade.symbol, trade.action, trade.position_value
@@ -1486,6 +1528,16 @@ class MarketAgent:
             thesis=trade.thesis
         )
         self.state_manager.add_position(position)
+
+                # V5.1 - Track with Adaptive Position Manager
+                if self.position_manager:
+                    self.position_manager.add_position(
+                        symbol=trade.symbol,
+                        entry_price=trade.price,
+                        quantity=trade.quantity,
+                        entry_score=trade.confidence_score or 50
+                    )
+                    logger.info(f"[V5.1] Position tracked: {trade.symbol}")
 
         self.guardrails.record_trade(
             trade.symbol, trade.action, trade.position_value
