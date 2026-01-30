@@ -205,6 +205,34 @@ class TradingGuardrails:
     # VALIDATION PRINCIPALE
     # =========================================================================
 
+    async def check_daily_loss(self, daily_pnl: float):
+        """Vérifie si le PnL journalier dépasse la limite"""
+        if daily_pnl < -self.initial_capital * self.MAX_DAILY_LOSS_PCT:
+            raise GuardrailViolation(
+                rule='DAILY_LOSS',
+                message=f'Daily loss limit exceeded: {daily_pnl:.2f}',
+                severity='CRITICAL'
+            )
+
+    async def check_drawdown(self, drawdown: float):
+        """Vérifie le drawdown"""
+        if drawdown > self.MAX_DRAWDOWN_PCT * 100:  # Convert to percentage
+            raise GuardrailViolation(
+                rule='DRAWDOWN',
+                message=f'Max drawdown exceeded: {drawdown:.2f}%',
+                severity='CRITICAL'
+            )
+
+    async def check_position_count(self, count: int):
+        """Vérifie le nombre de positions"""
+        if count >= self.MAX_OPEN_POSITIONS:
+            raise GuardrailViolation(
+                rule='MAX_POSITIONS',
+                message=f'Max positions reached: {count}/{self.MAX_OPEN_POSITIONS}',
+                severity='WARNING'
+            )
+
+
     def validate_trade(self, trade: TradeRequest) -> ValidationResult:
         """
         Valide un trade contre tous les guardrails.

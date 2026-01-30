@@ -329,17 +329,12 @@ class LiveLoop:
                 params = self.strategy_evolver.get_current_params()
 
                 # Screener avec les paramètres ajustés
-                alerts = screener.screen_symbol(
-                    symbol,
-                    confidence_min=params.get('confidence_score_min', 55)
-                )
+                alert = screener.screen_single_stock(symbol)
 
-                if alerts:
-                    self._metrics.signals_found += len(alerts)
+                if alert:
+                    self._metrics.signals_found += 1
                     await self.attention_manager.mark_signal_found(symbol)
-
-                    for alert in alerts:
-                        await self._process_signal(alert)
+                    await self._process_signal(alert)
 
                 self._metrics.screens_performed += 1
 
@@ -480,9 +475,9 @@ class LiveLoop:
         if not focus_symbols:
             return {}
 
-        from ..data.market_data import MarketData
+        from ..data.market_data import MarketDataFetcher
 
-        market_data = MarketData()
+        market_data = MarketDataFetcher()
         price_data = {}
 
         for symbol in focus_symbols:
