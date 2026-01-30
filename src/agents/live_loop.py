@@ -430,14 +430,34 @@ class LiveLoop:
             if grok_scanner:
                 trends = await grok_scanner.search_financial_trends()
                 if trends:
-                    await self.heat_detector.ingest_grok_data(trends)
+                    # Convert List[GrokInsight] to Dict[str, Dict] for ingest_grok_data
+                    grok_data = {}
+                    for insight in trends:
+                        for symbol in insight.mentioned_symbols:
+                            if symbol not in grok_data:
+                                grok_data[symbol] = {
+                                    'sentiment_score': insight.sentiment_score,
+                                    'summary': insight.summary,
+                                    'confidence': insight.confidence
+                                }
+                    if grok_data:
+                        await self.heat_detector.ingest_grok_data(grok_data)
 
             # Social (Reddit, StockTwits)
             social_scanner = await get_social_scanner()
             if social_scanner:
                 result = await social_scanner.full_scan()
-                if result:
-                    await self.heat_detector.ingest_reddit_data(result.reddit_data)
+                if result and result.trending_symbols:
+                    # Convert trending_symbols to dict for ingest_reddit_data
+                    social_data = {}
+                    for ts in result.trending_symbols:
+                        social_data[ts.symbol] = {
+                            'count': ts.mention_count,
+                            'sentiment': ts.avg_sentiment,
+                            'posts': []
+                        }
+                    if social_data:
+                        await self.heat_detector.ingest_reddit_data(social_data)
 
         except ImportError:
             logger.debug("Social scanners not available")
