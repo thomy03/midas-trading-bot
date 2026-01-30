@@ -45,6 +45,15 @@ from .pillars import (
     NewsPillar,
     get_news_pillar,
 )
+# V5.3 - ML Pillar
+try:
+    from src.agents.pillars.ml_pillar import MLPillar, get_ml_pillar
+    ML_PILLAR_AVAILABLE = True
+except ImportError:
+    ML_PILLAR_AVAILABLE = False
+    MLPillar = None
+
+
 from src.intelligence.market_context import (
     MarketContext,
     MarketRegime,
@@ -122,10 +131,11 @@ class ReasoningResult:
 class ReasoningConfig:
     """Configuration for the reasoning engine"""
     # Pillar weights (must sum to 1.0) - used as defaults if adaptive learning disabled
-    technical_weight: float = 0.25
-    fundamental_weight: float = 0.25
-    sentiment_weight: float = 0.25
-    news_weight: float = 0.25
+    technical_weight: float = 0.30
+    fundamental_weight: float = 0.30
+    sentiment_weight: float = 0.15
+    news_weight: float = 0.10
+    ml_weight: float = 0.15  # V5.3 - ML Pillar
 
     # V4.8: Decision thresholds on DISPLAY scale (0-100)
     # This matches the UI display for user clarity
@@ -152,7 +162,7 @@ class ReasoningConfig:
     def validate(self):
         """Validate configuration"""
         total = (self.technical_weight + self.fundamental_weight +
-                 self.sentiment_weight + self.news_weight)
+                 self.sentiment_weight + self.news_weight + self.ml_weight)
         if abs(total - 1.0) > 0.001:
             raise ValueError(f"Pillar weights must sum to 1.0, got {total}")
 
@@ -200,6 +210,15 @@ class ReasoningEngine:
         # Sentiment and News are async
         self._sentiment = await get_sentiment_pillar()
         self._news = await get_news_pillar()
+        # V5.3 - ML Pillar
+        self._ml = None
+        if ML_PILLAR_AVAILABLE:
+            try:
+                self._ml = get_ml_pillar()
+                logger.info("[REASONING] ML Pillar initialized")
+            except Exception as e:
+                logger.warning(f"[REASONING] ML Pillar not available: {e}")
+
 
         self._initialized = True
         logger.info("ReasoningEngine initialized")
@@ -286,6 +305,23 @@ class ReasoningEngine:
 
             technical_score, fundamental_score, sentiment_score, news_score = scores
 
+            # V5.3 - ML Pillar (calculated after other pillars)
+            ml_score = None
+            if self._ml and ML_PILLAR_AVAILABLE:
+                try:
+                    ml_score = await self._ml.analyze(
+                        symbol=symbol,
+                        technical_score=technical_score.score,
+                        fundamental_score=fundamental_score.score,
+                        sentiment_score=sentiment_score.score,
+                        news_score=news_score.score,
+                        market_context={'vix': market_context.vix_level if market_context else 20}
+                    )
+                    logger.debug(f"[ML] Score for {symbol}: {ml_score.score:.1f}")
+                except Exception as e:
+                    logger.warning(f"[REASONING] ML Pillar error: {e}")
+
+
         else:
             # Sequential execution
             technical_score = await self._technical.analyze(symbol, technical_data)
@@ -301,7 +337,8 @@ class ReasoningEngine:
                 'technical': adaptive_weights.technical,
                 'fundamental': adaptive_weights.fundamental,
                 'sentiment': adaptive_weights.sentiment,
-                'news': adaptive_weights.news
+                'news': adaptive_weights.news,
+                'ml': self.config.ml_weight
             }
             logger.debug(f"[REASONING] Using adaptive weights: {weights}")
         else:
@@ -309,7 +346,8 @@ class ReasoningEngine:
                 'technical': self.config.technical_weight,
                 'fundamental': self.config.fundamental_weight,
                 'sentiment': self.config.sentiment_weight,
-                'news': self.config.news_weight
+                'news': self.config.news_weight,
+                'ml': self.config.ml_weight
             }
 
         # Adjust weights based on market regime
@@ -323,6 +361,11 @@ class ReasoningEngine:
             sentiment_score.weighted_score(weights['sentiment']) +
             news_score.weighted_score(weights['news'])
         )
+
+        # V5.3 - Add ML score
+        if ml_score and hasattr(ml_score, 'weighted_score'):
+            internal_score += ml_score.weighted_score(weights.get('ml', 0.15))
+
 
         # Apply market context score adjustment
         position_size_adj = 1.0
