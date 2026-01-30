@@ -344,9 +344,23 @@ class LiveLoop:
     async def _process_signal(self, alert: Dict):
         """Traite un signal détecté"""
         symbol = alert.get('symbol', 'UNKNOWN')
+        confidence = alert.get('confidence_score', 0)
+        signal_type = alert.get('confidence_signal', 'UNKNOWN')
+        
+        logger.info(f"📊 Signal detected: {symbol} - {signal_type} (score: {confidence})")
+        
+        # Log detailed scores (piliers)
+        if 'score_ema' in alert:
+            logger.info(f"   📈 Piliers L1: EMA={alert.get('score_ema',0)}/20, Support={alert.get('score_support',0)}/20, RSI={alert.get('score_rsi',0)}/25, Fresh={alert.get('score_freshness',0)}/20, Vol={alert.get('score_volume',0)}/15")
+        if 'l2_total_score' in alert:
+            logger.info(f"   🏢 Piliers L2: Health={alert.get('l2_health_score',0)}/20, Context={alert.get('l2_context_score',0)}/10, Sentiment={alert.get('l2_sentiment_score',0)}/30 | ELITE={alert.get('l2_is_elite', False)}")
 
-        logger.info(f"📊 Signal detected: {symbol}")
-
+        # Filtrer par score minimum (BUY >= 55, STRONG_BUY >= 75)
+        min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 55
+        if confidence < min_score:
+            logger.info(f"⏭️ Signal {symbol} skipped: score {confidence} < {min_score}")
+            return
+            
         # Callback externe
         if self._on_signal_callback:
             await self._on_signal_callback(alert)
