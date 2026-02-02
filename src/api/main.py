@@ -255,7 +255,7 @@ async def screen_stocks(
     """
     try:
         alerts = market_screener.screen_multiple_stocks(
-            [(s, s) for s in request.symbols]
+            [{'symbol': s, 'name': s} for s in request.symbols]
         )
 
         if request.save_to_db and alerts:

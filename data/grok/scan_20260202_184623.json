@@ -1,0 +1,182 @@
+{
+  "timestamp": "2026-02-02T18:46:23.427022",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "SPY": 1,
+    "QQQ": 1,
+    "TLT": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "SMCI": 1,
+    "TSLA": 1,
+    "PLTR": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "IBIT": 1,
+    "IWM": 1,
+    "XBI": 1,
+    "KRE": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.8,
+  "insights": [
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "High anticipation for 50bps Fed rate cut in September, boosting risk assets amid cooling inflation data.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "CME FedWatch showing 70% odds for 50bps cut",
+        "Powell speech fueling optimism",
+        "Weak jobs data as catalyst"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "catalysts": [
+        "FOMC meeting",
+        "CPI report"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:46:08.909318"
+    },
+    {
+      "topic": "NVIDIA AI Dominance",
+      "summary": "NVDA surges on record AI chip orders, with peers like AMD gaining; Blackwell chip hype intensifies.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.9,
+      "confidence": 0.95,
+      "key_points": [
+        "$500B data center spend forecast",
+        "Cathie Wood calls NVDA 'next trillion'",
+        "Supply chain easing"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "SMCI"
+      ],
+      "catalysts": [
+        "Earnings preview",
+        "GTC conference"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:46:08.909331"
+    },
+    {
+      "topic": "Tesla Robotaxi Reveal",
+      "summary": "TSLA buzz peaks ahead of Oct 10 robotaxi event, with FSD updates driving retail frenzy.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.8,
+      "key_points": [
+        "Elon Musk teases unsupervised FSD",
+        "@WholeMarsBlog bullish target $400",
+        "China expansion news"
+      ],
+      "mentioned_symbols": [
+        "TSLA",
+        "PLTR"
+      ],
+      "catalysts": [
+        "Robotaxi event",
+        "Q3 deliveries"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:46:08.909336"
+    },
+    {
+      "topic": "Bitcoin ETF Inflows",
+      "summary": "BTC breaks $65K on massive ETF inflows ($1B+ weekly), altcoins rallying in tandem.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.85,
+      "key_points": [
+        "BlackRock IBIT leads inflows",
+        "@APompliano predicts $100K EOY",
+        "Election cycle boost"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "IBIT"
+      ],
+      "catalysts": [
+        "ETF approvals",
+        "Halving aftermath"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:46:08.909340"
+    },
+    {
+      "topic": "Small Cap Rotation",
+      "summary": "Russell 2000 outperforms amid rate cut hopes, signaling shift from megacaps to value plays.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.7,
+      "confidence": 0.75,
+      "key_points": [
+        "IWM up 5% weekly",
+        "@zerohedge highlights breadth improvement",
+        "Bank earnings tailwinds"
+      ],
+      "mentioned_symbols": [
+        "IWM",
+        "XBI",
+        "KRE"
+      ],
+      "catalysts": [
+        "Regional bank results",
+        "Rate sensitivity"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:46:08.909344"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla Q3 delivery numbers and Cybertruck updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Warning on overvalued tech stocks like NVDA",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy call buying in SPY and QQQ",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "$AAPL breaking out on iPhone sales rumors",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cut Expectations",
+    "FOMC meeting",
+    "NVIDIA AI Dominance",
+    "Earnings preview",
+    "GTC conference",
+    "Tesla Robotaxi Reveal",
+    "Robotaxi event",
+    "Q3 deliveries",
+    "Bitcoin ETF Inflows",
+    "ETF approvals"
+  ]
+}

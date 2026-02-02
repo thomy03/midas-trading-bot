@@ -1,0 +1,176 @@
+{
+  "timestamp": "2026-02-02T17:36:40.231846",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "NVDA": 1,
+    "AVGO": 1,
+    "SPY": 1,
+    "IWM": 1,
+    "QQQ": 1,
+    "GME": 1,
+    "AMC": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "IBIT": 1,
+    "TSLA": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.836,
+  "insights": [
+    {
+      "topic": "NVIDIA Earnings Crush",
+      "summary": "NVIDIA reports blowout Q2 earnings with AI data center revenue exploding 122% YoY, shares surge 8% after hours amid raised guidance.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.92,
+      "confidence": 0.95,
+      "key_points": [
+        "Record $30B revenue",
+        "Blackwell chip ramp-up",
+        "Cathie Wood adds to position"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AVGO"
+      ],
+      "catalysts": [
+        "Q2 Earnings",
+        "AI demand surge"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:36:23.871553"
+    },
+    {
+      "topic": "Fed Rate Cut Hype",
+      "summary": "Soft CPI data fuels 95% odds of September Fed cut, boosting risk assets as traders pile into cyclicals and small caps.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.88,
+      "key_points": [
+        "Powell testimony tomorrow",
+        "Russell 2000 +3%",
+        "Jim Cramer calls for cuts"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "IWM",
+        "QQQ"
+      ],
+      "catalysts": [
+        "CPI report",
+        "FOMC minutes"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:36:23.871562"
+    },
+    {
+      "topic": "GameStop Meme Frenzy",
+      "summary": "Roaring Kitty (Keith Gill) returns with $180M GME position reveal, stock rips 70% sparking retail pile-on and options explosion.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.82,
+      "key_points": [
+        "Gill's 9M share stake",
+        "Volume 10x average",
+        "Short squeeze setup"
+      ],
+      "mentioned_symbols": [
+        "GME",
+        "AMC"
+      ],
+      "catalysts": [
+        "Roaring Kitty posts",
+        "Earnings next week"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:36:23.871565"
+    },
+    {
+      "topic": "Bitcoin ETF Inflows",
+      "summary": "BTC blasts past $68K on record $1B+ ETF inflows, BlackRock IBIT leads as institutions FOMO amid halving narrative revival.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.88,
+      "confidence": 0.9,
+      "key_points": [
+        "ETH ETF approval odds 90%",
+        "Michael Saylor doubles down",
+        "Altcoin rotation starting"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "IBIT"
+      ],
+      "catalysts": [
+        "ETF inflows",
+        "Halving effects"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:36:23.871568"
+    },
+    {
+      "topic": "Tesla Robotaxi Buzz",
+      "summary": "Elon Musk confirms Robotaxi event Aug 8, TSLA jumps 5% on FSD progress hype despite Q2 delivery miss.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.78,
+      "confidence": 0.85,
+      "key_points": [
+        "Musk tweet storm",
+        "ARK Invest target $2,600",
+        "China sales rebound"
+      ],
+      "mentioned_symbols": [
+        "TSLA"
+      ],
+      "catalysts": [
+        "Robotaxi unveil",
+        "Q2 Earnings"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:36:23.871571"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla robotaxi event and xAI updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy options flow in NVDA and SPY",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Market rally and tech stocks",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large Bitcoin transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending tickers like AAPL and TSLA",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "NVIDIA Earnings Crush",
+    "Q2 Earnings",
+    "AI demand surge",
+    "Fed Rate Cut Hype",
+    "FOMC minutes",
+    "GameStop Meme Frenzy",
+    "Roaring Kitty posts",
+    "Earnings next week",
+    "Bitcoin ETF Inflows",
+    "ETF inflows"
+  ]
+}

@@ -103,7 +103,7 @@ class AttentionManager:
         self._focus_topics: Dict[str, FocusTopic] = {}
 
         # Watchlist utilisateur - chargée depuis UniverseScanner ou fichier
-        self._watchlist: Set[str] = self._load_watchlist()
+        self._watchlist: Set[str] = set()
 
         # Focus manuel (priorite max)
         self._manual_focus: Set[str] = set()

@@ -1,0 +1,180 @@
+{
+  "timestamp": "2026-02-02T19:26:18.155307",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "SPY": 1,
+    "QQQ": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "SMCI": 1,
+    "BTC": 1,
+    "MSTR": 1,
+    "COIN": 1,
+    "TSLA": 1,
+    "MSFT": 1,
+    "AAPL": 1,
+    "GOOGL": 1,
+    "IWM": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.7200000000000001,
+  "insights": [
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Discussions heating up around potential 50bps Fed rate cut in September, boosting risk assets.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Powell speech fueling optimism",
+        "Weak jobs data as catalyst",
+        "@zerohedge calls for deeper cuts"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ"
+      ],
+      "catalysts": [
+        "FOMC minutes",
+        "CPI data"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:26:06.318146"
+    },
+    {
+      "topic": "Nvidia Earnings Buzz",
+      "summary": "NVDA pre-earnings hype with focus on AI chip demand and Blackwell delays.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.85,
+      "key_points": [
+        "Record revenue expectations",
+        "Most mentioned stock",
+        "@CathieDWood bullish target $200+"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "SMCI"
+      ],
+      "catalysts": [
+        "Q2 earnings",
+        "AI capex guidance"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:26:06.318162"
+    },
+    {
+      "topic": "Bitcoin Rally to New Highs",
+      "summary": "BTC breaking $70K amid ETF inflows and halving aftermath narratives.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.8,
+      "key_points": [
+        "MicroStrategy buys",
+        "Top buzz in crypto",
+        "@APompliano predicts $100K"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "MSTR",
+        "COIN"
+      ],
+      "catalysts": [
+        "ETF approvals",
+        "Election speculation"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:26:06.318168"
+    },
+    {
+      "topic": "Tesla Robotaxi Event",
+      "summary": "Anticipation for Tesla's robotaxi unveiling driving TSLA volatility.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.7,
+      "confidence": 0.75,
+      "key_points": [
+        "Musk hype train",
+        "High buzz volume",
+        "@WholeMarsBlog long calls"
+      ],
+      "mentioned_symbols": [
+        "TSLA"
+      ],
+      "catalysts": [
+        "October event",
+        "FSD updates"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:26:06.318173"
+    },
+    {
+      "topic": "Big Tech Earnings Season",
+      "summary": "Mixed reactions to MSFT, AAPL beats but guidance concerns; rotation to small caps.",
+      "sentiment": "neutral",
+      "sentiment_score": 0.5,
+      "confidence": 0.85,
+      "key_points": [
+        "Overall market up",
+        "Earnings beats",
+        "@RampCapital sarcastic shorts"
+      ],
+      "mentioned_symbols": [
+        "MSFT",
+        "AAPL",
+        "GOOGL",
+        "IWM"
+      ],
+      "catalysts": [
+        "Guidance",
+        "Rate cut synergy"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:26:06.318179"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla robotaxi event and AI advancements",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Unusual options activity in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Stock picks for the week including AAPL",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending stocks like GME and AMC",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cut Expectations",
+    "FOMC minutes",
+    "Nvidia Earnings Buzz",
+    "Q2 earnings",
+    "AI capex guidance",
+    "Bitcoin Rally to New Highs",
+    "ETF approvals",
+    "Election speculation",
+    "Tesla Robotaxi Event",
+    "October event"
+  ]
+}

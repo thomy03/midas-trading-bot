@@ -1,0 +1,173 @@
+{
+  "timestamp": "2026-02-02T17:33:57.502719",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "SPY": 2,
+    "IWM": 2,
+    "QQQ": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "SMCI": 1,
+    "AVGO": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "TSLA": 1,
+    "SMC": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.7799999999999999,
+  "insights": [
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Traders heavily betting on 50bps September cut after softer CPI data, boosting risk assets.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Powell speech tomorrow key",
+        "Odds now at 100% for Sep cut per CME FedWatch"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "IWM"
+      ],
+      "catalysts": [
+        "CPI data",
+        "FOMC minutes"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:33:38.381806"
+    },
+    {
+      "topic": "Nvidia AI Dominance",
+      "summary": "NVDA post-earnings rally extends, AI chip demand surges amid Blackwell hype.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.92,
+      "confidence": 0.95,
+      "key_points": [
+        "Tom Lee: NVDA to $200",
+        "Supply chain bottlenecks easing"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "SMCI",
+        "AVGO"
+      ],
+      "catalysts": [
+        "Blackwell ramp-up",
+        " hyperscaler capex"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:33:38.381821"
+    },
+    {
+      "topic": "Bitcoin Rally to New Highs",
+      "summary": "BTC breaks $68k on ETF inflows and halving narrative, altcoins following.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.78,
+      "confidence": 0.8,
+      "key_points": [
+        "Michael Saylor: $13M BTC prediction",
+        "ETH ETF approvals boosting sentiment"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH"
+      ],
+      "catalysts": [
+        "ETF inflows",
+        "Election cycle"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:33:38.381826"
+    },
+    {
+      "topic": "Tesla Robotaxi Event",
+      "summary": "Hype builds for Oct 10 event, TSLA shares volatile but optimistic calls dominate.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.65,
+      "confidence": 0.75,
+      "key_points": [
+        "Cathie Wood: TSLA $2T by 2026",
+        "FSD v13 beta leaks positive"
+      ],
+      "mentioned_symbols": [
+        "TSLA"
+      ],
+      "catalysts": [
+        "Robotaxi unveiling",
+        "Q3 delivery beat"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:33:38.381829"
+    },
+    {
+      "topic": "Small Cap Rotation",
+      "summary": "Russell 2000 outperforms amid rate cut hopes, rotation from mega caps.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.7,
+      "confidence": 0.85,
+      "key_points": [
+        "IWM +2.5% today",
+        "ZeroHedge notes bank lending survey up"
+      ],
+      "mentioned_symbols": [
+        "IWM",
+        "SMC",
+        "SPY"
+      ],
+      "catalysts": [
+        "Rate cuts",
+        "Earnings from regionals"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:33:38.381833"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla Optimus robot and xAI updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy call buying in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "S&P 500 hitting new highs",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Massive BTC whale movements to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Recommending buys in tech amid rally",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cut Expectations",
+    "FOMC minutes",
+    "Nvidia AI Dominance",
+    "Blackwell ramp-up",
+    " hyperscaler capex",
+    "Bitcoin Rally to New Highs",
+    "ETF inflows",
+    "Election cycle",
+    "Tesla Robotaxi Event",
+    "Robotaxi unveiling"
+  ]
+}

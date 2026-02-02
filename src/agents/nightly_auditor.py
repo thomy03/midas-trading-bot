@@ -378,6 +378,77 @@ class NightlyAuditor:
         # 6. Ajustements de risque
         risk_adjustments = self._calculate_risk_adjustments(analyses)
 
+
+        # =========================================================================
+        # 6.5 NEW: Parameter Optimization via ParameterOptimizer
+        # =========================================================================
+        try:
+            from src.agents.parameter_optimizer import get_parameter_optimizer
+            
+            optimizer = get_parameter_optimizer()
+            
+            # Record trades with full indicator data
+            for trade in trades:
+                indicators = trade.get('indicators', {})
+                if not indicators:
+                    indicators = {
+                        'rsi': trade.get('rsi_at_entry', 50),
+                        'volume_ratio': trade.get('volume_ratio', 1.0),
+                        'market_regime': trade.get('market_regime', 'neutral'),
+                        'vix_level': trade.get('vix_level', 20)
+                    }
+                
+                pillar_scores = {
+                    'technical': trade.get('technical_score', 50),
+                    'fundamental': trade.get('fundamental_score', 50),
+                    'sentiment': trade.get('sentiment_score', 50),
+                    'news': trade.get('news_score', 50),
+                    'combined': trade.get('combined_score', 50),
+                    'confidence': trade.get('confidence_score', trade.get('confidence', 50))
+                }
+                weights = trade.get('weights', {
+                    'technical': 0.25, 'fundamental': 0.25,
+                    'sentiment': 0.25, 'news': 0.25
+                })
+                optimizer.record_trade(trade, pillar_scores, indicators, weights)
+            
+            # Run optimization analysis
+            opt_report = await optimizer.optimize_from_trades()
+            
+            if opt_report:
+                for pattern in opt_report.winning_patterns[:3]:
+                    if pattern.confidence.value in ['high', 'medium']:
+                        recommendations.append(
+                            f"📈 Pattern gagnant: {pattern.description} "
+                            f"(win rate: {pattern.win_rate:.0%}, {pattern.total_trades} trades)"
+                        )
+                
+                for pattern in opt_report.losing_patterns[:3]:
+                    if pattern.confidence.value in ['high', 'medium']:
+                        recommendations.append(
+                            f"⚠️ Pattern à éviter: {pattern.description} "
+                            f"(win rate: {pattern.win_rate:.0%})"
+                        )
+                
+                for change in opt_report.recommended_changes[:3]:
+                    recommendations.append(
+                        f"🔧 Suggestion: {change.parameter_name} "
+                        f"{change.current_value} → {change.proposed_value} "
+                        f"[{change.confidence.value}]"
+                    )
+                
+                high_conf = [c for c in opt_report.recommended_changes if c.confidence.value == 'high']
+                if high_conf:
+                    optimizer.apply_optimizations(high_conf)
+                    logger.info(f"Applied {len(high_conf)} high-confidence parameter changes")
+            
+            logger.info(f"Parameter optimization: {len(opt_report.winning_patterns)} patterns, {len(opt_report.recommended_changes)} suggestions")
+            
+        except ImportError:
+            logger.debug("ParameterOptimizer not available")
+        except Exception as e:
+            logger.warning(f"Parameter optimization error: {e}")
+
         # 7. Créer le rapport
         report = AuditReport(
             date=datetime.now(),

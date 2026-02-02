@@ -1,0 +1,163 @@
+{
+  "timestamp": "2026-02-02T18:00:34.327660",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "NVDA": 1,
+    "SPY": 1,
+    "QQQ": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "TSLA": 1,
+    "GME": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.75,
+  "insights": [
+    {
+      "topic": "NVDA Earnings Anticipation",
+      "summary": "NVIDIA's upcoming earnings report dominating discussions with high expectations for AI chip demand.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Record revenue forecasts",
+        "Blackwell chip delays downplayed"
+      ],
+      "mentioned_symbols": [
+        "NVDA"
+      ],
+      "catalysts": [
+        "Q2 earnings",
+        "AI infrastructure spend"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:00:19.816057"
+    },
+    {
+      "topic": "Fed Rate Cut Odds Surge",
+      "summary": "Traders betting on September rate cut after soft CPI data, boosting risk assets.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.85,
+      "key_points": [
+        "CME FedWatch at 95%",
+        "Powell speech hints"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ"
+      ],
+      "catalysts": [
+        "CPI report",
+        "FOMC minutes"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:00:19.816065"
+    },
+    {
+      "topic": "Bitcoin ATH Breakout",
+      "summary": "BTC surpassing $70K amid ETF inflows and halving narrative revival.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.8,
+      "key_points": [
+        "Institutional buying",
+        "Election cycle boost"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH"
+      ],
+      "catalysts": [
+        "ETF approvals",
+        "Halving effects"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:00:19.816067"
+    },
+    {
+      "topic": "TSLA Robotaxi Hype",
+      "summary": "Elon Musk's robotaxi event generating massive buzz, overshadowing delivery misses.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.65,
+      "confidence": 0.75,
+      "key_points": [
+        "Autonomy timeline",
+        "FSD v12 upgrades"
+      ],
+      "mentioned_symbols": [
+        "TSLA"
+      ],
+      "catalysts": [
+        "Robotaxi unveiling",
+        "Q2 deliveries"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:00:19.816069"
+    },
+    {
+      "topic": "GME Meme Revival",
+      "summary": "Roaring Kitty's return sparking retail frenzy and short squeeze talks.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.7,
+      "confidence": 0.7,
+      "key_points": [
+        "Volume spike",
+        "Gamma squeeze potential"
+      ],
+      "mentioned_symbols": [
+        "GME"
+      ],
+      "catalysts": [
+        "Influencer posts",
+        "Options expiry"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:00:19.816071"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy call buying in NVDA and TSLA options flow",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Multiple large BTC transfers to exchanges totaling over $500M",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Pushing buys on tech stocks amid market rally",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending discussions on $AAPL earnings beat",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla FSD updates and Cybertruck production",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "NVDA Earnings Anticipation",
+    "Q2 earnings",
+    "AI infrastructure spend",
+    "Fed Rate Cut Odds Surge",
+    "FOMC minutes",
+    "Bitcoin ATH Breakout",
+    "ETF approvals",
+    "Halving effects",
+    "TSLA Robotaxi Hype",
+    "Robotaxi unveiling"
+  ]
+}

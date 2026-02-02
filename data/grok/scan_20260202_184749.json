@@ -1,0 +1,175 @@
+{
+  "timestamp": "2026-02-02T18:47:49.647902",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "NVDA": 1,
+    "AMD": 1,
+    "SMCI": 1,
+    "SPY": 1,
+    "QQQ": 1,
+    "TLT": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "SOL": 1,
+    "TSLA": 1,
+    "DAL": 1,
+    "JPM": 1,
+    "IWM": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.72,
+  "insights": [
+    {
+      "topic": "NVIDIA Earnings Anticipation",
+      "summary": "Heavy buzz around NVDA's upcoming earnings, with traders expecting blowout results driven by AI demand.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Options volume spiking",
+        "Influential calls from @zerohedge predicting 20% upside"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "SMCI"
+      ],
+      "catalysts": [
+        "Q3 earnings report",
+        "AI chip demand"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:47:37.132166"
+    },
+    {
+      "topic": "Fed Rate Cut Odds Surge",
+      "summary": "Market pricing in 90%+ chance of 25bps cut in November, fueling risk-on rally across equities.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.85,
+      "key_points": [
+        "Powell speech echoes",
+        "Bonds rallying alongside stocks"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "catalysts": [
+        "CPI data beat",
+        "FOMC minutes"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:47:37.132179"
+    },
+    {
+      "topic": "Bitcoin All-Time High Push",
+      "summary": "BTC breaking $70K amid ETF inflows and election speculation, altcoins following suit.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.8,
+      "key_points": [
+        "@MichaelSaylor doubling down",
+        "Trump pro-crypto rhetoric"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "SOL"
+      ],
+      "catalysts": [
+        "ETF approvals",
+        "Halving aftermath"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:47:37.132183"
+    },
+    {
+      "topic": "Tesla Robotaxi Hype",
+      "summary": "Pre-event fervor for Tesla's robotaxi unveiling, with calls for $300+ target.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.7,
+      "confidence": 0.75,
+      "key_points": [
+        "Cathie Wood reiterates $2T PT",
+        "Short squeeze potential"
+      ],
+      "mentioned_symbols": [
+        "TSLA"
+      ],
+      "catalysts": [
+        "Robotaxi event Oct 10",
+        "FSD updates"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:47:37.132187"
+    },
+    {
+      "topic": "Big Tech Earnings Rotation",
+      "summary": "Shift from Magnificent 7 to broader market as Delta, banks report strong beats.",
+      "sentiment": "neutral",
+      "sentiment_score": 0.5,
+      "confidence": 0.7,
+      "key_points": [
+        "@RampCapitalLLC on small-cap rotation",
+        "Russell 2000 outperforming"
+      ],
+      "mentioned_symbols": [
+        "DAL",
+        "JPM",
+        "IWM"
+      ],
+      "catalysts": [
+        "Q3 earnings wave",
+        "Rate-sensitive sectors"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:47:37.132190"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla Robotaxi event and FSD updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Massive call buying in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Warning on overvalued tech stocks",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Market breadth improving with small caps",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "NVIDIA Earnings Anticipation",
+    "Q3 earnings report",
+    "AI chip demand",
+    "Fed Rate Cut Odds Surge",
+    "CPI data beat",
+    "FOMC minutes",
+    "Bitcoin All-Time High Push",
+    "ETF approvals",
+    "Halving aftermath",
+    "Tesla Robotaxi Hype"
+  ]
+}

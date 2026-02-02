@@ -27,7 +27,7 @@ services:
       target: production
     container_name: tradingbot-agent
     restart: unless-stopped
-    command: ["python", "run_agent.py", "--mode", "${AGENT_MODE:-test}", "--mock"]
+    command: ["python", "run_agent.py", "--mode", "discovery", "--mock"]
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
@@ -114,7 +114,7 @@ services:
       target: production
     container_name: tradingbot-agent-full
     restart: "no"
-    command: ["python", "run_agent.py", "--mode", "full", "--mock"]
+    command: ["python", "run_agent.py", "--mode", "discovery", "--mock"]
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs

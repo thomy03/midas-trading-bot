@@ -1,0 +1,175 @@
+{
+  "timestamp": "2026-02-02T19:07:24.759176",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "SPY": 1,
+    "QQQ": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "TSM": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "IBIT": 1,
+    "MSFT": 1,
+    "GOOG": 1,
+    "AMZN": 1,
+    "GME": 1,
+    "AMC": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.72,
+  "insights": [
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Traders buzzing about potential September rate cut after soft CPI data, boosting risk assets.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "95% odds for Sep cut per CME FedWatch",
+        "Influential trader @TheStreet bets on SPY to 600"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ"
+      ],
+      "catalysts": [
+        "CPI report",
+        "Jackson Hole symposium"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:07:13.022280"
+    },
+    {
+      "topic": "NVIDIA Earnings Anticipation",
+      "summary": "NVDA dominates discussions pre-earnings, with hype around Blackwell chip demand.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.85,
+      "key_points": [
+        "@zerohedge calls for blowout quarter",
+        "Options flow shows heavy call buying"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "TSM"
+      ],
+      "catalysts": [
+        "Q2 earnings",
+        "AI capex guidance"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:07:13.022293"
+    },
+    {
+      "topic": "Bitcoin ETF Inflows",
+      "summary": "Record BTC ETF inflows pushing crypto higher, narratives of institutional adoption.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.8,
+      "key_points": [
+        "@CryptoWhale calls BTC to $75k",
+        "$1B+ inflows last week"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "IBIT"
+      ],
+      "catalysts": [
+        "ETF approvals",
+        "Halving aftermath"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:07:13.022298"
+    },
+    {
+      "topic": "Big Tech Earnings Season",
+      "summary": "Mixed reactions to MSFT, GOOG results; focus on AI monetization and cloud growth.",
+      "sentiment": "mixed",
+      "sentiment_score": 0.55,
+      "confidence": 0.75,
+      "key_points": [
+        "@RampCapitalLLC skeptical on valuations",
+        "AMZN up premarket on AWS beat"
+      ],
+      "mentioned_symbols": [
+        "MSFT",
+        "GOOG",
+        "AMZN"
+      ],
+      "catalysts": [
+        "Earnings reports",
+        "Guidance updates"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:07:13.022302"
+    },
+    {
+      "topic": "Meme Stock Revival",
+      "summary": "GME and AMC spiking on retail frenzy, Roaring Kitty tweets fueling volatility.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.65,
+      "confidence": 0.7,
+      "key_points": [
+        "@RoaringKitty live stream rumors",
+        "High short interest squeeze potential"
+      ],
+      "mentioned_symbols": [
+        "GME",
+        "AMC"
+      ],
+      "catalysts": [
+        "Social media hype",
+        "Retail trader momentum"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:07:13.022305"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy call buying in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla robotaxi event updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending: $SPY breaking highs",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Buy Palantir on dip",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cut Expectations",
+    "Jackson Hole symposium",
+    "NVIDIA Earnings Anticipation",
+    "Q2 earnings",
+    "AI capex guidance",
+    "Bitcoin ETF Inflows",
+    "ETF approvals",
+    "Halving aftermath",
+    "Big Tech Earnings Season",
+    "Earnings reports"
+  ]
+}

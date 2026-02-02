@@ -1,0 +1,190 @@
+{
+  "timestamp": "2026-02-02T18:23:29.599384",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "SPY": 2,
+    "QQQ": 1,
+    "TLT": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "SMCI": 1,
+    "AVGO": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "MSTR": 1,
+    "XLE": 1,
+    "ITA": 1,
+    "TSLA": 1,
+    "PLTR": 1,
+    "RIVN": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.796,
+  "insights": [
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Heavy buzz around potential 25-50bps Fed cut in November, boosting risk assets amid cooling inflation data.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Powell speech fueling optimism",
+        "Traders pricing in 95% chance of cut",
+        "Notable call: @zerohedge warns of trap"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "catalysts": [
+        "FOMC minutes",
+        "CPI data"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:23:12.111585"
+    },
+    {
+      "topic": "Nvidia Earnings Aftermath",
+      "summary": "NVDA crushes Q3 expectations with AI demand surge, sparking semis rally; top stock buzz.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.92,
+      "confidence": 0.95,
+      "key_points": [
+        "Revenue +94% YoY",
+        "Guidance beats",
+        "Influencer @jimcramer doubles down long"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "SMCI",
+        "AVGO"
+      ],
+      "catalysts": [
+        "earnings beat",
+        "Blackwell chip hype"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:23:12.111597"
+    },
+    {
+      "topic": "Bitcoin Surge to New Highs",
+      "summary": "BTC breaks $70K on ETF inflows and election speculation; crypto volume exploding.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.88,
+      "confidence": 0.85,
+      "key_points": [
+        "MicroStrategy adds 10K BTC",
+        "Trump pro-crypto stance",
+        "Call from @maxkeiser: $100K by EOY"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "MSTR"
+      ],
+      "catalysts": [
+        "ETF approvals",
+        "halving effects"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:23:12.111602"
+    },
+    {
+      "topic": "US Election Volatility Trades",
+      "summary": "Election polls tightening; bets on Trump win driving defense and energy stocks amid market swings.",
+      "sentiment": "mixed",
+      "sentiment_score": 0.55,
+      "confidence": 0.8,
+      "key_points": [
+        "Polymarket odds at 55% Trump",
+        "VIX spiking",
+        "Influential: @TheStalwart long energy"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "XLE",
+        "ITA"
+      ],
+      "catalysts": [
+        "debate outcomes",
+        "polling data"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:23:12.111606"
+    },
+    {
+      "topic": "Tesla Robotaxi Event Hype",
+      "summary": "Anticipation for Oct 10 Robotaxi reveal propels TSLA; rotation into EV/AI plays.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.78,
+      "confidence": 0.82,
+      "key_points": [
+        "Musk teases FSD advancements",
+        "Options volume surge",
+        "Cathie Wood reiterates $2T target"
+      ],
+      "mentioned_symbols": [
+        "TSLA",
+        "PLTR",
+        "RIVN"
+      ],
+      "catalysts": [
+        "product event",
+        "FSD regulatory news"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:23:12.111610"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Unusual options activity in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla stock performance and robotaxi",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Market rally in tech sector",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Recommendations on AAPL and MSFT",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "chaikigroup",
+      "recent_topic": "S&P 500 technical analysis",
+      "sentiment": "bearish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cut Expectations",
+    "FOMC minutes",
+    "Nvidia Earnings Aftermath",
+    "earnings beat",
+    "Blackwell chip hype",
+    "Bitcoin Surge to New Highs",
+    "ETF approvals",
+    "halving effects",
+    "US Election Volatility Trades",
+    "debate outcomes"
+  ]
+}

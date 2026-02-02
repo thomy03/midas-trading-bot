@@ -1,0 +1,175 @@
+{
+  "timestamp": "2026-02-02T19:40:56.143662",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "SPY": 1,
+    "QQQ": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "TSM": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "JPM": 1,
+    "BAC": 1,
+    "WFC": 1,
+    "XOM": 1,
+    "LMT": 1,
+    "TSLA": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.77,
+  "insights": [
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Traders buzzing about 50bps cut in September after soft CPI data, boosting risk assets.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Powell speech hints at cuts",
+        "Odds now 95% per CME FedWatch"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ"
+      ],
+      "catalysts": [
+        "CPI report",
+        "Jackson Hole symposium"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:40:40.676088"
+    },
+    {
+      "topic": "NVDA AI Chip Rally",
+      "summary": "NVIDIA leading AI semis surge post-earnings beat, with Blackwell demand exploding.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.92,
+      "confidence": 0.95,
+      "key_points": [
+        "$4T market cap milestone",
+        "Jim Cramer calls it 'unstoppable'"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "TSM"
+      ],
+      "catalysts": [
+        "Q2 earnings",
+        "Blackwell chip launch"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:40:40.676102"
+    },
+    {
+      "topic": "Bitcoin ATH Breakout",
+      "summary": "BTC smashing $65K on ETF inflows and halving narrative revival.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.88,
+      "confidence": 0.85,
+      "key_points": [
+        "Michael Saylor doubling down",
+        "ETH ETF approvals next"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH"
+      ],
+      "catalysts": [
+        "Spot ETF inflows",
+        "Halving supply shock"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:40:40.676106"
+    },
+    {
+      "topic": "Bank Earnings Kickoff",
+      "summary": "JPM, WFC beat estimates but flag consumer slowdown; rotation to value plays.",
+      "sentiment": "mixed",
+      "sentiment_score": 0.55,
+      "confidence": 0.8,
+      "key_points": [
+        "ZeroHedge warns recession",
+        "Tom Lee sees soft landing"
+      ],
+      "mentioned_symbols": [
+        "JPM",
+        "BAC",
+        "WFC"
+      ],
+      "catalysts": [
+        "Q3 earnings",
+        "NFP jobs data"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:40:40.676110"
+    },
+    {
+      "topic": "Election Trade: Trump vs Harris",
+      "summary": "Markets pricing in Trump win boosting energy/defense, Harris favoring renewables/tech.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.65,
+      "confidence": 0.7,
+      "key_points": [
+        "Polymarket odds shift",
+        "Cathie Wood hedges ARKK"
+      ],
+      "mentioned_symbols": [
+        "XOM",
+        "LMT",
+        "TSLA"
+      ],
+      "catalysts": [
+        "Debate fallout",
+        "Polls tightening"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:40:40.676114"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla Optimus and robotaxi updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy options flow in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Fed rate cut expectations boosting markets",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending tickers: $SPY $QQQ",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cut Expectations",
+    "Jackson Hole symposium",
+    "NVDA AI Chip Rally",
+    "Q2 earnings",
+    "Blackwell chip launch",
+    "Bitcoin ATH Breakout",
+    "Spot ETF inflows",
+    "Halving supply shock",
+    "Bank Earnings Kickoff",
+    "Q3 earnings"
+  ]
+}

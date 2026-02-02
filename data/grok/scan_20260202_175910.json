@@ -1,0 +1,182 @@
+{
+  "timestamp": "2026-02-02T17:59:10.882865",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "SPY": 1,
+    "QQQ": 1,
+    "TLT": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "SMCI": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "SOL": 1,
+    "TSLA": 1,
+    "PLTR": 1,
+    "AAPL": 1,
+    "MSFT": 1,
+    "GOOGL": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.7300000000000001,
+  "insights": [
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Discussions surging around potential September rate cuts after Powell's comments, boosting risk assets.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Powell testimony fueling optimism",
+        "Yields dropping, Nasdaq futures up premarket"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "catalysts": [
+        "FOMC minutes",
+        "CPI data"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:58:55.266561"
+    },
+    {
+      "topic": "NVIDIA Earnings Anticipation",
+      "summary": "NVDA dominates chatter ahead of earnings, with AI demand narrative intact despite valuation concerns.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.85,
+      "key_points": [
+        "Record data center revenue expected",
+        "Blackwell chip delays downplayed"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "SMCI"
+      ],
+      "catalysts": [
+        "Q2 earnings report",
+        "Guidance outlook"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:58:55.266576"
+    },
+    {
+      "topic": "Bitcoin Rally to New Highs",
+      "summary": "BTC breaking $70K amid ETF inflows and halving effects, altcoins following suit.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.8,
+      "key_points": [
+        "Spot ETF volumes exploding",
+        "Institutional FOMO evident"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "SOL"
+      ],
+      "catalysts": [
+        "ETF approvals",
+        "Halving supply shock"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:58:55.266578"
+    },
+    {
+      "topic": "Tesla Robotaxi Event Hype",
+      "summary": "TSLA buzz peaks with Robotaxi unveil on Oct 10, shifting narrative from EV slowdown.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.7,
+      "confidence": 0.75,
+      "key_points": [
+        "Autonomy as key growth driver",
+        "Musk's bold claims amplifying"
+      ],
+      "mentioned_symbols": [
+        "TSLA",
+        "PLTR"
+      ],
+      "catalysts": [
+        "Robotaxi event",
+        "FSD updates"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:58:55.266580"
+    },
+    {
+      "topic": "Big Tech Earnings Season",
+      "summary": "Mixed reactions to early reports; focus on AAPL, MSFT margins amid AI capex.",
+      "sentiment": "mixed",
+      "sentiment_score": 0.55,
+      "confidence": 0.85,
+      "key_points": [
+        "Beats on revenue but guidance cautious",
+        "Influencers like @zerohedge bearish on multiples"
+      ],
+      "mentioned_symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL"
+      ],
+      "catalysts": [
+        "Earnings beats/misses",
+        "Capex guidance"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:58:55.266582"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla Q3 delivery numbers and Cybertruck updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy options flow into NVDA and AAPL calls",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Recommending buys in tech amid rate cut hopes",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Market sentiment shifting on Fed minutes",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "chaikingroup",
+      "recent_topic": "S&P 500 breadth analysis",
+      "sentiment": "bearish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cut Expectations",
+    "FOMC minutes",
+    "NVIDIA Earnings Anticipation",
+    "Q2 earnings report",
+    "Guidance outlook",
+    "Bitcoin Rally to New Highs",
+    "ETF approvals",
+    "Halving supply shock",
+    "Tesla Robotaxi Event Hype",
+    "Robotaxi event"
+  ]
+}

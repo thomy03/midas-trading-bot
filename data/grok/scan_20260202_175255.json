@@ -1,0 +1,169 @@
+{
+  "timestamp": "2026-02-02T17:52:55.673889",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "SPY": 1,
+    "QQQ": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "SMCI": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "IWM": 1,
+    "RUT": 1,
+    "TSLA": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.7200000000000001,
+  "insights": [
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Traders buzzing over 50bps cut odds rising to 85% after soft CPI data, boosting risk assets.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Powell speech tomorrow key",
+        "Notable call: @zerohedge predicts emergency cut"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ"
+      ],
+      "catalysts": [
+        "CPI data",
+        "FOMC minutes"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:52:40.443358"
+    },
+    {
+      "topic": "NVDA Earnings Aftermath",
+      "summary": "NVIDIA smashes Q3 estimates with $35B revenue, AI capex narrative intact despite China ban fears.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.85,
+      "key_points": [
+        "Data center revenue +279%",
+        "Cathie Wood adds on dip"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "SMCI"
+      ],
+      "catalysts": [
+        "earnings beat",
+        "AI demand surge"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:52:40.443371"
+    },
+    {
+      "topic": "Bitcoin Rally to New ATH",
+      "summary": "BTC surpasses $75K on ETF inflows and election hype, altcoins following suit.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.8,
+      "key_points": [
+        "$2B ETF inflows last week",
+        "@APompliano calls for $100K by EOY"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH"
+      ],
+      "catalysts": [
+        "Trump win odds",
+        "ETF approvals"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:52:40.443376"
+    },
+    {
+      "topic": "Small Caps Rotation",
+      "summary": "Russell 2000 outperforms Nasdaq amid rate cut hopes, value over growth shift.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.65,
+      "confidence": 0.7,
+      "key_points": [
+        "IWM +3% vs QQQ flat",
+        "Tom Lee (Fundstrat) overweight small caps"
+      ],
+      "mentioned_symbols": [
+        "IWM",
+        "RUT"
+      ],
+      "catalysts": [
+        "deregulation bets",
+        "lower rates"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:52:40.443379"
+    },
+    {
+      "topic": "Tesla Robotaxi Event",
+      "summary": "Hype builds for Oct 10 unveiling, shares volatile on FSD progress and Cybercab reveals.",
+      "sentiment": "mixed",
+      "sentiment_score": 0.55,
+      "confidence": 0.75,
+      "key_points": [
+        "Elon delays to Oct 10",
+        "@WholeMarsBlog bullish on autonomy"
+      ],
+      "mentioned_symbols": [
+        "TSLA"
+      ],
+      "catalysts": [
+        "robotaxi event",
+        "FSD v13 rollout"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:52:40.443383"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla robotaxi event and xAI funding",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy call buying in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Market rotation into small caps amid rate cut hopes",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending tickers: $SPY $QQQ breaking highs",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cut Expectations",
+    "FOMC minutes",
+    "NVDA Earnings Aftermath",
+    "earnings beat",
+    "AI demand surge",
+    "Bitcoin Rally to New ATH",
+    "Trump win odds",
+    "ETF approvals",
+    "Small Caps Rotation",
+    "deregulation bets"
+  ]
+}

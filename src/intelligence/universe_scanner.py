@@ -1,22 +1,24 @@
 """
-Universe Scanner - Scan complet US + Euronext
+Universe Scanner v2 - Scan complet US + Euronext (avec API Live)
 Récupère et filtre tous les symboles tradables.
+
+AMÉLIORATION: Utilise l'API live.euronext.com pour une liste exhaustive
 
 Marchés couverts:
 - NASDAQ (~3500 symboles)
 - NYSE/S&P500 (~500 symboles)  
-- Euronext (~1500 symboles): Paris, Amsterdam, Bruxelles, Lisbonne, Dublin, Milan
+- Euronext (~700 symboles): Paris, Amsterdam, Bruxelles, Lisbonne, Dublin, Milan
 
 Filtres différenciés:
-- US: Volume > 500K, Market Cap > 500M$, Prix > $2
-- EU: Volume > 250K€, Market Cap > 250M€, Prix > 1€
+- US: Market Cap > 500M$, Prix > $2
+- EU: Market Cap > 250M€, Prix > 1€
 """
 
 import os
 import json
 import asyncio
 import aiohttp
-import pandas as pd
+import re
 import yfinance as yf
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set, Tuple
@@ -46,18 +48,17 @@ class UniverseConfig:
     eu_min_price: float = 1.0
     
     # Limites
-    max_symbols_per_market: int = 1000
+    max_symbols_per_market: int = 2000
     cache_ttl_hours: int = 24
     
-    # Exchanges Euronext
-    euronext_exchanges: List[str] = field(default_factory=lambda: [
-        'PA',   # Paris
-        'AS',   # Amsterdam
-        'BR',   # Bruxelles
-        'LS',   # Lisbonne
-        'IR',   # Dublin
-        'MI',   # Milan
-    ])
+    # Euronext MICs (Market Identifier Codes)
+    euronext_mics: Dict[str, str] = field(default_factory=lambda: {
+        'XPAR': '.PA',   # Paris
+        'XAMS': '.AS',   # Amsterdam
+        'XBRU': '.BR',   # Brussels
+        'XLIS': '.LS',   # Lisbon
+        'XMSM': '.IR',   # Dublin (ISE)
+    })
 
 
 # =============================================================================
@@ -76,6 +77,7 @@ class UniverseSymbol:
     avg_volume: float
     price: float
     currency: str  # USD ou EUR
+    isin: str = ""  # Added for Euronext
     
     # Scores (calculés plus tard)
     heat_score: float = 0.0
@@ -93,6 +95,7 @@ class UniverseSymbol:
             'avg_volume': self.avg_volume,
             'price': self.price,
             'currency': self.currency,
+            'isin': self.isin,
         }
 
 
@@ -116,82 +119,32 @@ class UniverseSnapshot:
 
 
 # =============================================================================
-# EURONEXT FETCHER
+# EURONEXT FETCHER v2 (API Live)
 # =============================================================================
 
-class EuronextFetcher:
-    """Récupère les symboles Euronext via Yahoo Finance"""
+class EuronextFetcherV2:
+    """
+    Récupère les symboles Euronext via l'API live.euronext.com
+    Puis enrichit avec yfinance pour market cap/volume
+    """
     
-    # Mapping exchange -> suffixe Yahoo Finance
-    EXCHANGE_SUFFIX = {
-        'PA': '.PA',   # Paris
-        'AS': '.AS',   # Amsterdam  
-        'BR': '.BR',   # Bruxelles
-        'LS': '.LS',   # Lisbonne
-        'IR': '.IR',   # Dublin (Ireland)
-        'MI': '.MI',   # Milan
+    API_URL = "https://live.euronext.com/en/pd/data/stocks"
+    
+    HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json',
     }
     
-    # Principaux indices par exchange pour découvrir les composants
-    INDICES = {
-        'PA': ['^FCHI', '^SBF120'],  # CAC 40, SBF 120
-        'AS': ['^AEX'],               # AEX 25
-        'BR': ['^BFX'],               # BEL 20
-        'MI': ['^FTMIB'],             # FTSE MIB
-    }
-    
-    # Liste étendue des tickers Euronext (principales capitalisations)
-    # Cette liste sera enrichie dynamiquement
-    EURONEXT_TICKERS = {
-        # France (PA) - CAC 40 + Next 20 + Mid 60
-        'PA': [
-            # CAC 40
-            'AI.PA', 'AIR.PA', 'ALO.PA', 'MT.PA', 'CS.PA', 'BNP.PA', 'EN.PA', 
-            'CAP.PA', 'CA.PA', 'ACA.PA', 'BN.PA', 'DSY.PA', 'ENGI.PA', 'EL.PA',
-            'ERF.PA', 'RMS.PA', 'KER.PA', 'LR.PA', 'OR.PA', 'MC.PA', 'ML.PA',
-            'ORA.PA', 'RI.PA', 'PUB.PA', 'RNO.PA', 'SAF.PA', 'SGO.PA', 'SAN.PA',
-            'SU.PA', 'GLE.PA', 'STLAP.PA', 'STMPA.PA', 'TEP.PA', 'HO.PA', 
-            'TTE.PA', 'URW.PA', 'VIE.PA', 'DG.PA', 'VIV.PA', 'WLN.PA',
-            # SBF 120 additions
-            'AF.PA', 'AKE.PA', 'ATO.PA', 'BB.PA', 'BIM.PA', 'BOL.PA', 'CGG.PA',
-            'CO.PA', 'COFA.PA', 'DBG.PA', 'EDF.PA', 'EFI.PA', 'ETL.PA', 'FDJ.PA',
-            'FGR.PA', 'GFC.PA', 'GET.PA', 'GTT.PA', 'ILD.PA', 'ING.PA', 'IPH.PA',
-            'JCQ.PA', 'KOF.PA', 'LDC.PA', 'MMT.PA', 'NEX.PA', 'NXI.PA', 'OPM.PA',
-            'ORP.PA', 'PLX.PA', 'QUA.PA', 'RCO.PA', 'RF.PA', 'RUI.PA', 'RXL.PA',
-            'SEV.PA', 'SK.PA', 'SOI.PA', 'SOP.PA', 'SPB.PA', 'SW.PA', 'TFI.PA',
-            'UBI.PA', 'VCT.PA', 'VLA.PA', 'VK.PA', 'VRLA.PA',
-        ],
-        # Netherlands (AS) - AEX + AMX
-        'AS': [
-            'ADYEN.AS', 'AGN.AS', 'AD.AS', 'AKZA.AS', 'MT.AS', 'ASML.AS', 
-            'ASRNL.AS', 'DSM.AS', 'GLPG.AS', 'HEIA.AS', 'INGA.AS', 'KPN.AS',
-            'NN.AS', 'PHIA.AS', 'RAND.AS', 'REN.AS', 'RDSA.AS', 'TKWY.AS',
-            'UNA.AS', 'URW.AS', 'WKL.AS', 'ABN.AS', 'AALB.AS', 'BESI.AS',
-            'BFIT.AS', 'CMCOM.AS', 'FLOW.AS', 'IMCD.AS', 'JDEP.AS', 'OCI.AS',
-            'SBMO.AS', 'LIGHT.AS', 'TOM2.AS', 'VPK.AS', 'WHA.AS',
-        ],
-        # Belgium (BR) - BEL 20
-        'BR': [
-            'ABI.BR', 'ACKB.BR', 'AGS.BR', 'APAM.BR', 'ARGX.BR', 'COFB.BR',
-            'ELI.BR', 'GLPG.BR', 'KBC.BR', 'PROX.BR', 'SOF.BR', 'SOLB.BR',
-            'UCB.BR', 'UMI.BR', 'WDP.BR', 'XIOR.BR',
-        ],
-        # Italy (MI) - FTSE MIB
-        'MI': [
-            'A2A.MI', 'AMP.MI', 'ATL.MI', 'AZM.MI', 'BAMI.MI', 'BGN.MI',
-            'BMED.MI', 'BPER.MI', 'BZU.MI', 'CPR.MI', 'DIA.MI', 'ENEL.MI',
-            'ENI.MI', 'ERG.MI', 'FBK.MI', 'G.MI', 'HER.MI', 'IG.MI',
-            'INW.MI', 'IPG.MI', 'ISP.MI', 'LDO.MI', 'MB.MI', 'MONC.MI',
-            'NEXI.MI', 'PIRC.MI', 'PRY.MI', 'PST.MI', 'RACE.MI', 'REC.MI',
-            'SPM.MI', 'SRG.MI', 'STM.MI', 'TEN.MI', 'TIT.MI', 'TRN.MI',
-            'UCG.MI', 'UNI.MI',
-        ],
-        # Portugal (LS)
-        'LS': [
-            'EDP.LS', 'EDPR.LS', 'GALP.LS', 'JMT.LS', 'NVG.LS', 'PHR.LS',
-            'RENE.LS', 'SON.LS',
-        ],
-    }
+    # Fallback tickers for Milan (different API)
+    MILAN_TICKERS = [
+        'A2A.MI', 'AMP.MI', 'ATL.MI', 'AZM.MI', 'BAMI.MI', 'BGN.MI',
+        'BMED.MI', 'BPER.MI', 'BZU.MI', 'CPR.MI', 'DIA.MI', 'ENEL.MI',
+        'ENI.MI', 'ERG.MI', 'FBK.MI', 'G.MI', 'HER.MI', 'IG.MI',
+        'INW.MI', 'IPG.MI', 'ISP.MI', 'LDO.MI', 'MB.MI', 'MONC.MI',
+        'NEXI.MI', 'PIRC.MI', 'PRY.MI', 'PST.MI', 'RACE.MI', 'REC.MI',
+        'SPM.MI', 'SRG.MI', 'STM.MI', 'TEN.MI', 'TIT.MI', 'TRN.MI',
+        'UCG.MI', 'UNI.MI',
+    ]
 
     def __init__(self, config: UniverseConfig):
         self.config = config
@@ -202,58 +155,202 @@ class EuronextFetcher:
         """Récupère tous les symboles Euronext"""
         all_symbols = []
         
-        for exchange, tickers in self.EURONEXT_TICKERS.items():
-            logger.info(f"Fetching {exchange} tickers: {len(tickers)} symbols")
-            
-            for ticker in tickers:
+        async with aiohttp.ClientSession(headers=self.HEADERS) as session:
+            # Fetch from each Euronext market
+            for mic, suffix in self.config.euronext_mics.items():
                 try:
-                    symbol = await self._fetch_symbol_info(ticker, exchange)
-                    if symbol and self._passes_filters(symbol):
-                        all_symbols.append(symbol)
+                    symbols = await self._fetch_market(session, mic, suffix)
+                    all_symbols.extend(symbols)
+                    logger.info(f"{mic}: {len(symbols)} symbols")
                 except Exception as e:
-                    logger.warning(f"Error fetching {ticker}: {e}")
+                    logger.error(f"Error fetching {mic}: {e}")
                     
-            # Rate limiting
-            await asyncio.sleep(0.1)
-            
-        logger.info(f"Euronext total: {len(all_symbols)} symbols after filtering")
+                await asyncio.sleep(0.5)  # Rate limiting
+        
+        # Add Milan (different API, use yfinance directly)
+        try:
+            milan_symbols = await self._fetch_milan()
+            all_symbols.extend(milan_symbols)
+            logger.info(f"Milan (XMIL): {len(milan_symbols)} symbols")
+        except Exception as e:
+            logger.error(f"Error fetching Milan: {e}")
+        
+        logger.info(f"Euronext total: {len(all_symbols)} symbols")
         return all_symbols
     
-    async def _fetch_symbol_info(self, ticker: str, exchange: str) -> Optional[UniverseSymbol]:
-        """Récupère les infos d'un symbole via yfinance"""
+    async def _fetch_market(self, session: aiohttp.ClientSession, mic: str, suffix: str) -> List[UniverseSymbol]:
+        """Récupère les symboles d'un marché Euronext via l'API live"""
+        url = f"{self.API_URL}?mics={mic}"
+        
         try:
-            stock = yf.Ticker(ticker)
-            info = stock.info
-            
-            if not info or 'regularMarketPrice' not in info:
-                return None
+            async with session.get(url, timeout=30) as response:
+                if response.status != 200:
+                    logger.error(f"HTTP {response.status} for {mic}")
+                    return []
                 
+                data = await response.json()
+                rows = data.get('aaData', [])
+                total = data.get('iTotalRecords', 0)
+                logger.info(f"{mic}: API returned {total} records")
+                
+                symbols = []
+                for row in rows:
+                    try:
+                        symbol = self._parse_euronext_row(row, mic, suffix)
+                        if symbol:
+                            symbols.append(symbol)
+                    except Exception as e:
+                        continue
+                
+                # Enrich with yfinance data (in batches)
+                enriched = await self._enrich_with_yfinance(symbols)
+                
+                # Filter
+                filtered = [s for s in enriched if self._passes_filters(s)]
+                
+                return filtered
+                
+        except Exception as e:
+            logger.error(f"Error fetching {mic}: {e}")
+            return []
+    
+    def _parse_euronext_row(self, row: List, mic: str, suffix: str) -> Optional[UniverseSymbol]:
+        """Parse une ligne de l'API Euronext"""
+        try:
+            # row[0] = nom avec lien HTML
+            # row[1] = ISIN
+            # row[2] = ticker
+            # row[4] = prix
+            
+            # Extract name from HTML
+            name_match = re.search(r"data-title-hover='([^']+)'", row[0])
+            name = name_match.group(1) if name_match else "Unknown"
+            
+            isin = row[1] if len(row) > 1 else ""
+            ticker = row[2] if len(row) > 2 else ""
+            
+            if not ticker:
+                return None
+            
+            # Parse price from HTML
+            price_str = row[4] if len(row) > 4 else "0"
+            price_match = re.search(r"pd_last_price[^>]*>([0-9,\.]+)", price_str)
+            price = 0.0
+            if price_match:
+                price_val = price_match.group(1).replace(',', '.')
+                try:
+                    price = float(price_val)
+                except:
+                    price = 0.0
+            
+            # Build Yahoo Finance ticker
+            yahoo_ticker = f"{ticker}{suffix}"
+            
+            # Exchange code from MIC
+            exchange_map = {
+                'XPAR': 'PA',
+                'XAMS': 'AS', 
+                'XBRU': 'BR',
+                'XLIS': 'LS',
+                'XMSM': 'IR',
+            }
+            exchange = exchange_map.get(mic, mic)
+            
             return UniverseSymbol(
-                symbol=ticker,
-                name=info.get('shortName', info.get('longName', ticker)),
+                symbol=yahoo_ticker,
+                name=name,
                 market='EU',
                 exchange=exchange,
-                sector=info.get('sector', 'Unknown'),
-                market_cap=info.get('marketCap', 0) or 0,
-                avg_volume=info.get('averageVolume', 0) or 0,
-                price=info.get('regularMarketPrice', 0) or 0,
-                currency=info.get('currency', 'EUR'),
+                sector='Unknown',  # Will be enriched
+                market_cap=0,  # Will be enriched
+                avg_volume=0,  # Will be enriched
+                price=price,
+                currency='EUR',
+                isin=isin,
             )
+            
         except Exception as e:
-            logger.debug(f"Failed to fetch {ticker}: {e}")
+            logger.debug(f"Parse error: {e}")
             return None
+    
+    async def _enrich_with_yfinance(self, symbols: List[UniverseSymbol]) -> List[UniverseSymbol]:
+        """Enrichit les symboles avec les données yfinance (market cap, volume, sector)"""
+        enriched = []
+        
+        for symbol in symbols:
+            try:
+                stock = yf.Ticker(symbol.symbol)
+                info = stock.info
+                
+                if info:
+                    symbol.market_cap = info.get('marketCap', 0) or 0
+                    symbol.avg_volume = info.get('averageVolume', 0) or 0
+                    symbol.sector = info.get('sector', 'Unknown')
+                    
+                    # Update price if we got a better one
+                    if info.get('regularMarketPrice'):
+                        symbol.price = info['regularMarketPrice']
+                
+                enriched.append(symbol)
+                
+            except Exception as e:
+                # Keep symbol even without enrichment
+                enriched.append(symbol)
+                
+            # Rate limit yfinance
+            await asyncio.sleep(0.05)
+        
+        return enriched
+    
+    async def _fetch_milan(self) -> List[UniverseSymbol]:
+        """Récupère les symboles de Milan via yfinance (API différente)"""
+        symbols = []
+        
+        for ticker in self.MILAN_TICKERS:
+            try:
+                stock = yf.Ticker(ticker)
+                info = stock.info
+                
+                if not info or 'regularMarketPrice' not in info:
+                    continue
+                    
+                symbol = UniverseSymbol(
+                    symbol=ticker,
+                    name=info.get('shortName', info.get('longName', ticker)),
+                    market='EU',
+                    exchange='MI',
+                    sector=info.get('sector', 'Unknown'),
+                    market_cap=info.get('marketCap', 0) or 0,
+                    avg_volume=info.get('averageVolume', 0) or 0,
+                    price=info.get('regularMarketPrice', 0) or 0,
+                    currency='EUR',
+                )
+                
+                if self._passes_filters(symbol):
+                    symbols.append(symbol)
+                    
+            except Exception as e:
+                logger.debug(f"Milan fetch error for {ticker}: {e}")
+                
+            await asyncio.sleep(0.05)
+        
+        return symbols
     
     def _passes_filters(self, symbol: UniverseSymbol) -> bool:
         """Vérifie si le symbole passe les filtres EU"""
-        return (
-            symbol.market_cap >= self.config.eu_min_market_cap and
-            symbol.avg_volume >= self.config.eu_min_volume and
-            symbol.price >= self.config.eu_min_price
-        )
+        # Price filter is mandatory
+        if symbol.price < self.config.eu_min_price:
+            return False
+        
+        # Market cap filter (if we have data)
+        if symbol.market_cap > 0 and symbol.market_cap < self.config.eu_min_market_cap:
+            return False
+            
+        return True
 
 
 # =============================================================================
-# US FETCHER (utilise l'existant)
+# US FETCHER (unchanged)
 # =============================================================================
 
 class USFetcher:
@@ -375,7 +472,6 @@ class USFetcher:
     
     def _passes_filters(self, symbol: UniverseSymbol) -> bool:
         """Vérifie si le symbole passe les filtres US"""
-        # Note: NASDAQ API doesn't return volume, so we skip that filter
         return (
             symbol.market_cap >= self.config.us_min_market_cap and
             symbol.price >= self.config.us_min_price
@@ -383,12 +479,12 @@ class USFetcher:
 
 
 # =============================================================================
-# UNIVERSE SCANNER (Main Class)
+# UNIVERSE SCANNER v2 (Main Class)
 # =============================================================================
 
 class UniverseScanner:
     """
-    Scanner d'univers complet US + Euronext.
+    Scanner d'univers complet US + Euronext (v2 avec API Live).
     
     Usage:
         scanner = UniverseScanner()
@@ -404,7 +500,7 @@ class UniverseScanner:
     def __init__(self, config: Optional[UniverseConfig] = None):
         self.config = config or UniverseConfig()
         self.us_fetcher = USFetcher(self.config)
-        self.eu_fetcher = EuronextFetcher(self.config)
+        self.eu_fetcher = EuronextFetcherV2(self.config)  # V2!
         
         # Cache
         self._us_symbols: List[UniverseSymbol] = []
@@ -415,7 +511,7 @@ class UniverseScanner:
         self._data_dir = Path("data/universe")
         self._data_dir.mkdir(parents=True, exist_ok=True)
         
-        logger.info("UniverseScanner initialized")
+        logger.info("UniverseScanner v2 initialized (with Euronext Live API)")
         
     async def initialize(self):
         """Initialise le scanner et charge le cache"""
@@ -437,7 +533,7 @@ class UniverseScanner:
             logger.info("Using cached universe data")
             return self._create_snapshot()
             
-        logger.info("Starting full universe scan...")
+        logger.info("Starting full universe scan (v2)...")
         
         # Fetch US
         logger.info("Fetching US symbols...")
@@ -445,7 +541,7 @@ class UniverseScanner:
         logger.info(f"US: {len(self._us_symbols)} symbols")
         
         # Fetch EU
-        logger.info("Fetching Euronext symbols...")
+        logger.info("Fetching Euronext symbols (via live API)...")
         self._eu_symbols = await self.eu_fetcher.fetch_all()
         logger.info(f"EU: {len(self._eu_symbols)} symbols")
         
@@ -496,12 +592,10 @@ class UniverseScanner:
             total_count=len(self._us_symbols) + len(self._eu_symbols),
             filters_applied={
                 'us': {
-                    'min_volume': self.config.us_min_volume,
                     'min_market_cap': self.config.us_min_market_cap,
                     'min_price': self.config.us_min_price,
                 },
                 'eu': {
-                    'min_volume': self.config.eu_min_volume,
                     'min_market_cap': self.config.eu_min_market_cap,
                     'min_price': self.config.eu_min_price,
                 },
@@ -558,6 +652,40 @@ def get_universe_scanner() -> UniverseScanner:
 
 
 # =============================================================================
+# MONTHLY UPDATE SCRIPT
+# =============================================================================
+
+async def monthly_universe_update():
+    """
+    Script de mise à jour mensuelle de l'univers.
+    À exécuter via cron: 0 4 1 * * python universe_scanner.py --monthly
+    """
+    import sys
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
+    )
+    
+    logger.info("="*60)
+    logger.info("MONTHLY UNIVERSE UPDATE")
+    logger.info("="*60)
+    
+    scanner = UniverseScanner()
+    await scanner.initialize()
+    
+    # Force full rescan
+    snapshot = await scanner.scan_full_universe(force=True)
+    
+    logger.info(f"\n📊 Update Complete:")
+    logger.info(f"  US: {len(snapshot.us_symbols)} symboles")
+    logger.info(f"  EU: {len(snapshot.eu_symbols)} symboles")
+    logger.info(f"  Total: {snapshot.total_count} symboles")
+    logger.info(f"  Cache saved at: {scanner._data_dir / 'universe_cache.json'}")
+    
+    return snapshot
+
+
+# =============================================================================
 # CLI TEST
 # =============================================================================
 
@@ -566,11 +694,16 @@ async def main():
     import sys
     logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s | %(name)s | %(message)s')
     
+    # Check for monthly update flag
+    if '--monthly' in sys.argv:
+        await monthly_universe_update()
+        return
+    
     scanner = UniverseScanner()
     await scanner.initialize()
     
     print("\n" + "="*60)
-    print("UNIVERSE SCANNER TEST")
+    print("UNIVERSE SCANNER v2 TEST (with Euronext Live API)")
     print("="*60)
     
     snapshot = await scanner.scan_full_universe(force=True)
@@ -589,6 +722,14 @@ async def main():
     eu_sorted = sorted(snapshot.eu_symbols, key=lambda x: x.market_cap, reverse=True)[:10]
     for s in eu_sorted:
         print(f"  {s.symbol:10} | {s.name[:30]:30} | €{s.market_cap/1e9:.1f}B")
+    
+    # Breakdown by exchange
+    print(f"\n📈 Breakdown EU par exchange:")
+    exchanges = {}
+    for s in snapshot.eu_symbols:
+        exchanges[s.exchange] = exchanges.get(s.exchange, 0) + 1
+    for ex, count in sorted(exchanges.items(), key=lambda x: -x[1]):
+        print(f"  {ex}: {count}")
 
 
 if __name__ == "__main__":

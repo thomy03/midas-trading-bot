@@ -1,0 +1,180 @@
+{
+  "timestamp": "2026-02-02T19:22:08.325666",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "SPY": 1,
+    "QQQ": 1,
+    "TLT": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "SMCI": 1,
+    "TSLA": 1,
+    "JPM": 1,
+    "BAC": 1,
+    "WFC": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "IBIT": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.8240000000000001,
+  "insights": [
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Traders buzzing about 50bps cut in September amid cooling inflation data; Powell speech anticipation driving bond yields lower.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "CPI print beat expectations",
+        "Labor data softening",
+        "Market pricing 95% odds for cut"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "catalysts": [
+        "Powell Jackson Hole speech",
+        "Upcoming CPI"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:21:54.395449"
+    },
+    {
+      "topic": "Nvidia AI Chip Dominance",
+      "summary": "NVDA surges past $3T market cap on Blackwell chip demand; analysts upgrading targets amid AI infrastructure spend.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.92,
+      "confidence": 0.95,
+      "key_points": [
+        "Record quarterly revenue",
+        "Hyperscaler capex boom",
+        "Competitor delays benefiting NVDA"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "SMCI"
+      ],
+      "catalysts": [
+        "Blackwell ramp-up",
+        "Next earnings"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:21:54.395462"
+    },
+    {
+      "topic": "Tesla Robotaxi Hype",
+      "summary": "Elon Musk's Robotaxi event reveal sparks rally; FSD v12 demos fueling autonomous driving narrative.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.78,
+      "confidence": 0.85,
+      "key_points": [
+        "Event delayed to Oct",
+        "Cybercab unveil excitement",
+        "China expansion news"
+      ],
+      "mentioned_symbols": [
+        "TSLA"
+      ],
+      "catalysts": [
+        "Robotaxi event",
+        "Q3 delivery numbers"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:21:54.395466"
+    },
+    {
+      "topic": "Big Bank Earnings Beat",
+      "summary": "JPM, WFC, C beat Q3 estimates on trading revenue; consumer lending resilient despite high rates.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.88,
+      "key_points": [
+        "Investment banking rebound",
+        "NII stabilization",
+        "Buybacks accelerating"
+      ],
+      "mentioned_symbols": [
+        "JPM",
+        "BAC",
+        "WFC"
+      ],
+      "catalysts": [
+        "More bank earnings",
+        "Stress test results"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:21:54.395470"
+    },
+    {
+      "topic": "Bitcoin ETF Inflows Surge",
+      "summary": "BTC tops $65K on ETF record inflows; institutional adoption narrative strengthens post-halving.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.82,
+      "confidence": 0.8,
+      "key_points": [
+        "BlackRock IBIT leads inflows",
+        "Election cycle speculation",
+        "Altcoin rotation starting"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "IBIT"
+      ],
+      "catalysts": [
+        "Fed policy pivot",
+        "US election outcomes"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:21:54.395474"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Options flow in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Bullish on AI stocks like MSFT",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending tickers: SPY, QQQ",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "watchersguru",
+      "recent_topic": "Earnings previews for tech giants",
+      "sentiment": "neutral"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cut Expectations",
+    "Powell Jackson Hole speech",
+    "Upcoming CPI",
+    "Nvidia AI Chip Dominance",
+    "Blackwell ramp-up",
+    "Next earnings",
+    "Tesla Robotaxi Hype",
+    "Robotaxi event",
+    "Q3 delivery numbers",
+    "Big Bank Earnings Beat"
+  ]
+}

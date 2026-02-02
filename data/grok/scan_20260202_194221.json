@@ -1,0 +1,174 @@
+{
+  "timestamp": "2026-02-02T19:42:21.797998",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "NVDA": 1,
+    "AMD": 1,
+    "SPY": 1,
+    "QQQ": 1,
+    "TLT": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "TSLA": 1,
+    "IWM": 1,
+    "SMH": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.788,
+  "insights": [
+    {
+      "topic": "NVIDIA Earnings Rally",
+      "summary": "NVDA crushes Q3 earnings with massive AI chip demand, shares surging 8% after hours; top buzz stock with heavy trading volume.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.92,
+      "confidence": 0.88,
+      "key_points": [
+        "Revenue +94% YoY to $35B",
+        "Blackwell ramp-up accelerates",
+        "Influencer @zerohedge calls 'AI bubble intact'"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD"
+      ],
+      "catalysts": [
+        "Q3 Earnings Beat",
+        "AI Data Center Boom"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:42:08.918134"
+    },
+    {
+      "topic": "Fed Rate Cut Hopes",
+      "summary": "Markets pricing 85% chance of 25bps Dec cut after soft CPI; bonds rallying, equities grinding higher.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.78,
+      "confidence": 0.82,
+      "key_points": [
+        "Powell speech tomorrow key",
+        "10Y yield dips to 4.1%",
+        "Chamath Palihapitiya: 'Cuts fuel bull market'"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "catalysts": [
+        "CPI Data",
+        "FOMC Minutes"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:42:08.918147"
+    },
+    {
+      "topic": "Bitcoin Breakout to $98K",
+      "summary": "BTC smashes $98K on ETF inflows and Trump win bets; highest crypto buzz, altcoins following.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.79,
+      "key_points": [
+        "$3B ETF inflows YTD",
+        "Michael Saylor: 'Hyperbitcoinization'",
+        "Short squeeze incoming"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH"
+      ],
+      "catalysts": [
+        "Election Outcome",
+        "ETF Approvals"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:42:08.918152"
+    },
+    {
+      "topic": "Tesla Robotaxi Event",
+      "summary": "TSLA hype builds for Oct 10 robotaxi unveil; stock volatile but volume spikes amid FSD updates.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.71,
+      "confidence": 0.75,
+      "key_points": [
+        "Cathie Wood targets $2T mcap",
+        "China FSD approval rumors",
+        "Retail frenzy on X"
+      ],
+      "mentioned_symbols": [
+        "TSLA"
+      ],
+      "catalysts": [
+        "Robotaxi Day",
+        "Q3 Delivery Numbers"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:42:08.918156"
+    },
+    {
+      "topic": "Small Caps Rotation",
+      "summary": "Russell 2000 outperforms Nasdaq on rate cut bets; IWM up 2%, rotation from megacaps.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.68,
+      "confidence": 0.72,
+      "key_points": [
+        "Earnings from banks strong",
+        "Jim Cramer: 'Broad market rally'",
+        "Volume shift to value stocks"
+      ],
+      "mentioned_symbols": [
+        "IWM",
+        "SMH"
+      ],
+      "catalysts": [
+        "Rate Sensitivity",
+        "Q3 Bank Earnings"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:42:08.918159"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla Optimus robot and xAI updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy options flow in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Market rally and Fed rate cut expectations",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large Bitcoin transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending stocks: AAPL, SPY, QQQ",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "NVIDIA Earnings Rally",
+    "Q3 Earnings Beat",
+    "AI Data Center Boom",
+    "Fed Rate Cut Hopes",
+    "FOMC Minutes",
+    "Bitcoin Breakout to $98K",
+    "Election Outcome",
+    "ETF Approvals",
+    "Tesla Robotaxi Event",
+    "Robotaxi Day"
+  ]
+}

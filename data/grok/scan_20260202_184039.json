@@ -1,0 +1,180 @@
+{
+  "timestamp": "2026-02-02T18:40:39.525005",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "NVDA": 1,
+    "AMD": 1,
+    "TSM": 1,
+    "SPY": 1,
+    "QQQ": 1,
+    "TLT": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "MSTR": 1,
+    "TSLA": 1,
+    "IWM": 1,
+    "SMH": 1,
+    "XLF": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.796,
+  "insights": [
+    {
+      "topic": "NVIDIA Earnings Beat",
+      "summary": "NVIDIA reports massive Q3 beat with AI chip demand exploding, shares surge after hours.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.92,
+      "confidence": 0.88,
+      "key_points": [
+        "Revenue +94% YoY to $35B",
+        "Data center revenue hits record $30B",
+        "Guidance raised for Q4"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "TSM"
+      ],
+      "catalysts": [
+        "Q3 Earnings",
+        "AI hyperscaler spending"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:40:27.070763"
+    },
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Markets pricing in 25bps cut at December FOMC, boosting equities and weakening USD.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.82,
+      "key_points": [
+        "Powell hints at data-dependent cuts",
+        "CME FedWatch shows 85% probability",
+        "Bonds rally, yields drop to 4.1%"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "catalysts": [
+        "FOMC Minutes",
+        "CPI Data"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:40:27.070835"
+    },
+    {
+      "topic": "Bitcoin Surge to New Highs",
+      "summary": "BTC breaks $95K on ETF inflows and election optimism, altcoins follow.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.79,
+      "key_points": [
+        "BlackRock ETF AUM +$2B weekly",
+        "Trump pro-crypto rhetoric",
+        "Hashrate at ATH"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "MSTR"
+      ],
+      "catalysts": [
+        "Election Outcome",
+        "ETF Approvals"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:40:27.070839"
+    },
+    {
+      "topic": "Tesla Robotaxi Hype",
+      "summary": "Tesla unveils Robotaxi plans, stock pops 8% amid FSD advancements.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.78,
+      "confidence": 0.76,
+      "key_points": [
+        "Event delayed but details leaked",
+        "Cathie Wood reiterates $2T PT",
+        "Cybercab production 2026"
+      ],
+      "mentioned_symbols": [
+        "TSLA"
+      ],
+      "catalysts": [
+        "Robotaxi Day",
+        "Q3 Deliveries"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:40:27.070842"
+    },
+    {
+      "topic": "Small Cap Rotation",
+      "summary": "Russell 2000 outperforms S&P amid rate cut bets, value stocks lead.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.68,
+      "confidence": 0.71,
+      "key_points": [
+        "IWM +3% vs SPY flat",
+        "Jim Cramer calls 'rotation trade'",
+        "Bank earnings boost regionals"
+      ],
+      "mentioned_symbols": [
+        "IWM",
+        "SMH",
+        "XLF"
+      ],
+      "catalysts": [
+        "Regional Bank Earnings",
+        "Rate Sensitivity"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:40:27.070845"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla robotaxi event and stock surge",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy options flow in NVDA and AAPL",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Warning on overvalued tech stocks",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending discussions on SPY and QQQ",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "NVIDIA Earnings Beat",
+    "Q3 Earnings",
+    "AI hyperscaler spending",
+    "Fed Rate Cut Expectations",
+    "FOMC Minutes",
+    "Bitcoin Surge to New Highs",
+    "Election Outcome",
+    "ETF Approvals",
+    "Tesla Robotaxi Hype",
+    "Robotaxi Day"
+  ]
+}

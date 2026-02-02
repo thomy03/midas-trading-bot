@@ -1,0 +1,175 @@
+{
+  "timestamp": "2026-02-02T19:49:06.027578",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "SPY": 2,
+    "IWM": 2,
+    "QQQ": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "SMCI": 1,
+    "BTC": 1,
+    "MSTR": 1,
+    "COIN": 1,
+    "SMC": 1,
+    "TSLA": 1,
+    "RIVN": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.7500000000000001,
+  "insights": [
+    {
+      "topic": "Fed Rate Cuts",
+      "summary": "Discussions heating up around potential additional Fed rate cuts in 2025, with Powell's recent comments fueling optimism for softer landing.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Powell signals more cuts if inflation cools",
+        "Boost for growth stocks and real estate"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "IWM"
+      ],
+      "catalysts": [
+        "FOMC minutes",
+        "CPI data"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:48:46.313693"
+    },
+    {
+      "topic": "NVDA Earnings Anticipation",
+      "summary": "NVDA dominating buzz pre-earnings, with traders eyeing AI chip demand and Blackwell ramp-up.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.85,
+      "key_points": [
+        "Record data center revenue expected",
+        "Influencers like @StockMKTNewz calling for $150+ PT"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "SMCI"
+      ],
+      "catalysts": [
+        "Q3 earnings",
+        "AI conference"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:48:46.313706"
+    },
+    {
+      "topic": "Bitcoin Surge to ATH",
+      "summary": "Crypto community hyped as BTC nears $100K, driven by ETF inflows and election speculation.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.8,
+      "key_points": [
+        "@APompliano predicts $150K by EOY",
+        "MicroStrategy adds more BTC"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "MSTR",
+        "COIN"
+      ],
+      "catalysts": [
+        "ETF approvals",
+        "Trump policy rumors"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:48:46.313711"
+    },
+    {
+      "topic": "Small Cap Rotation",
+      "summary": "Shift from mega caps to small caps gaining traction post-rate cuts, Russell 2000 outperforming.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.7,
+      "confidence": 0.75,
+      "key_points": [
+        "IWM up 10% in week",
+        "@zerohedge notes value rotation"
+      ],
+      "mentioned_symbols": [
+        "IWM",
+        "SMC",
+        "SPY"
+      ],
+      "catalysts": [
+        "Rate sensitivity",
+        "Earnings beats"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:48:46.313715"
+    },
+    {
+      "topic": "Tesla Robotaxi Event",
+      "summary": "TSLA hype building for Oct 10 Robotaxi unveil, mixed views on FSD progress.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.65,
+      "confidence": 0.7,
+      "key_points": [
+        "Cathie Wood reiterates $2T PT",
+        "Short squeeze potential"
+      ],
+      "mentioned_symbols": [
+        "TSLA",
+        "RIVN"
+      ],
+      "catalysts": [
+        "Robotaxi event",
+        "Q3 deliveries"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:48:46.313718"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla Q3 delivery numbers and FSD updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy put buying in NVDA and SPY",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending tickers: $TSLA, $AAPL, $BTC",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Recommendations on tech stocks amid rate cut talks",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cuts",
+    "FOMC minutes",
+    "NVDA Earnings Anticipation",
+    "Q3 earnings",
+    "AI conference",
+    "Bitcoin Surge to ATH",
+    "ETF approvals",
+    "Trump policy rumors",
+    "Small Cap Rotation",
+    "Rate sensitivity"
+  ]
+}

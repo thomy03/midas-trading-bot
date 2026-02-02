@@ -326,7 +326,7 @@ class MarketAgent:
         # 3. Social Scanner (nouveau V4)
         try:
             from src.intelligence.social_scanner import SocialScanner
-            self.social_scanner = SocialScanner()
+            self.social_scanner = SocialScanner(enable_stocktwits=False, enable_reddit=False)
             await self.social_scanner.initialize()
             logger.info("SocialScanner initialized")
         except Exception as e:

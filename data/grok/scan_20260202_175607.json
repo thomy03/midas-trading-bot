@@ -1,0 +1,176 @@
+{
+  "timestamp": "2026-02-02T17:56:07.624505",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "NVDA": 1,
+    "AVGO": 1,
+    "SPY": 1,
+    "QQQ": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "MSTR": 1,
+    "TSLA": 1,
+    "AMD": 1,
+    "ASML": 1,
+    "MSFT": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.7399999999999999,
+  "insights": [
+    {
+      "topic": "NVIDIA Earnings Anticipation",
+      "summary": "High buzz around NVDA Q2 earnings expected this week, with focus on AI data center revenue and Blackwell chip demand.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.88,
+      "confidence": 0.92,
+      "key_points": [
+        "Record revenue forecasts",
+        "Guidance beats expected",
+        "Cathie Wood reiterates buy call"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AVGO"
+      ],
+      "catalysts": [
+        "earnings",
+        "AI demand surge"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:55:52.941502"
+    },
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Markets pricing in 90% chance of September cut after softer CPI; Powell testimony fueling optimism.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.85,
+      "key_points": [
+        "CPI undershoot",
+        "Labor data softening",
+        "@zerohedge warns of trap but bulls dominate"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ"
+      ],
+      "catalysts": [
+        "CPI data",
+        "FOMC minutes"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:55:52.941515"
+    },
+    {
+      "topic": "Bitcoin Breakout Rally",
+      "summary": "BTC surges past $62K on ETF inflows and halving narrative revival; altcoins following.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.82,
+      "confidence": 0.78,
+      "key_points": [
+        "MicroStrategy adds 10K BTC",
+        "ETF inflows hit $1B weekly",
+        "PlanB calls for $100K target"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "MSTR"
+      ],
+      "catalysts": [
+        "ETF approvals",
+        "halving effects"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:55:52.941520"
+    },
+    {
+      "topic": "Tesla Robotaxi Hype",
+      "summary": "Pre-event buzz for Tesla's Robotaxi unveiling on Oct 10; FSD advancements driving speculation.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.7,
+      "confidence": 0.75,
+      "key_points": [
+        "Delay to October",
+        "ARK Invest upgrades PT to $2,600",
+        "Short squeeze potential"
+      ],
+      "mentioned_symbols": [
+        "TSLA"
+      ],
+      "catalysts": [
+        "robotaxi event",
+        "FSD v12.5 rollout"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:55:52.941523"
+    },
+    {
+      "topic": "Big Tech Earnings Rotation",
+      "summary": "Shift from Magnificent 7 to broader tech after mixed bank earnings; ASML and AMD in spotlight.",
+      "sentiment": "mixed",
+      "sentiment_score": 0.55,
+      "confidence": 0.8,
+      "key_points": [
+        "Bank earnings beat but guidance cautious",
+        "ASML China sales concerns",
+        "Tom Lee bullish on semis"
+      ],
+      "mentioned_symbols": [
+        "AMD",
+        "ASML",
+        "MSFT"
+      ],
+      "catalysts": [
+        "earnings season",
+        "China stimulus"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:55:52.941526"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla Q3 earnings and robotaxi updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Bullish on AI stocks like NVDA amid market rally",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy options flow in SPY and QQQ calls",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Massive BTC accumulation by unknown wallets",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending tickers: TSLA, AAPL with positive sentiment",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "NVIDIA Earnings Anticipation",
+    "AI demand surge",
+    "Fed Rate Cut Expectations",
+    "FOMC minutes",
+    "Bitcoin Breakout Rally",
+    "ETF approvals",
+    "halving effects",
+    "Tesla Robotaxi Hype",
+    "robotaxi event",
+    "FSD v12.5 rollout"
+  ]
+}

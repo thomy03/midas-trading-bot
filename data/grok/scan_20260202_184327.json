@@ -1,0 +1,188 @@
+{
+  "timestamp": "2026-02-02T18:43:27.797706",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "NVDA": 2,
+    "SPY": 1,
+    "QQQ": 1,
+    "TLT": 1,
+    "AMD": 1,
+    "TSM": 1,
+    "AAPL": 1,
+    "MSFT": 1,
+    "GOOGL": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "MSTR": 1,
+    "ARKK": 1,
+    "GME": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.74,
+  "insights": [
+    {
+      "topic": "Fed Rate Cuts",
+      "summary": "Discussions heating up on potential Fed rate cuts in September, boosting risk assets amid cooling inflation data.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "CPI data beat expectations",
+        "Powell hints at cuts",
+        "Market pricing in 25bps cut"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "catalysts": [
+        "CPI report",
+        "FOMC minutes",
+        "Jackson Hole symposium"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:43:11.078073"
+    },
+    {
+      "topic": "AI Semiconductors Rally",
+      "summary": "NVDA and peers surging on AI demand hype, with focus on Blackwell chip delays but strong data center growth.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.85,
+      "key_points": [
+        "NVDA hits new highs",
+        "AMD earnings preview buzz",
+        "Hyperscaler capex ramps"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "TSM"
+      ],
+      "catalysts": [
+        "earnings season",
+        "product launches",
+        "analyst upgrades"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:43:11.078082"
+    },
+    {
+      "topic": "Big Tech Earnings",
+      "summary": "Pre-earnings hype for Magnificent 7, with mixed expectations but optimism on AI monetization.",
+      "sentiment": "mixed",
+      "sentiment_score": 0.6,
+      "confidence": 0.8,
+      "key_points": [
+        "AAPL services growth",
+        "MSFT Azure beats",
+        "Guidance key for multiples"
+      ],
+      "mentioned_symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL"
+      ],
+      "catalysts": [
+        "Q2 earnings",
+        "forward guidance",
+        "capex updates"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:43:11.078085"
+    },
+    {
+      "topic": "Bitcoin Breakout",
+      "summary": "BTC pushing towards $70K on ETF inflows and halving aftermath, crypto traders eyeing altcoin season.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.75,
+      "key_points": [
+        "Spot ETF records AUM",
+        "ETH ETF approvals",
+        "Risk-on sentiment spillover"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "MSTR"
+      ],
+      "catalysts": [
+        "ETF flows",
+        "regulatory news",
+        "halving effects"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:43:11.078087"
+    },
+    {
+      "topic": "Influential Trader Calls",
+      "summary": "Cathie Wood doubling down on ARKK longs, Jim Cramer bullish on semis; Roaring Kitty back stirring GME.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.7,
+      "confidence": 0.7,
+      "key_points": [
+        "ARK buys TSLA",
+        "Cramer NVDA target $200",
+        "Kitty memes fueling retail"
+      ],
+      "mentioned_symbols": [
+        "ARKK",
+        "NVDA",
+        "GME"
+      ],
+      "catalysts": [
+        "trader tweets",
+        "position disclosures",
+        "retail frenzy"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:43:11.078089"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla robotaxi event and FSD updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Heavy call buying in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Market rally led by tech giants",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending tickers: $SPY $QQQ",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cuts",
+    "FOMC minutes",
+    "Jackson Hole symposium",
+    "AI Semiconductors Rally",
+    "earnings season",
+    "product launches",
+    "analyst upgrades",
+    "Big Tech Earnings",
+    "Q2 earnings",
+    "forward guidance"
+  ]
+}

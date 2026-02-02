@@ -1,0 +1,186 @@
+{
+  "timestamp": "2026-02-02T18:04:48.555108",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "IWM": 2,
+    "SPY": 1,
+    "QQQ": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "TSM": 1,
+    "AAPL": 1,
+    "MSFT": 1,
+    "AMZN": 1,
+    "GOOGL": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "MSTR": 1,
+    "SMH": 1,
+    "XLF": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.7300000000000001,
+  "insights": [
+    {
+      "topic": "Fed Rate Cuts",
+      "summary": "Discussions heating up on potential 50bps cut in September, boosting risk assets amid cooling inflation data.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Powell testimony fueling expectations",
+        "Market pricing in 95% chance of cut",
+        "Rotation from tech to small caps"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "IWM"
+      ],
+      "catalysts": [
+        "CPI data",
+        "FOMC minutes",
+        "Jackson Hole"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:04:35.602519"
+    },
+    {
+      "topic": "AI Semiconductors Rally",
+      "summary": "NVDA and peers rebounding on AI infrastructure spend hype, despite valuation concerns.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.85,
+      "key_points": [
+        "NVDA up 5% on volume",
+        "AMD/TSM supply chain buzz",
+        "Hyperscaler capex guidance"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "TSM"
+      ],
+      "catalysts": [
+        "Earnings previews",
+        "AI conference announcements"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:04:35.602528"
+    },
+    {
+      "topic": "Tech Mega-Cap Earnings",
+      "summary": "Anticipation for Q2 reports from Magnificent 7, with focus on guidance amid high expectations.",
+      "sentiment": "mixed",
+      "sentiment_score": 0.55,
+      "confidence": 0.8,
+      "key_points": [
+        "AAPL services beat expected",
+        "MSFT Azure growth key",
+        "AMZN AWS margins watched"
+      ],
+      "mentioned_symbols": [
+        "AAPL",
+        "MSFT",
+        "AMZN",
+        "GOOGL"
+      ],
+      "catalysts": [
+        "Earnings releases this week",
+        "Forward guidance"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:04:35.602532"
+    },
+    {
+      "topic": "Bitcoin ETF Inflows",
+      "summary": "Record ETF inflows driving BTC towards $70k, with institutional adoption narratives gaining traction.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.75,
+      "key_points": [
+        "$1B+ weekly inflows",
+        "MicroStrategy buys",
+        "Election cycle speculation"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "MSTR"
+      ],
+      "catalysts": [
+        "ETF approval rumors",
+        "Halving aftermath"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:04:35.602535"
+    },
+    {
+      "topic": "Small Cap Rotation",
+      "summary": "Russell 2000 outperforming amid rate cut hopes, IWM buzzing with dip-buying calls from traders.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.7,
+      "confidence": 0.7,
+      "key_points": [
+        "@zerohedge calling rotation play",
+        "@RampCapital dip buy alerts",
+        "Bank earnings boost regionals"
+      ],
+      "mentioned_symbols": [
+        "IWM",
+        "SMH",
+        "XLF"
+      ],
+      "catalysts": [
+        "Regional bank results",
+        "Rate cut odds"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T18:04:35.602538"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla Q3 delivery numbers and Cybertruck updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Nvidia earnings preview and AI sector rotation",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Massive options flow into SPY and QQQ calls",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending tickers: $AAPL breaking out, $BTC rally",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large Bitcoin transfers to exchanges",
+      "sentiment": "bearish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cuts",
+    "FOMC minutes",
+    "Jackson Hole",
+    "AI Semiconductors Rally",
+    "Earnings previews",
+    "AI conference announcements",
+    "Tech Mega-Cap Earnings",
+    "Earnings releases this week",
+    "Forward guidance",
+    "Bitcoin ETF Inflows"
+  ]
+}

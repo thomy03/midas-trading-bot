@@ -1,0 +1,180 @@
+{
+  "timestamp": "2026-02-02T17:05:20.014681",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "NVDA": 1,
+    "AMD": 1,
+    "SPY": 1,
+    "QQQ": 1,
+    "TLT": 1,
+    "BTC": 1,
+    "ETH": 1,
+    "IBIT": 1,
+    "MSFT": 1,
+    "GOOGL": 1,
+    "AMZN": 1,
+    "GME": 1,
+    "AMC": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.72,
+  "insights": [
+    {
+      "topic": "NVDA Earnings Anticipation",
+      "summary": "Massive buzz around NVIDIA's upcoming earnings, with traders expecting blowout results driven by AI demand.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Record call options volume",
+        "Influencers like @zerohedge predicting $150+ post-earnings",
+        "AI chip shortage narrative strengthening"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD"
+      ],
+      "catalysts": [
+        "Q2 earnings report",
+        "AI product updates"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:05:01.801004"
+    },
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Traders piling into rate-sensitive assets as Powell hints at September cuts amid cooling inflation data.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.85,
+      "key_points": [
+        "95% odds for 25bps cut per CME FedWatch",
+        "Cathie Wood (@CathieDWood) calling for deeper cuts",
+        "Boost for growth stocks"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "catalysts": [
+        "Jackson Hole symposium",
+        "CPI data release"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:05:01.801019"
+    },
+    {
+      "topic": "Bitcoin ETF Inflows Surge",
+      "summary": "Crypto rebounding hard with record ETF inflows; BTC pushing $65K as institutional adoption narrative heats up.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.8,
+      "key_points": [
+        "BlackRock IBIT leading inflows",
+        "@APompliano bullish to $100K",
+        "Correlation with risk-on equities"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "IBIT"
+      ],
+      "catalysts": [
+        "ETF approval rumors for altcoins",
+        "Halving aftermath"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:05:01.801025"
+    },
+    {
+      "topic": "Tech Earnings Kickoff",
+      "summary": "Mixed but resilient tech earnings; MSFT and GOOGL beating estimates, shifting focus to consumer spending.",
+      "sentiment": "neutral",
+      "sentiment_score": 0.55,
+      "confidence": 0.75,
+      "key_points": [
+        "MSFT cloud growth at 20% YoY",
+        "@chamath praising enterprise AI spend",
+        "AMZN up next with AWS focus"
+      ],
+      "mentioned_symbols": [
+        "MSFT",
+        "GOOGL",
+        "AMZN"
+      ],
+      "catalysts": [
+        "Ongoing earnings week",
+        "Guidance updates"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:05:01.801030"
+    },
+    {
+      "topic": "Meme Stock Revival (GME/AMC)",
+      "summary": "Roaring Kitty's return sparking retail frenzy; high short interest drawing squeeze bets despite fundamentals.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.65,
+      "confidence": 0.7,
+      "key_points": [
+        "GME volume spiking 10x average",
+        "Influential calls from @TheRoaringKitty",
+        "Options gamma squeeze potential"
+      ],
+      "mentioned_symbols": [
+        "GME",
+        "AMC"
+      ],
+      "catalysts": [
+        "Social media momentum",
+        "Short interest data"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T17:05:01.801035"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Unusual options activity in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla robotaxi event and stock performance",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Market sentiment on SPY and QQQ",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "watchersguru",
+      "recent_topic": "Earnings previews for tech stocks",
+      "sentiment": "neutral"
+    }
+  ],
+  "emerging_narratives": [
+    "NVDA Earnings Anticipation",
+    "Q2 earnings report",
+    "AI product updates",
+    "Fed Rate Cut Expectations",
+    "Jackson Hole symposium",
+    "CPI data release",
+    "Bitcoin ETF Inflows Surge",
+    "ETF approval rumors for altcoins",
+    "Halving aftermath",
+    "Tech Earnings Kickoff"
+  ]
+}

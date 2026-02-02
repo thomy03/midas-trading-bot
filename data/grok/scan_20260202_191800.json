@@ -1,0 +1,174 @@
+{
+  "timestamp": "2026-02-02T19:18:00.697438",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "BTC": 2,
+    "SPY": 1,
+    "QQQ": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "SMCI": 1,
+    "TSLA": 1,
+    "MSTR": 1,
+    "COIN": 1,
+    "JPM": 1,
+    "BAC": 1,
+    "WFC": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.744,
+  "insights": [
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Traders buzzing about 50bps cut in September amid cooling inflation data; Powell speech tomorrow in focus.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Probabilities jumping to 70% for Sep cut per CME FedWatch",
+        "Risk-on mood boosting equities and crypto"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "BTC"
+      ],
+      "catalysts": [
+        "CPI data",
+        "Powell testimony"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:17:45.506320"
+    },
+    {
+      "topic": "Nvidia AI Dominance",
+      "summary": "NVDA leading chip rally post-earnings beat; Blackwell chip hype driving semis higher.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.92,
+      "confidence": 0.95,
+      "key_points": [
+        "+10% surge today",
+        "Analysts raising PTs to $150+"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "SMCI"
+      ],
+      "catalysts": [
+        "Q2 earnings",
+        "AI capex guidance"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:17:45.506333"
+    },
+    {
+      "topic": "Tesla Robotaxi Reveal",
+      "summary": "Musk's Robotaxi event delayed to Oct; mixed reactions but FSD progress fueling optimism.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.65,
+      "confidence": 0.75,
+      "key_points": [
+        "Stock up 5% on delay news",
+        "Cathie Wood reiterates $2T PT"
+      ],
+      "mentioned_symbols": [
+        "TSLA"
+      ],
+      "catalysts": [
+        "Robotaxi event",
+        "FSD v12 rollout"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:17:45.506337"
+    },
+    {
+      "topic": "Bitcoin ETF Inflows",
+      "summary": "BTC breaking $65K on record ETF inflows; institutional adoption narrative strengthening.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.85,
+      "key_points": [
+        "$1B+ inflows last week",
+        "MicroStrategy adds 10K BTC"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "MSTR",
+        "COIN"
+      ],
+      "catalysts": [
+        "ETF approvals",
+        "Halving effects"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:17:45.506341"
+    },
+    {
+      "topic": "Bank Earnings Kickoff",
+      "summary": "JPM, WFC beat estimates but NIM pressures noted; soft landing hopes intact.",
+      "sentiment": "neutral",
+      "sentiment_score": 0.5,
+      "confidence": 0.8,
+      "key_points": [
+        "JPM +3% premarket",
+        "Guidance cautious on loans"
+      ],
+      "mentioned_symbols": [
+        "JPM",
+        "BAC",
+        "WFC"
+      ],
+      "catalysts": [
+        "Q2 earnings",
+        "Loan loss provisions"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:17:45.506345"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla robotaxi event and FSD updates",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Market rally and tech stocks like NVDA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Unusual options flow in SPY and QQQ",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large Bitcoin transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "$SPX breaking highs amid Fed rate cut talks",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cut Expectations",
+    "Powell testimony",
+    "Nvidia AI Dominance",
+    "Q2 earnings",
+    "AI capex guidance",
+    "Tesla Robotaxi Reveal",
+    "Robotaxi event",
+    "FSD v12 rollout",
+    "Bitcoin ETF Inflows",
+    "ETF approvals"
+  ]
+}

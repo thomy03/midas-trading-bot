@@ -808,8 +808,8 @@ class SocialScanner:
     def __init__(
         self,
         stocktwits_token: Optional[str] = None,
-        enable_stocktwits: bool = True,
-        enable_reddit: bool = True
+        enable_stocktwits: bool = False,
+        enable_reddit: bool = False
     ):
         """
         Initialise le scanner social.
@@ -1289,8 +1289,8 @@ _social_scanner_instance: Optional[SocialScanner] = None
 
 async def get_social_scanner(
     stocktwits_token: Optional[str] = None,
-    enable_stocktwits: bool = True,
-    enable_reddit: bool = True
+    enable_stocktwits: bool = False,
+    enable_reddit: bool = False
 ) -> SocialScanner:
     """
     Factory pour obtenir une instance du scanner social.

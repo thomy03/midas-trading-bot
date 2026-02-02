@@ -1,0 +1,183 @@
+{
+  "timestamp": "2026-02-02T19:35:29.831978",
+  "posts_analyzed": 50,
+  "trending_symbols": {
+    "SPY": 2,
+    "BTC": 2,
+    "QQQ": 1,
+    "TLT": 1,
+    "NVDA": 1,
+    "AMD": 1,
+    "TSM": 1,
+    "ETH": 1,
+    "IBIT": 1,
+    "AAPL": 1,
+    "MSFT": 1,
+    "GOOGL": 1,
+    "XOM": 1
+  },
+  "trending_hashtags": {},
+  "overall_sentiment": 0.78,
+  "insights": [
+    {
+      "topic": "Fed Rate Cut Expectations",
+      "summary": "Traders buzzing over Powell's dovish comments hinting at September rate cut, boosting risk assets.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.85,
+      "confidence": 0.9,
+      "key_points": [
+        "Powell testimony fuels 25bps cut odds to 100%",
+        "Bonds rallying, yields dropping"
+      ],
+      "mentioned_symbols": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "catalysts": [
+        "FOMC minutes",
+        "CPI data"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:35:16.554840"
+    },
+    {
+      "topic": "NVDA AI Chip Dominance",
+      "summary": "NVIDIA post-split surge with massive volume; analysts upgrading on AI demand.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.9,
+      "confidence": 0.95,
+      "key_points": [
+        "$4T market cap milestone",
+        "Cathie Wood calls for $10T potential"
+      ],
+      "mentioned_symbols": [
+        "NVDA",
+        "AMD",
+        "TSM"
+      ],
+      "catalysts": [
+        "AI conference",
+        "earnings preview"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:35:16.554853"
+    },
+    {
+      "topic": "Bitcoin ETF Inflows",
+      "summary": "Record $1B+ inflows into BTC ETFs amid halving hype and institutional adoption.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.8,
+      "confidence": 0.85,
+      "key_points": [
+        "BTC eyeing $70K",
+        "Michael Saylor doubling down on HODL"
+      ],
+      "mentioned_symbols": [
+        "BTC",
+        "ETH",
+        "IBIT"
+      ],
+      "catalysts": [
+        "ETF approvals",
+        "halving event"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:35:16.554858"
+    },
+    {
+      "topic": "Tech Earnings Season",
+      "summary": "Big Tech beating estimates; focus shifting to guidance amid rate cut tailwinds.",
+      "sentiment": "bullish",
+      "sentiment_score": 0.75,
+      "confidence": 0.8,
+      "key_points": [
+        "AAPL services growth",
+        "MSFT Azure acceleration",
+        "Jim Cramer bullish on Magnificent 7"
+      ],
+      "mentioned_symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL"
+      ],
+      "catalysts": [
+        "Q2 earnings",
+        "guidance updates"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:35:16.554862"
+    },
+    {
+      "topic": "Election Trade: Trump Policies",
+      "summary": "Polymarket odds favoring Trump boosting energy and crypto narratives.",
+      "sentiment": "mixed",
+      "sentiment_score": 0.6,
+      "confidence": 0.7,
+      "key_points": [
+        "Tax cut extensions eyed",
+        "Chamath Palihapitiya predicts pro-crypto win"
+      ],
+      "mentioned_symbols": [
+        "XOM",
+        "BTC",
+        "SPY"
+      ],
+      "catalysts": [
+        "Debate fallout",
+        "polling updates"
+      ],
+      "risk_factors": [],
+      "source_posts": [],
+      "generated_at": "2026-02-02T19:35:16.554865"
+    }
+  ],
+  "top_influencers": [
+    {
+      "username": "elonmusk",
+      "recent_topic": "Tesla stock performance and Robotaxi event",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "unusual_whales",
+      "recent_topic": "Unusual options flow in NVDA and TSLA",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "jimcramer",
+      "recent_topic": "Market rally and picks for the week",
+      "sentiment": "bullish"
+    },
+    {
+      "username": "whale_alert",
+      "recent_topic": "Large BTC transfers to exchanges",
+      "sentiment": "bearish"
+    },
+    {
+      "username": "stocktwits",
+      "recent_topic": "Trending stocks like AAPL and SPY",
+      "sentiment": "neutral"
+    },
+    {
+      "username": "watchersguru",
+      "recent_topic": "Sweepers and block trades in tech sector",
+      "sentiment": "bullish"
+    }
+  ],
+  "emerging_narratives": [
+    "Fed Rate Cut Expectations",
+    "FOMC minutes",
+    "NVDA AI Chip Dominance",
+    "AI conference",
+    "earnings preview",
+    "Bitcoin ETF Inflows",
+    "ETF approvals",
+    "halving event",
+    "Tech Earnings Season",
+    "Q2 earnings"
+  ]
+}
