@@ -167,15 +167,38 @@ class FeedbackLoop:
         return gainers[:20], losers[:20]
     
     async def _get_watchlist(self) -> List[str]:
-        """Retourne la watchlist à analyser."""
-        # Charger depuis le fichier watchlist du bot
-        watchlist_file = DATA_DIR / "watchlist.txt"
-        if watchlist_file.exists():
-            with open(watchlist_file) as f:
-                symbols = [line.strip() for line in f if line.strip()]
-                return symbols[:500]  # Limiter pour la perf
+        """Retourne la watchlist complète depuis universe_cache.json (3000+ symbols)."""
+        # 1. Essayer universe_cache.json (source principale)
+        universe_file = DATA_DIR / "universe" / "universe_cache.json"
+        if universe_file.exists():
+            try:
+                with open(universe_file) as f:
+                    data = json.load(f)
+                symbols = []
+                if "us" in data:
+                    symbols.extend([s["symbol"] for s in data["us"] if "symbol" in s])
+                if "eu" in data:
+                    symbols.extend([s["symbol"] for s in data["eu"] if "symbol" in s])
+                if symbols:
+                    logger.info(f"Loaded {len(symbols)} symbols from universe cache")
+                    return symbols
+            except Exception as e:
+                logger.warning(f"Could not load universe cache: {e}")
         
-        # Fallback: Top 100 symboles liquides
+        # 2. Fallback: watchlist.json
+        watchlist_file = DATA_DIR / "watchlist.json"
+        if watchlist_file.exists():
+            try:
+                with open(watchlist_file) as f:
+                    data = json.load(f)
+                    symbols = data.get("symbols", [])
+                    if symbols:
+                        return symbols
+            except:
+                pass
+        
+        # 3. Ultimate fallback: Top 100 symboles
+        logger.warning("Using fallback watchlist (100 symbols)")
         return [
             "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "BRK-B",
             "JPM", "V", "JNJ", "WMT", "PG", "MA", "HD", "CVX", "MRK", "ABBV",
@@ -189,6 +212,7 @@ class FeedbackLoop:
             "BDX", "HUM", "SHW", "MMM", "EQIX", "MU", "PYPL", "SNPS", "CDNS",
             "CME", "AON", "ICE", "KLAC", "APD", "EMR", "MCO", "NSC", "CSX"
         ]
+
 
     async def analyze_features_at_date(self, symbol: str, date: datetime) -> Dict[str, bool]:
         """
