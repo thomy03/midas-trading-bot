@@ -217,11 +217,6 @@ class MLPillar(BasePillar):
                 'prediction': prediction_details
             }],
             confidence=confidence,
-            metadata={
-                'regime': regime.regime,
-                'regime_weights': self.REGIME_WEIGHTS.get(regime.regime, {}),
-                'features_computed': len([f for f in features.values() if f is not None])
-            }
         )
     
     def _extract_features(self, df: pd.DataFrame) -> Tuple[Dict[str, float], Dict[str, Any]]:
