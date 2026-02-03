@@ -51,3 +51,5 @@ sentence-transformers>=2.2.0
 
 # V4.1 - Modern Web Dashboard
 nicegui>=1.4.0
+google-generativeai>=0.8.0
+google-genai>=1.60.0

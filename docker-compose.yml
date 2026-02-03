@@ -27,10 +27,11 @@ services:
       target: production
     container_name: tradingbot-agent
     restart: unless-stopped
-    command: ["python", "run_agent.py", "--mode", "discovery", "--mock"]
+    command: ["python", "run_agent.py", "--mode", "live", "--paper", "--mock"]
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
+      - ./src:/app/src:ro
       - ./.env:/app/.env:ro
     environment:
       - PYTHONUNBUFFERED=1
@@ -114,10 +115,11 @@ services:
       target: production
     container_name: tradingbot-agent-full
     restart: "no"
-    command: ["python", "run_agent.py", "--mode", "discovery", "--mock"]
+    command: ["python", "run_agent.py", "--mode", "live", "--paper", "--mock"]
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
+      - ./src:/app/src:ro
       - ./.env:/app/.env:ro
     environment:
       - PYTHONUNBUFFERED=1

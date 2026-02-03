@@ -798,6 +798,30 @@ class MarketAgent:
         self.state_manager.update_watchlist(results["watchlist"])
         self.state_manager.update_last_scan()
 
+
+        # === AUTO-GENERATE REPORT ===
+        try:
+            import subprocess
+            import json as json_lib
+            logger.info("Generating market analysis report...")
+            # Save discovery results for report
+            report_data_path = "/app/data/latest_scan.json"
+            with open(report_data_path, "w") as f:
+                json_lib.dump(results, f, indent=2, default=str)
+            # Generate report
+            proc = subprocess.run(
+                ["python", "/app/src/intelligence/report_generator.py"],
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
+            if proc.returncode == 0:
+                logger.info("Market analysis report generated successfully")
+            else:
+                logger.warning(f"Report generation warning: {proc.stderr[:200]}")
+        except Exception as e:
+            logger.error(f"Report generation error: {e}")
+
         logger.info(f"=== DISCOVERY COMPLETE: {len(results['watchlist'])} symbols in watchlist, {len(fmp_candidates)} FMP candidates ===")
         return results
 

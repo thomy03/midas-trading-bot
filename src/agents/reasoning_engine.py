@@ -278,6 +278,12 @@ class ReasoningEngine:
             except Exception as e:
                 logger.warning(f"Failed to get market context: {e}")
 
+        # Auto-fetch OHLCV if not provided
+        if df is None:
+            df = await _fetch_ohlcv_data(symbol)
+            if df is not None:
+                logger.info(f"Auto-fetched {len(df)} data points for {symbol}")
+
         # Prepare data for each pillar
         technical_data = {'df': df}
         fundamental_data = {'fundamentals': fundamentals}
@@ -704,3 +710,21 @@ async def get_reasoning_engine(config: Optional[ReasoningConfig] = None) -> Reas
         _engine_instance = ReasoningEngine(config)
         await _engine_instance.initialize()
     return _engine_instance
+
+
+# Auto-fetch OHLCV data if not provided
+async def _fetch_ohlcv_data(symbol: str, period: str = "3mo") -> Optional[pd.DataFrame]:
+    """Fetch OHLCV data from yfinance if not provided."""
+    import yfinance as yf
+    try:
+        ticker = yf.Ticker(symbol)
+        df = ticker.history(period=period)
+        if df is not None and not df.empty:
+            # Standardize column names
+            # Standardize column names to Title case (Open, High, Low, Close, Volume)
+            df.columns = [c.title() for c in df.columns]
+            return df
+        return None
+    except Exception as e:
+        logger.warning(f"Failed to fetch data for {symbol}: {e}")
+        return None

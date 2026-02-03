@@ -65,6 +65,7 @@ class LiveLoopConfig:
     # Mode
     trade_pre_market: bool = False
     trade_after_hours: bool = False
+    analyze_when_closed: bool = True  # Analyse meme hors marche
     paper_trading: bool = True
 
     # Limites
@@ -266,7 +267,15 @@ class LiveLoop:
                 # 1. Vérifier la session de marché
                 self._current_session = self._get_market_session()
 
-                if not self._should_trade():
+                # Allow analysis even when market closed (but no trading)
+                if not self._should_trade() and self._current_session == MarketSession.CLOSED:
+                    # Still do analysis for preparation
+                    if self.config.analyze_when_closed:
+                        pass  # Continue to analysis
+                    else:
+                        await asyncio.sleep(60)
+                        continue
+                elif not self._should_trade():
                     await asyncio.sleep(60)  # Attendre 1 minute
                     continue
 
