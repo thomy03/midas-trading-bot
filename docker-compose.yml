@@ -33,6 +33,7 @@ services:
       - ./logs:/app/logs
       - ./src:/app/src:ro
       - ./.env:/app/.env:ro
+      - ./src:/app/src:ro
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=${TZ:-Europe/Paris}
@@ -58,6 +59,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./.env:/app/.env:ro
+      - ./src:/app/src:ro
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=${TZ:-Europe/Paris}
@@ -89,6 +91,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./.env:/app/.env:ro
+      - ./src:/app/src:ro
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=${TZ:-Europe/Paris}
@@ -121,6 +124,7 @@ services:
       - ./logs:/app/logs
       - ./src:/app/src:ro
       - ./.env:/app/.env:ro
+      - ./src:/app/src:ro
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=${TZ:-Europe/Paris}

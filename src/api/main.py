@@ -839,3 +839,99 @@ async def broadcast_screening_progress(total: int, completed: int, current_symbo
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+# ==================== Analysis Endpoint (V5.3) ====================
+
+@app.post("/api/v1/analyze/{symbol}", tags=["Analysis"])
+async def analyze_symbol_endpoint(symbol: str, background_tasks: BackgroundTasks):
+    """
+    Analyze a symbol using all pillars (Technical, Fundamental, Sentiment, News, ML).
+    
+    Returns:
+    - finalScore: 0-100 overall score
+    - decision: STRONG_BUY, BUY, HOLD, SELL, STRONG_SELL
+    - pillars: Individual pillar scores and details
+    - summary: AI-generated summary
+    """
+    from src.api.analyze_endpoint import analyze_symbol
+    
+    try:
+        result = await analyze_symbol(symbol)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/v1/analyze/{symbol}", tags=["Analysis"])
+async def analyze_symbol_get(symbol: str):
+    """GET version of analyze endpoint for convenience."""
+    from src.api.analyze_endpoint import analyze_symbol
+    
+    try:
+        result = await analyze_symbol(symbol)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# =============================================================================
+# LEARNING / FEEDBACK ENDPOINTS
+# =============================================================================
+
+@app.get("/api/v1/learning/status", tags=["Learning"])
+async def get_learning_status():
+    """Get current learning/feedback status and pillar weights."""
+    try:
+        from src.learning.multi_pillar_feedback import get_multi_pillar_feedback
+        mpf = get_multi_pillar_feedback()
+        summary = mpf.get_summary()
+        return {
+            "status": "ok",
+            "learning": summary
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.post("/api/v1/learning/feedback", tags=["Learning"])
+async def run_feedback_loop():
+    """
+    Manually trigger the feedback loop.
+    Analyzes yesterday's market movers and adjusts indicator weights.
+    """
+    try:
+        from src.learning.multi_pillar_feedback import run_multi_pillar_feedback
+        result = await run_multi_pillar_feedback()
+        return {
+            "status": "ok",
+            "result": result
+        }
+    except Exception as e:
+        logger.error(f"Feedback loop error: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+@app.get("/api/v1/learning/weights", tags=["Learning"])
+async def get_pillar_weights():
+    """Get current pillar weights."""
+    try:
+        from src.learning.multi_pillar_feedback import get_multi_pillar_feedback
+        mpf = get_multi_pillar_feedback()
+        weights = {}
+        for pillar in ["technical", "fundamental", "sentiment", "news"]:
+            if pillar in mpf.weights:
+                weights[pillar] = {
+                    "weight": mpf.weights[pillar].get("pillar_weight", 0.25),
+                    "top_indicators": [
+                        {"name": k, "weight": v["weight"], "accuracy": v["accuracy"]}
+                        for k, v in sorted(
+                            mpf.weights[pillar].get("indicators", {}).items(),
+                            key=lambda x: x[1]["accuracy"],
+                            reverse=True
+                        )[:5]
+                    ]
+                }
+        return {"status": "ok", "weights": weights}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
