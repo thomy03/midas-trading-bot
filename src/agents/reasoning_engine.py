@@ -317,11 +317,7 @@ class ReasoningEngine:
                 try:
                     ml_score = await self._ml.analyze(
                         symbol=symbol,
-                        technical_score=technical_score.score,
-                        fundamental_score=fundamental_score.score,
-                        sentiment_score=sentiment_score.score,
-                        news_score=news_score.score,
-                        market_context={'vix': market_context.vix_level if market_context else 20}
+                        data=technical_data  # Pass OHLCV DataFrame
                     )
                     logger.debug(f"[ML] Score for {symbol}: {ml_score.score:.1f}")
                 except Exception as e:
