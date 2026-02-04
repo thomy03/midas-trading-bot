@@ -18,7 +18,7 @@ import yfinance as yf
 import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-from dateutil.parser import parse as parse_date, timedelta
+from dateutil.parser import parse as parse_date
 import logging
 import json
 
