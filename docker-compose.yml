@@ -40,6 +40,12 @@ services:
       - AGENT_MODE=${AGENT_MODE:-test}
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "run_agent.py"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - tradingbot-network
     # Note: Pour le trading reel, retirer --mock et configurer IBKR_HOST
@@ -130,6 +136,12 @@ services:
       - TZ=${TZ:-Europe/Paris}
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "run_agent.py"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - tradingbot-network
     profiles:
