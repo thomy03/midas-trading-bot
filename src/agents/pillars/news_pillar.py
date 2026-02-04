@@ -17,7 +17,8 @@ import os
 import yfinance as yf
 import asyncio
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
+from dateutil.parser import parse as parse_date, timedelta
 import logging
 import json
 
@@ -414,7 +415,13 @@ Be objective and focus on material news that could impact the stock price."""
 
         for h in headlines:
             published = h.get('published', 0)
-            if published > 0:
+            # Handle both timestamp (int) and ISO date string (new yfinance format)
+            if isinstance(published, str):
+                try:
+                    published = parse_date(published).timestamp()
+                except:
+                    published = 0
+            if published and published > 0:
                 age_hours = (now - published) / 3600
                 if age_hours < 24:
                     recent_count += 1
