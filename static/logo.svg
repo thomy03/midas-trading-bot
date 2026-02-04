@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d9ff"/>
+      <stop offset="100%" style="stop-color:#00ff88"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="100" fill="url(#bg)"/>
+  <path d="M80 380 L160 320 L240 350 L320 250 L400 180 L432 200" stroke="#4a5568" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M80 350 L160 300 L240 280 L320 200 L400 120" stroke="url(#accent)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <polygon points="400,120 430,140 420,100" fill="url(#accent)"/>
+  <circle cx="320" cy="200" r="45" fill="#1a1a2e" stroke="url(#accent)" stroke-width="6"/>
+  <circle cx="305" cy="195" r="10" fill="#00d9ff"/>
+  <circle cx="335" cy="195" r="10" fill="#00ff88"/>
+  <line x1="320" y1="155" x2="320" y2="130" stroke="url(#accent)" stroke-width="4"/>
+  <circle cx="320" cy="125" r="8" fill="#00d9ff"/>
+  <rect x="100" y="300" width="16" height="50" fill="#00ff88" rx="2"/>
+  <line x1="108" y1="290" x2="108" y2="360" stroke="#00ff88" stroke-width="3"/>
+  <rect x="180" y="270" width="16" height="40" fill="#ff4757" rx="2"/>
+  <line x1="188" y1="260" x2="188" y2="320" stroke="#ff4757" stroke-width="3"/>
+  <rect x="260" y="240" width="16" height="60" fill="#00ff88" rx="2"/>
+  <line x1="268" y1="220" x2="268" y2="310" stroke="#00ff88" stroke-width="3"/>
+  <text x="256" y="450" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="72" font-weight="bold" fill="white">TB</text>
+</svg>

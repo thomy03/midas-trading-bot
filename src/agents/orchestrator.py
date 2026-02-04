@@ -326,7 +326,7 @@ class MarketAgent:
         # 3. Social Scanner (nouveau V4)
         try:
             from src.intelligence.social_scanner import SocialScanner
-            self.social_scanner = SocialScanner(enable_stocktwits=False, enable_reddit=False)
+            self.social_scanner = SocialScanner(enable_stocktwits=False, enable_social=False)
             await self.social_scanner.initialize()
             logger.info("SocialScanner initialized")
         except Exception as e:
@@ -1293,7 +1293,7 @@ class MarketAgent:
             ema_alignment="bullish" if tech_score.score > 0 else "bearish",
             volume_ratio=1.0,  # TODO: Get from technical pillar
             breakout_strength=tech_score.score / 100 if tech_score.score > 0 else None,
-            reddit_sentiment=sent_score.factors[0].get('reddit', 0) if sent_score.factors else 0,
+            social_sentiment=sent_score.factors[0].get('social', 0) if sent_score.factors else 0,
             grok_sentiment=sent_score.factors[0].get('grok', 0) if sent_score.factors else 0,
             stocktwits_sentiment=sent_score.factors[0].get('stocktwits', 0) if sent_score.factors else 0,
             heat_score=0.0,
@@ -1667,7 +1667,7 @@ class MarketAgent:
                         ema_alignment=trade.metadata.get("ema_alignment", "neutral"),
                         volume_ratio=trade.metadata.get("volume_ratio", 1.0),
                         breakout_strength=trade.metadata.get("breakout_strength"),
-                        reddit_sentiment=trade.metadata.get("reddit_sentiment", 0),
+                        social_sentiment=trade.metadata.get("social_sentiment", 0),
                         grok_sentiment=trade.metadata.get("grok_sentiment", 0),
                         stocktwits_sentiment=trade.metadata.get("stocktwits_sentiment", 0),
                         heat_score=trade.metadata.get("heat_score", 0),

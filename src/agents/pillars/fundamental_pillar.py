@@ -21,6 +21,12 @@ import asyncio
 
 from .base import BasePillar, PillarScore
 
+# Polygon integration for hybrid data
+try:
+    from src.data.polygon_client import get_polygon_client
+except ImportError:
+    get_polygon_client = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -162,19 +168,51 @@ class FundamentalPillar(BasePillar):
             )
 
     async def _fetch_fundamentals(self, symbol: str) -> Dict[str, Any]:
-        """Fetch fundamental data from yfinance"""
+        """
+        Fetch fundamental data from yfinance + Polygon (hybrid approach).
+        
+        yfinance: Primary source (no rate limit)
+        Polygon: Enrichment for better data quality (5 calls/min limit)
+        """
+        result = {}
+        
+        # 1. Primary: yfinance (fast, no rate limit)
         try:
             ticker = yf.Ticker(symbol)
-
-            # Run in executor to avoid blocking
             loop = asyncio.get_event_loop()
             info = await loop.run_in_executor(None, lambda: ticker.info)
-
-            return info or {}
-
+            if info:
+                result = info.copy()
+                logger.debug(f"[FUNDAMENTAL] {symbol}: yfinance data OK")
         except Exception as e:
-            logger.warning(f"Failed to fetch fundamentals for {symbol}: {e}")
-            return {}
+            logger.warning(f"yfinance failed for {symbol}: {e}")
+        
+        # 2. Enrich with Polygon (only for candidates, respects rate limit)
+        try:
+            if get_polygon_client is not None:
+                polygon = get_polygon_client()
+                if polygon.api_key:
+                    # Get ticker details (sector, industry, market cap)
+                    details = polygon.get_ticker_details(symbol)
+                    if details:
+                        # Merge Polygon data (prefer Polygon when yfinance is missing)
+                        polygon_mappings = {
+                            "market_cap": "marketCap",
+                            "sic_description": "sector",
+                            "total_employees": "fullTimeEmployees",
+                            "description": "longBusinessSummary",
+                            "homepage_url": "website",
+                        }
+                        for poly_key, yf_key in polygon_mappings.items():
+                            if details.get(poly_key) and not result.get(yf_key):
+                                result[yf_key] = details[poly_key]
+                        
+                        result["_polygon_details"] = details
+                        logger.debug(f"[FUNDAMENTAL] {symbol}: Polygon enrichment OK")
+        except Exception as e:
+            logger.debug(f"Polygon enrichment skipped for {symbol}: {e}")
+        
+        return result
 
     def _analyze_valuation(self, info: Dict) -> tuple[float, List[Dict], tuple[int, int]]:
         """Analyze valuation metrics"""

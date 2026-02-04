@@ -551,13 +551,13 @@ Réponds uniquement en JSON valide."""
             )
 
             # Ajouter les posts Reddit populaires
-            reddit_posts = await self.news_fetcher.fetch_reddit_posts(
-                subreddits=['wallstreetbets', 'stocks', 'investing'],
+            social_posts = await self.news_fetcher.fetch_social_posts(
+                subsocials=['wallstreetbets', 'stocks', 'investing'],
                 limit=10
             )
 
             # Filtrer par relevance
-            top_posts = [p for p in reddit_posts if p.relevance_score > 0.3][:5]
+            top_posts = [p for p in social_posts if p.relevance_score > 0.3][:5]
 
         except Exception as e:
             logger.error(f"Error fetching news for narrative detection: {e}")

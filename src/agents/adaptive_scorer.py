@@ -279,7 +279,7 @@ class AdaptiveScorer:
 
     def _load_weights(self) -> PillarWeights:
         """Load current weights from file"""
-        weights_file = self.data_dir / "learned_weights.json"
+        weights_file = self.data_dir / "pillar_weights.json"
         if weights_file.exists():
             try:
                 with open(weights_file) as f:
@@ -291,7 +291,7 @@ class AdaptiveScorer:
 
     def _save_weights(self):
         """Save current weights to file"""
-        weights_file = self.data_dir / "learned_weights.json"
+        weights_file = self.data_dir / "pillar_weights.json"
         with open(weights_file, 'w') as f:
             json.dump(self.weights.to_dict(), f, indent=2)
 

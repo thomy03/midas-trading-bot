@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class NodeType(Enum):
     """Types of nodes in the reasoning graph"""
     # Input layer (sources)
-    SOURCE_REDDIT = "source_reddit"
+    SOURCE_REDDIT = "source_social"
     SOURCE_STOCKTWITS = "source_stocktwits"
     SOURCE_GROK = "source_grok"
     SOURCE_NEWS = "source_news"
@@ -311,19 +311,19 @@ class ReasoningGraphBuilder:
         source_ids = []
 
         # Reddit source
-        reddit_data = discovery_data.get('reddit', {}) or discovery_data.get('social', {}).get('reddit', {})
-        if reddit_data:
-            mentions = reddit_data.get('mentions', 0)
-            sentiment = reddit_data.get('sentiment', 0.5)
+        social_data = discovery_data.get('social', {}) or discovery_data.get('social', {}).get('social', {})
+        if social_data:
+            mentions = social_data.get('mentions', 0)
+            sentiment = social_data.get('sentiment', 0.5)
             node = ReasoningNode(
-                id=self._make_id('src_reddit'),
+                id=self._make_id('src_social'),
                 node_type=NodeType.SOURCE_REDDIT,
                 label=f"Reddit ({mentions} mentions)",
                 value=min(mentions / 100, 1.0),
                 confidence=0.7 if mentions > 20 else 0.4,
                 reasoning=f"Détecté {mentions} mentions avec sentiment {sentiment:.2f}",
                 metadata={'mentions': mentions, 'sentiment': sentiment},
-                embedding=self._create_source_embedding('reddit', mentions, sentiment)
+                embedding=self._create_source_embedding('social', mentions, sentiment)
             )
             graph.add_node(node)
             source_ids.append(node.id)
@@ -501,7 +501,7 @@ class ReasoningGraphBuilder:
         embedding = [0.0] * 20
 
         # Source type encoding (one-hot-ish)
-        source_map = {'reddit': 0, 'stocktwits': 1, 'grok': 2, 'news': 3, 'volume': 4}
+        source_map = {'social': 0, 'stocktwits': 1, 'grok': 2, 'news': 3, 'volume': 4}
         idx = source_map.get(source_type, 0)
         embedding[idx] = 1.0
 

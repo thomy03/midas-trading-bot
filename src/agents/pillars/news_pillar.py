@@ -23,6 +23,12 @@ import json
 
 from .base import BasePillar, PillarScore
 
+# Polygon integration for hybrid news
+try:
+    from src.data.polygon_client import get_polygon_client
+except ImportError:
+    get_polygon_client = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -124,7 +130,14 @@ class NewsPillar(BasePillar):
             if self._gemini_client:
                 analysis = await self._analyze_with_llm(symbol, news_data)
                 if analysis:
-                    category_scores = analysis.get('category_scores', {})
+                    raw_scores = analysis.get('category_scores', {})
+                    # V4.9.5: Ensure all scores are numeric (Gemini may return strings)
+                    category_scores = {}
+                    for k, v in raw_scores.items():
+                        try:
+                            category_scores[k] = float(v) if v is not None else 0
+                        except (ValueError, TypeError):
+                            category_scores[k] = 0
                     factors = analysis.get('factors', [])
 
             # Calculate weighted total
@@ -174,16 +187,27 @@ class NewsPillar(BasePillar):
             if not news:
                 return {'headlines': [], 'count': 0}
 
-            # Parse news items
+            # Parse news items (handle both old and new yfinance formats)
             headlines = []
             for item in news[:10]:  # Limit to 10 most recent
-                headlines.append({
-                    'title': item.get('title', ''),
-                    'publisher': item.get('publisher', ''),
-                    'link': item.get('link', ''),
-                    'published': item.get('providerPublishTime', 0),
-                    'type': item.get('type', 'STORY')
-                })
+                try:
+                    # New format: item['content']['title']
+                    # Old format: item['title']
+                    content = item.get('content') or item
+                    provider = content.get('provider') or {}
+                    click_url = content.get('clickThroughUrl') or {}
+                    
+                    headlines.append({
+                        'title': content.get('title') or item.get('title', ''),
+                        'publisher': provider.get('displayName') or item.get('publisher', ''),
+                        'link': click_url.get('url') or item.get('link', ''),
+                        'published': content.get('pubDate') or item.get('providerPublishTime', ''),
+                        'type': content.get('contentType') or item.get('type', 'STORY'),
+                        'summary': content.get('summary', '')
+                    })
+                except Exception as e:
+                    logger.warning(f'Error parsing news item: {e}')
+                    continue
 
             # Get calendar events
             calendar = None
@@ -200,6 +224,32 @@ class NewsPillar(BasePillar):
                     recommendations = recs.tail(5).to_dict('records')
             except Exception:
                 pass
+
+            # Enrich with Polygon News (additional sources)
+            try:
+                if get_polygon_client is not None:
+                    polygon = get_polygon_client()
+                    if polygon.api_key:
+                        poly_news = polygon.get_news(symbol, limit=5)
+                        if poly_news:
+                            existing_titles = {h['title'].lower() for h in headlines}
+                            added = 0
+                            for item in poly_news:
+                                title = item.get('title', '')
+                                if title.lower() not in existing_titles:
+                                    headlines.append({
+                                        'title': title,
+                                        'publisher': item.get('publisher', {}).get('name', 'Polygon'),
+                                        'link': item.get('article_url', ''),
+                                        'published': 0,
+                                        'type': 'NEWS'
+                                    })
+                                    existing_titles.add(title.lower())
+                                    added += 1
+                            if added > 0:
+                                logger.debug(f"Polygon added {added} news for {symbol}")
+            except Exception as pe:
+                logger.debug(f"Polygon news skipped for {symbol}: {pe}")
 
             return {
                 'headlines': headlines,

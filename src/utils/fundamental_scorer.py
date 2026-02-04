@@ -94,6 +94,13 @@ class FundamentalScorer:
     # Scoring thresholds
     ELITE_THRESHOLD = 45  # Full scoring with Grok
     ELITE_THRESHOLD_PHASE1 = 22  # Phase 1 without Grok (30 pts max)
+    
+    # EU thresholds (50% of US due to lower valuations)
+    EU_ELITE_THRESHOLD = 23  # 50% of 45
+    EU_ELITE_THRESHOLD_PHASE1 = 11  # 50% of 22
+    
+    # EU suffixes
+    EU_SUFFIXES = ['.PA', '.DE', '.AS', '.BR', '.LS', '.MI', '.MC', '.L']
 
     def __init__(self, use_grok: bool = False, grok_api_key: str = None):
         """
@@ -125,6 +132,10 @@ class FundamentalScorer:
         # Crypto-proxy stocks
         if symbol.upper() in self.CRYPTO_PROXY_SYMBOLS:
             return 'CRYPTO_PROXY'
+    
+    def is_eu_symbol(self, symbol: str) -> bool:
+        """Check if symbol is European based on suffix"""
+        return any(symbol.upper().endswith(suffix) for suffix in self.EU_SUFFIXES)
 
         return 'EQUITY'
 
@@ -352,7 +363,11 @@ class FundamentalScorer:
         # Phase 1 (no Grok): ~73% of max score
         # Phase 2 (with Grok): ~75% of max score (45/60)
         if self.use_grok:
-            threshold = self.ELITE_THRESHOLD  # 45/60
+            # Use EU thresholds if European symbol (50% of US)
+            if self.is_eu_symbol(symbol):
+                threshold = self.EU_ELITE_THRESHOLD  # 23/60 for EU
+            else:
+                threshold = self.ELITE_THRESHOLD  # 45/60 for US
         else:
             # Phase 1 thresholds proportional to max possible score
             if asset_type == 'CRYPTO':
@@ -360,7 +375,7 @@ class FundamentalScorer:
                 threshold = 15
             else:
                 # EQUITY/CRYPTO_PROXY without Grok: max 30 pts, threshold 22 (73%)
-                threshold = self.ELITE_THRESHOLD_PHASE1
+                threshold = self.EU_ELITE_THRESHOLD_PHASE1 if self.is_eu_symbol(symbol) else self.ELITE_THRESHOLD_PHASE1
 
         is_elite = total_score > threshold
 

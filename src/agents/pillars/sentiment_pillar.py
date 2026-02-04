@@ -4,7 +4,6 @@ Sentiment Pillar - Social media sentiment analysis.
 Analyzes:
 - Grok X/Twitter sentiment (via xAI API)
 - StockTwits sentiment (if available)
-- Reddit mentions (r/wallstreetbets, r/stocks)
 - Overall social buzz
 
 Contributes 25% to final decision score.
@@ -38,11 +37,10 @@ class SentimentPillar(BasePillar):
 
         self._client: Optional[httpx.AsyncClient] = None
 
-        # Sentiment weights
+        # Sentiment weights (X/Twitter is primary)
         self.source_weights = {
-            'twitter': 0.50,    # X/Twitter via Grok
-            'stocktwits': 0.30,
-            'reddit': 0.20
+            'twitter': 0.60,    # X/Twitter via Grok
+            'stocktwits': 0.40
         }
 
     def get_name(self) -> str:
@@ -96,20 +94,13 @@ class SentimentPillar(BasePillar):
             else:
                 logger.warning(f"[SENTIMENT] {symbol}: Grok API key not configured - skipping X/Twitter analysis")
 
-            # 2. Pre-fetched sentiment data (from data dict)
+            # 2. Pre-fetched StockTwits data (from data dict)
             if 'stocktwits' in data:
                 st_result = self._parse_stocktwits(data['stocktwits'])
                 if st_result:
                     source_scores['stocktwits'] = st_result['score']
                     factors.append(st_result)
                     total_weight += self.source_weights['stocktwits']
-
-            if 'reddit' in data:
-                reddit_result = self._parse_reddit(data['reddit'])
-                if reddit_result:
-                    source_scores['reddit'] = reddit_result['score']
-                    factors.append(reddit_result)
-                    total_weight += self.source_weights['reddit']
 
             # Calculate weighted average
             if total_weight > 0:
@@ -272,45 +263,6 @@ Be objective and base your analysis on actual social media trends."""
 
         except Exception as e:
             logger.warning(f"StockTwits parse failed: {e}")
-            return None
-
-    def _parse_reddit(self, data: Dict) -> Optional[Dict]:
-        """Parse Reddit sentiment data"""
-        try:
-            mentions = data.get('mentions', 0)
-            sentiment = data.get('sentiment', 0)  # Pre-calculated -1 to 1
-            subreddits = data.get('subreddits', [])
-
-            if mentions == 0:
-                return None
-
-            # Convert to -100 to 100 scale
-            score = sentiment * 100
-
-            # Adjust based on mention count
-            if mentions > 50:
-                volume = "high"
-                score *= 1.1
-            elif mentions > 10:
-                volume = "medium"
-            else:
-                volume = "low"
-                score *= 0.8
-
-            score = max(-100, min(100, score))
-
-            label = "bullish" if sentiment > 0.2 else "bearish" if sentiment < -0.2 else "mixed"
-            subs = ", ".join(subreddits[:3]) if subreddits else "various"
-
-            return {
-                'source': 'Reddit',
-                'score': score,
-                'message': f"Reddit ({subs}): {label} ({mentions} mentions)",
-                'raw_data': data
-            }
-
-        except Exception as e:
-            logger.warning(f"Reddit parse failed: {e}")
             return None
 
     def _generate_reasoning(

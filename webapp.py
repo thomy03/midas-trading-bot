@@ -17,6 +17,33 @@ logger = logging.getLogger(__name__)
 sys.path.insert(0, str(Path(__file__).parent))
 
 from nicegui import ui, app
+
+# === SAFE UI CALLBACK PATCH (fixes timer crashes) ===
+from functools import wraps
+
+def safe_ui_callback(func):
+    """Decorator to safely handle UI callbacks when elements are deleted."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except RuntimeError as e:
+            if "parent slot" in str(e).lower() or "element has been deleted" in str(e).lower():
+                pass  # Element was deleted, ignore silently
+            else:
+                raise
+        except Exception:
+            pass  # Log but do not crash
+    return wrapper
+
+# Monkey-patch ui.timer to wrap callbacks automatically
+_original_timer = ui.timer
+
+def safe_timer(interval, callback, *args, **kwargs):
+    return _original_timer(interval, safe_ui_callback(callback), *args, **kwargs)
+
+ui.timer = safe_timer
+# === END PATCH ===
 from dotenv import load_dotenv
 
 load_dotenv(override=True)

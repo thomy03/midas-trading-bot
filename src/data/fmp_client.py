@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 class FMPConfig:
     """Configuration for FMP API client"""
     api_key: str
-    base_url: str = "https://financialmodelingprep.com/api/v3"
+    base_url: str = "https://financialmodelingprep.com/stable"
     rate_limit: int = 300  # requests per minute
     timeout: int = 30  # seconds
     max_retries: int = 3
@@ -192,7 +192,7 @@ class FMPClient:
         """
         Stock screener - filter stocks by criteria.
 
-        https://financialmodelingprep.com/api/v3/stock-screener
+        https://financialmodelingprep.com/stable/stock-screener
 
         Args:
             market_cap_min: Minimum market cap (default $300M)
@@ -260,7 +260,7 @@ class FMPClient:
         """
         Get historical OHLCV data for a symbol.
 
-        https://financialmodelingprep.com/api/v3/historical-price-full/AAPL
+        https://financialmodelingprep.com/stable/historical-price-full/AAPL
 
         Args:
             symbol: Stock symbol (e.g., "AAPL")
@@ -379,7 +379,7 @@ class FMPClient:
         Returns:
             Quote data or None
         """
-        data = await self._get(f"quote/{symbol}")
+        data = await self._get("profile", params={"symbol": symbol})
         return data[0] if data else None
 
     async def get_bulk_quotes(self, symbols: List[str]) -> List[Dict]:

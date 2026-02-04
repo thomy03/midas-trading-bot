@@ -96,3 +96,16 @@ backtest_*.csv
 nul
 taskkill
 tmpclaude-*
+
+# Data cache (too big for git)
+data/cache/
+data/grok/scan_*.json
+data/auditor/
+data/heat/
+data/evolver/
+data/*.json
+!data/tickers/*.json
+
+# Logs
+*.log
+

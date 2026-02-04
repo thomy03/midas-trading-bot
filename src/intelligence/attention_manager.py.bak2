@@ -1,20 +1,19 @@
 """
-Attention Manager v2 - Avec Cooldown et Discovery Mode
+Attention Manager - Gestion dynamique du focus sur les topics chauds
 Alloue l'attention du bot aux symboles les plus prometteurs.
-Evite les analyses répétées et force la découverte de nouvelles opportunités.
 """
 
 import asyncio
 import logging
-import random
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set
 from collections import defaultdict
 import json
 from pathlib import Path
 
 from .heat_detector import HeatDetector, SymbolHeat, get_heat_detector
+# Market scheduler for time-based region filtering
 from src.utils.market_scheduler import MarketScheduler
 
 logger = logging.getLogger(__name__)
@@ -32,12 +31,11 @@ class FocusTopic:
     priority: int  # 1 = highest priority
 
     # Raison du focus
-    focus_reason: str  # "hot", "warming", "manual", "watchlist", "discovery"
+    focus_reason: str  # "hot", "warming", "manual", "watchlist"
 
     # Timing
     focused_since: datetime
     last_checked: Optional[datetime] = None
-    last_analyzed_at: Optional[datetime] = None  # NEW: Cooldown tracking
 
     # Actions
     screened: bool = False
@@ -59,37 +57,25 @@ class AttentionBudget:
     current_focus_count: int = 0
     screens_this_cycle: int = 0
     trades_today: int = 0
-    
-    # Discovery stats
-    symbols_discovered_today: int = 0
 
 
 @dataclass
 class AttentionConfig:
     """Configuration de l'Attention Manager"""
     # Limites de focus
-    max_hot_focus: int = 5
-    max_warming_focus: int = 10
-    max_watchlist_focus: int = 5
+    max_hot_focus: int = 5  # Max symboles "hot" a suivre
+    max_warming_focus: int = 10  # Max symboles "warming"
+    max_watchlist_focus: int = 5  # Max de la watchlist
 
     # Decay
-    focus_timeout_minutes: int = 30
-    cooling_threshold: float = 0.3
+    focus_timeout_minutes: int = 30  # Retirer du focus apres X min sans activite
+    cooling_threshold: float = 0.3  # En dessous = retirer du focus
 
     # Priorites
     hot_priority: int = 1
     warming_priority: int = 2
     watchlist_priority: int = 3
-    manual_priority: int = 0
-    discovery_priority: int = 4  # NEW: Discovery symbols
-
-    # NEW: Cooldown settings
-    analysis_cooldown_hours: int = 4  # Don't re-analyze within X hours
-    hot_bypass_threshold: float = 0.8  # Bypass cooldown if heat > this
-    
-    # NEW: Discovery settings
-    discovery_batch_size: int = 10  # How many new symbols to discover per cycle
-    force_discovery_after_cycles: int = 3  # Force discovery if no new symbols after X cycles
+    manual_priority: int = 0  # Highest
 
 
 # =============================================================================
@@ -99,7 +85,12 @@ class AttentionConfig:
 class AttentionManager:
     """
     Gere dynamiquement l'attention du bot.
-    V2: Avec cooldown intelligent et mode découverte.
+
+    Decide sur quels symboles se concentrer en fonction de:
+    - Heat scores (symboles chauds)
+    - Watchlist utilisateur
+    - Demandes manuelles
+    - Historique de performance
     """
 
     def __init__(
@@ -113,10 +104,10 @@ class AttentionManager:
         # Topics en focus
         self._focus_topics: Dict[str, FocusTopic] = {}
 
-        # Watchlist utilisateur
+        # Watchlist utilisateur - chargée depuis UniverseScanner ou fichier
         self._watchlist: Set[str] = set()
 
-        # Focus manuel
+        # Focus manuel (priorite max)
         self._manual_focus: Set[str] = set()
 
         # Budget d'attention
@@ -124,10 +115,6 @@ class AttentionManager:
 
         # Historique
         self._focus_history: List[Dict] = []
-        
-        # NEW: Analyzed today tracking (persisted)
-        self._analyzed_today: Dict[str, datetime] = {}  # symbol -> last_analyzed_at
-        self._cycles_without_discovery: int = 0
 
         # Lock pour thread safety
         self._lock = asyncio.Lock()
@@ -136,7 +123,7 @@ class AttentionManager:
         self._data_dir = Path("data/attention")
         self._data_dir.mkdir(parents=True, exist_ok=True)
 
-        logger.info("AttentionManager v2 initialized (with cooldown)")
+        logger.info("AttentionManager initialized")
 
     async def initialize(self):
         """Initialise le manager"""
@@ -144,115 +131,24 @@ class AttentionManager:
             self.heat_detector = await get_heat_detector()
 
         await self._load_watchlist()
-        await self._load_analyzed_today()
         logger.info("AttentionManager ready")
 
     # -------------------------------------------------------------------------
-    # COOLDOWN MANAGEMENT (NEW)
-    # -------------------------------------------------------------------------
-    
-    def _is_in_cooldown(self, symbol: str) -> bool:
-        """Check if symbol is in analysis cooldown"""
-        if symbol not in self._analyzed_today:
-            return False
-        
-        last_analyzed = self._analyzed_today[symbol]
-        cooldown_delta = timedelta(hours=self.config.analysis_cooldown_hours)
-        
-        return datetime.now() - last_analyzed < cooldown_delta
-    
-    def _should_bypass_cooldown(self, symbol: str) -> bool:
-        """Check if symbol should bypass cooldown (very hot)"""
-        heat = self.heat_detector.get_symbol_heat(symbol)
-        if heat and heat.heat_score >= self.config.hot_bypass_threshold:
-            logger.info(f"{symbol} bypassing cooldown (heat={heat.heat_score:.2f})")
-            return True
-        return False
-    
-    def _get_cooldown_remaining(self, symbol: str) -> Optional[timedelta]:
-        """Get remaining cooldown time for a symbol"""
-        if symbol not in self._analyzed_today:
-            return None
-        
-        last_analyzed = self._analyzed_today[symbol]
-        cooldown_delta = timedelta(hours=self.config.analysis_cooldown_hours)
-        remaining = (last_analyzed + cooldown_delta) - datetime.now()
-        
-        return remaining if remaining.total_seconds() > 0 else None
-
-    # -------------------------------------------------------------------------
-    # DISCOVERY MODE (NEW)
-    # -------------------------------------------------------------------------
-    
-    def _get_unanalyzed_symbols(self, limit: int = 10) -> List[str]:
-        """
-        Get symbols from watchlist that haven't been analyzed today.
-        Prioritizes by region (current market session).
-        """
-        # Filter by current market session
-        session_symbols = [
-            s for s in self._watchlist 
-            if MarketScheduler.should_scan_symbol(s)
-        ]
-        
-        # Remove already analyzed
-        unanalyzed = [
-            s for s in session_symbols 
-            if s not in self._analyzed_today
-        ]
-        
-        if not unanalyzed:
-            # All symbols analyzed today, get oldest analyzed ones
-            sorted_by_age = sorted(
-                [(s, self._analyzed_today.get(s, datetime.min)) for s in session_symbols],
-                key=lambda x: x[1]
-            )
-            unanalyzed = [s for s, _ in sorted_by_age[:limit * 2]]
-        
-        # Shuffle for variety
-        random.shuffle(unanalyzed)
-        
-        logger.info(f"Discovery: {len(unanalyzed)} unanalyzed symbols available")
-        return unanalyzed[:limit]
-    
-    async def trigger_discovery_scan(self) -> List[str]:
-        """
-        Trigger a discovery scan when regular symbols are in cooldown.
-        Returns list of fresh symbols to analyze.
-        """
-        fresh_symbols = self._get_unanalyzed_symbols(self.config.discovery_batch_size)
-        
-        if fresh_symbols:
-            logger.info(f"Discovery mode: scanning {len(fresh_symbols)} new symbols")
-            self._budget.symbols_discovered_today += len(fresh_symbols)
-            self._cycles_without_discovery = 0
-            
-            # Add them as discovery focus topics
-            now = datetime.now()
-            for symbol in fresh_symbols:
-                if symbol not in self._focus_topics:
-                    self._focus_topics[symbol] = FocusTopic(
-                        symbol=symbol,
-                        heat_score=0.1,  # Low heat, discovery mode
-                        priority=self.config.discovery_priority,
-                        focus_reason="discovery",
-                        focused_since=now
-                    )
-        
-        return fresh_symbols
-
-    # -------------------------------------------------------------------------
-    # FOCUS MANAGEMENT (UPDATED)
+    # FOCUS MANAGEMENT
     # -------------------------------------------------------------------------
 
     async def update_focus(self) -> List[FocusTopic]:
-        """Met a jour la liste des topics en focus."""
+        """
+        Met a jour la liste des topics en focus.
+        Appeler a chaque cycle de la boucle live.
+        """
         async with self._lock:
             now = datetime.now()
 
+            # 1. Retirer les topics expires ou refroidis
             await self._cleanup_stale_focus()
 
-            # Add manual focus
+            # 2. Ajouter les symboles manuels (priorite max)
             for symbol in self._manual_focus:
                 if symbol not in self._focus_topics:
                     self._focus_topics[symbol] = FocusTopic(
@@ -263,7 +159,7 @@ class AttentionManager:
                         focused_since=now
                     )
 
-            # Add hot symbols
+            # 3. Ajouter les symboles hot
             hot_symbols = self.heat_detector.get_hot_symbols(self.config.max_hot_focus)
             for heat in hot_symbols:
                 if heat.symbol not in self._focus_topics:
@@ -275,12 +171,15 @@ class AttentionManager:
                         focused_since=now
                     )
                 else:
+                    # Mettre a jour le score
                     self._focus_topics[heat.symbol].heat_score = heat.heat_score
 
-            # Add warming symbols
+            # 4. Ajouter les symboles warming (si place disponible)
             current_count = len(self._focus_topics)
             if current_count < self.config.max_hot_focus + self.config.max_warming_focus:
-                warming = self.heat_detector.get_warming_symbols(self.config.max_warming_focus)
+                warming = self.heat_detector.get_warming_symbols(
+                    self.config.max_warming_focus
+                )
                 for heat in warming:
                     if heat.symbol not in self._focus_topics:
                         self._focus_topics[heat.symbol] = FocusTopic(
@@ -291,7 +190,7 @@ class AttentionManager:
                             focused_since=now
                         )
 
-            # Add watchlist symbols
+            # 5. Ajouter les symboles watchlist (si place disponible)
             current_count = len(self._focus_topics)
             max_total = (
                 self.config.max_hot_focus +
@@ -299,11 +198,14 @@ class AttentionManager:
                 self.config.max_watchlist_focus
             )
             if current_count < max_total:
+                # Filter watchlist by current market session
                 session_filtered = [s for s in self._watchlist if MarketScheduler.should_scan_symbol(s)]
                 for symbol in session_filtered[:self.config.max_watchlist_focus]:
                     if symbol not in self._focus_topics:
+                        # Verifier si le symbole a du heat
                         heat = self.heat_detector.get_symbol_heat(symbol)
                         heat_score = heat.heat_score if heat else 0.1
+
                         self._focus_topics[symbol] = FocusTopic(
                             symbol=symbol,
                             heat_score=heat_score,
@@ -312,7 +214,10 @@ class AttentionManager:
                             focused_since=now
                         )
 
+            # 6. Trier par priorite et heat
             sorted_topics = self._get_sorted_focus()
+
+            # 7. Mettre a jour le budget
             self._budget.current_focus_count = len(sorted_topics)
 
             return sorted_topics
@@ -324,15 +229,19 @@ class AttentionManager:
 
         to_remove = []
         for symbol, topic in self._focus_topics.items():
+            # Ne pas retirer les manuels
             if topic.focus_reason == "manual":
                 continue
 
+            # Verifier le timeout
             if topic.last_checked and now - topic.last_checked > timeout:
                 to_remove.append(symbol)
                 continue
 
+            # Verifier si refroidi
             heat = self.heat_detector.get_symbol_heat(symbol)
             if heat is None or heat.heat_score < self.config.cooling_threshold:
+                # Refroidi, mais garder si watchlist
                 if symbol not in self._watchlist:
                     to_remove.append(symbol)
 
@@ -347,7 +256,7 @@ class AttentionManager:
         return topics
 
     # -------------------------------------------------------------------------
-    # QUERIES (UPDATED)
+    # QUERIES
     # -------------------------------------------------------------------------
 
     def get_focus_topics(self, limit: int = 10) -> List[FocusTopic]:
@@ -363,11 +272,12 @@ class AttentionManager:
     def get_symbols_for_screening(self, limit: int = 5) -> List[str]:
         """
         Retourne les symboles a screener dans ce cycle.
-        V2: Excludes symbols in cooldown, triggers discovery if needed.
+        Priorise ceux qui n'ont pas ete screenes recemment.
+        Filtre par region de marche selon l'heure (EU/US/ALL).
         """
         topics = self._get_sorted_focus()
 
-        # Filter by region
+        # Filtrer par region de marche selon l'heure
         session_info = MarketScheduler.get_session_info()
         logger.info(f"Market session: {session_info['region']} ({session_info['paris_time']} Paris)")
         
@@ -375,61 +285,16 @@ class AttentionManager:
             t for t in topics 
             if MarketScheduler.should_scan_symbol(t.symbol)
         ]
+        
+        if len(filtered_topics) < len(topics):
+            logger.info(f"Filtered {len(topics) - len(filtered_topics)} symbols (wrong region for current session)")
 
-        # NEW: Filter out symbols in cooldown (unless very hot)
-        available = []
-        skipped_cooldown = []
-        
-        for topic in filtered_topics:
-            if self._is_in_cooldown(topic.symbol):
-                if self._should_bypass_cooldown(topic.symbol):
-                    available.append(topic)
-                    logger.info(f"{topic.symbol}: cooldown bypassed (very hot)")
-                else:
-                    skipped_cooldown.append(topic.symbol)
-                    remaining = self._get_cooldown_remaining(topic.symbol)
-                    logger.debug(f"{topic.symbol}: skipped (cooldown {remaining})")
-            else:
-                available.append(topic)
-        
-        if skipped_cooldown:
-            logger.info(f"Skipped {len(skipped_cooldown)} symbols in cooldown: {skipped_cooldown[:5]}...")
+        # Prioriser les non-screenes
+        not_screened = [t for t in filtered_topics if not t.screened]
+        screened = [t for t in filtered_topics if t.screened]
 
-        # NEW: If not enough symbols, trigger discovery
-        if len(available) < limit:
-            self._cycles_without_discovery += 1
-            
-            if self._cycles_without_discovery >= self.config.force_discovery_after_cycles:
-                logger.info(f"Not enough symbols available, triggering discovery mode")
-                fresh = self._get_unanalyzed_symbols(limit - len(available))
-                
-                for symbol in fresh:
-                    if symbol not in [t.symbol for t in available]:
-                        # Create temporary focus topic for discovery
-                        discovery_topic = FocusTopic(
-                            symbol=symbol,
-                            heat_score=0.1,
-                            priority=self.config.discovery_priority,
-                            focus_reason="discovery",
-                            focused_since=datetime.now()
-                        )
-                        available.append(discovery_topic)
-                        self._focus_topics[symbol] = discovery_topic
-
-        # Sort: not screened first, then by priority/heat
-        not_screened = [t for t in available if not t.screened]
-        screened = [t for t in available if t.screened]
-        
-        # Only return not_screened (don't re-screen already screened this cycle)
-        result = [t.symbol for t in not_screened[:limit]]
-        
-        if len(result) < limit and self._cycles_without_discovery >= 2:
-            # Add some discovered symbols
-            extra_discovery = self._get_unanalyzed_symbols(limit - len(result))
-            result.extend(extra_discovery)
-        
-        logger.info(f"Symbols for screening: {result}")
-        return result[:limit]
+        result = not_screened + screened
+        return [t.symbol for t in result[:limit]]
 
     def is_in_focus(self, symbol: str) -> bool:
         """Verifie si un symbole est en focus"""
@@ -445,115 +310,95 @@ class AttentionManager:
     # -------------------------------------------------------------------------
 
     def add_to_watchlist(self, symbol: str):
+        """Ajoute un symbole a la watchlist"""
         self._watchlist.add(symbol.upper())
         logger.info(f"Added {symbol} to watchlist")
 
     def remove_from_watchlist(self, symbol: str):
+        """Retire un symbole de la watchlist"""
         self._watchlist.discard(symbol.upper())
         logger.info(f"Removed {symbol} from watchlist")
 
     def get_watchlist(self) -> List[str]:
+        """Retourne la watchlist"""
         return list(self._watchlist)
 
     def add_manual_focus(self, symbol: str):
+        """Ajoute un focus manuel (priorite max)"""
         self._manual_focus.add(symbol.upper())
         logger.info(f"Added manual focus: {symbol}")
 
     def remove_manual_focus(self, symbol: str):
+        """Retire un focus manuel"""
         self._manual_focus.discard(symbol.upper())
         if symbol.upper() in self._focus_topics:
             del self._focus_topics[symbol.upper()]
         logger.info(f"Removed manual focus: {symbol}")
 
     # -------------------------------------------------------------------------
-    # TRACKING (UPDATED)
+    # TRACKING
     # -------------------------------------------------------------------------
 
     async def mark_screened(self, symbol: str):
-        """Marque un symbole comme screene avec timestamp"""
-        symbol = symbol.upper()
-        now = datetime.now()
-        
-        if symbol in self._focus_topics:
-            topic = self._focus_topics[symbol]
+        """Marque un symbole comme screene"""
+        if symbol.upper() in self._focus_topics:
+            topic = self._focus_topics[symbol.upper()]
             topic.screened = True
-            topic.last_checked = now
-            topic.last_analyzed_at = now  # NEW
+            topic.last_checked = datetime.now()
             topic.checks_count += 1
-        
-        # NEW: Track in analyzed_today
-        self._analyzed_today[symbol] = now
-        self._budget.screens_this_cycle += 1
-        
-        logger.info(f"{symbol} marked as analyzed (cooldown starts)")
-        
-        # Persist periodically
-        if self._budget.screens_this_cycle % 5 == 0:
-            await self._save_analyzed_today()
+            self._budget.screens_this_cycle += 1
 
     async def mark_signal_found(self, symbol: str):
+        """Enregistre qu'un signal a ete trouve"""
         if symbol.upper() in self._focus_topics:
             self._focus_topics[symbol.upper()].signals_found += 1
 
     async def mark_traded(self, symbol: str):
+        """Marque un symbole comme trade"""
         if symbol.upper() in self._focus_topics:
             self._focus_topics[symbol.upper()].traded = True
             self._budget.trades_today += 1
 
     async def reset_cycle(self):
-        """Reset les compteurs de cycle (mais PAS le cooldown)"""
+        """Reset les compteurs de cycle (appeler en debut de cycle)"""
         self._budget.screens_this_cycle = 0
 
-        # V2: Only reset screened flag, NOT the cooldown
+        # Reset le flag screened pour permettre re-screening
         for topic in self._focus_topics.values():
             topic.screened = False
-        
-        # Don't reset _analyzed_today - that's the cooldown!
 
     async def reset_daily(self):
         """Reset les compteurs quotidiens"""
         self._budget.trades_today = 0
-        self._budget.symbols_discovered_today = 0
-        self._cycles_without_discovery = 0
 
-        # NEW: Clear analyzed_today for new day
-        self._analyzed_today.clear()
-
-        # Save history
+        # Sauvegarder l'historique
         self._focus_history.append({
             'date': datetime.now().isoformat(),
             'focus_count': len(self._focus_topics),
             'topics': [t.symbol for t in self._focus_topics.values()]
         })
+
+        # Garder seulement 30 jours d'historique
         self._focus_history = self._focus_history[-30:]
-        
-        logger.info("Daily reset: cooldown cache cleared")
 
     # -------------------------------------------------------------------------
     # BUDGET
     # -------------------------------------------------------------------------
 
     def can_screen_more(self) -> bool:
+        """Verifie si on peut encore screener ce cycle"""
         return self._budget.screens_this_cycle < self._budget.max_screening_per_cycle
 
     def can_trade_more(self) -> bool:
+        """Verifie si on peut encore trader aujourd'hui"""
         return self._budget.trades_today < self._budget.max_trades_per_day
 
     def get_budget(self) -> AttentionBudget:
+        """Retourne le budget actuel"""
         return self._budget
-    
-    def get_cooldown_stats(self) -> Dict:
-        """Get stats about current cooldown state"""
-        in_cooldown = [s for s in self._analyzed_today if self._is_in_cooldown(s)]
-        return {
-            'symbols_analyzed_today': len(self._analyzed_today),
-            'currently_in_cooldown': len(in_cooldown),
-            'cooldown_hours': self.config.analysis_cooldown_hours,
-            'symbols_discovered_today': self._budget.symbols_discovered_today
-        }
 
     # -------------------------------------------------------------------------
-    # PERSISTENCE (UPDATED)
+    # PERSISTENCE
     # -------------------------------------------------------------------------
 
     async def _load_watchlist(self):
@@ -569,7 +414,7 @@ class AttentionManager:
             except Exception as e:
                 logger.warning(f"Could not load watchlist: {e}")
         
-        # Load region-specific tickers
+        # V4.10: Load region-specific tickers based on market session
         ticker_files = MarketScheduler.get_active_ticker_files()
         tickers_dir = self._data_dir.parent / "tickers"
         
@@ -590,40 +435,8 @@ class AttentionManager:
         
         logger.info(f"Total watchlist: {len(self._watchlist)} symbols")
 
-    async def _load_analyzed_today(self):
-        """Load today's analyzed symbols from disk"""
-        path = self._data_dir / "analyzed_today.json"
-        if path.exists():
-            try:
-                with open(path, 'r') as f:
-                    data = json.load(f)
-                    # Only load if same day
-                    saved_date = data.get('date', '')
-                    today = datetime.now().strftime('%Y-%m-%d')
-                    
-                    if saved_date == today:
-                        for symbol, ts in data.get('symbols', {}).items():
-                            self._analyzed_today[symbol] = datetime.fromisoformat(ts)
-                        logger.info(f"Loaded {len(self._analyzed_today)} analyzed symbols from today")
-                    else:
-                        logger.info("Analyzed cache is from yesterday, starting fresh")
-            except Exception as e:
-                logger.warning(f"Could not load analyzed_today: {e}")
-
-    async def _save_analyzed_today(self):
-        """Save today's analyzed symbols to disk"""
-        path = self._data_dir / "analyzed_today.json"
-        try:
-            data = {
-                'date': datetime.now().strftime('%Y-%m-%d'),
-                'symbols': {s: t.isoformat() for s, t in self._analyzed_today.items()}
-            }
-            with open(path, 'w') as f:
-                json.dump(data, f, indent=2)
-        except Exception as e:
-            logger.error(f"Could not save analyzed_today: {e}")
-
     async def save_watchlist(self):
+        """Sauvegarde la watchlist"""
         path = self._data_dir / "watchlist.json"
         try:
             with open(path, 'w') as f:
@@ -637,7 +450,6 @@ class AttentionManager:
     async def close(self):
         """Ferme proprement le manager"""
         await self.save_watchlist()
-        await self._save_analyzed_today()
         logger.info("AttentionManager closed")
 
 

@@ -190,15 +190,15 @@ FORMAT DE RÉPONSE (JSON):
 
         # Reddit/Social source
         if social_data:
-            reddit_data = social_data.get('reddit', {})
+            social_data = social_data.get('social', {})
             sources.append(SourceEvidence(
                 source_name="Reddit",
-                raw_metric=f"{reddit_data.get('mentions', 0)} mentions/h (baseline: {reddit_data.get('baseline', 0)})",
-                themes=reddit_data.get('themes', []),
-                key_posts=reddit_data.get('top_posts', [])[:3],
-                sentiment=reddit_data.get('sentiment', 0.5),
-                reliability="medium" if reddit_data.get('mentions', 0) > 20 else "low",
-                catalyst_linked=bool(reddit_data.get('catalysts', []))
+                raw_metric=f"{social_data.get('mentions', 0)} mentions/h (baseline: {social_data.get('baseline', 0)})",
+                themes=social_data.get('themes', []),
+                key_posts=social_data.get('top_posts', [])[:3],
+                sentiment=social_data.get('sentiment', 0.5),
+                reliability="medium" if social_data.get('mentions', 0) > 20 else "low",
+                catalyst_linked=bool(social_data.get('catalysts', []))
             ))
 
         # Grok/X source

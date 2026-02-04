@@ -64,8 +64,8 @@ class TechnicalFactors:
 class SentimentFactors:
     """Facteurs de sentiment/news"""
     heat_score: float = 0
-    reddit_mentions: int = 0
-    reddit_sentiment: float = 0
+    social_mentions: int = 0
+    social_sentiment: float = 0
     grok_sentiment: float = 0
     grok_summary: str = ""
 
@@ -327,7 +327,7 @@ class DecisionJournal:
         if sentiment.heat_score > 0.5:
             parts.append(
                 f"Le symbole est 'chaud' (heat: {sentiment.heat_score:.2f}) "
-                f"avec {sentiment.reddit_mentions} mentions Reddit."
+                f"avec {sentiment.social_mentions} mentions Reddit."
             )
 
         if sentiment.grok_sentiment > 0.5:
@@ -371,7 +371,7 @@ TECHNIQUE:
 
 HEAT:
 - Heat Score: {decision.sentiment.heat_score:.2f}
-- Reddit: {decision.sentiment.reddit_mentions} mentions ({decision.sentiment.reddit_sentiment:+.2f})
+- Reddit: {decision.sentiment.social_mentions} mentions ({decision.sentiment.social_sentiment:+.2f})
 - Grok Sentiment: {decision.sentiment.grok_sentiment:+.2f}
 
 MARCHE:

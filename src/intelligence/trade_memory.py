@@ -74,7 +74,7 @@ class TradeContext:
     breakout_strength: Optional[float] = None
 
     # Sentiment
-    reddit_sentiment: float = 0.0
+    social_sentiment: float = 0.0
     grok_sentiment: float = 0.0
     stocktwits_sentiment: float = 0.0
     heat_score: float = 0.0
@@ -93,7 +93,7 @@ class TradeContext:
             f"Symbol: {self.symbol}",
             f"Market: {self.market_regime}, VIX: {self.vix_level:.1f}, SPY: {self.spy_trend}",
             f"Technical: RSI={self.rsi:.1f}, EMA={self.ema_alignment}, Volume={self.volume_ratio:.1f}x",
-            f"Sentiment: Reddit={self.reddit_sentiment:.2f}, Grok={self.grok_sentiment:.2f}",
+            f"Sentiment: Reddit={self.social_sentiment:.2f}, Grok={self.grok_sentiment:.2f}",
             f"Heat: {self.heat_score:.2f}, News: {self.news_sentiment:.2f}",
             f"Decision: score={self.decision_score:.1f}, confidence={self.confidence:.2f}"
         ]
@@ -828,7 +828,7 @@ def create_context_from_reasoning(
         rsi=getattr(reasoning_result.technical_score, 'rsi', 50.0) if hasattr(reasoning_result, 'technical_score') else 50.0,
         ema_alignment=getattr(reasoning_result.technical_score, 'ema_alignment', 'neutral') if hasattr(reasoning_result, 'technical_score') else 'neutral',
         volume_ratio=getattr(reasoning_result.technical_score, 'volume_ratio', 1.0) if hasattr(reasoning_result, 'technical_score') else 1.0,
-        reddit_sentiment=getattr(reasoning_result.sentiment_score, 'reddit', 0.0) if hasattr(reasoning_result, 'sentiment_score') else 0.0,
+        social_sentiment=getattr(reasoning_result.sentiment_score, 'social', 0.0) if hasattr(reasoning_result, 'sentiment_score') else 0.0,
         grok_sentiment=getattr(reasoning_result.sentiment_score, 'grok', 0.0) if hasattr(reasoning_result, 'sentiment_score') else 0.0,
         news_sentiment=getattr(reasoning_result.news_score, 'sentiment', 0.0) if hasattr(reasoning_result, 'news_score') else 0.0,
         heat_score=getattr(reasoning_result, 'heat_score', 0.0),

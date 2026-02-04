@@ -20,6 +20,7 @@ from .decision_journal import DecisionJournal, get_decision_journal
 
 from ..intelligence.heat_detector import HeatDetector, get_heat_detector
 from ..intelligence.attention_manager import AttentionManager, get_attention_manager
+from ..execution.paper_trader import get_paper_trader, PaperTrader
 
 # V4 - Multi-pillar reasoning (4 pillars: technique, fondamental, sentiment, news)
 try:
@@ -54,12 +55,12 @@ class LiveLoopConfig:
     health_check_interval: int = 600  # Health check (10 min)
 
     # Timezone
-    timezone: str = "America/New_York"
+    timezone: str = "Europe/Paris"
 
     # Heures de trading
     pre_market_start: time = time(4, 0)
-    market_open: time = time(9, 30)
-    market_close: time = time(16, 0)
+    market_open: time = time(9, 0)
+    market_close: time = time(17, 30)
     after_hours_end: time = time(20, 0)
 
     # Mode
@@ -348,15 +349,25 @@ class LiveLoop:
                         result = await reasoning_engine.analyze(symbol)
                         
                         if result and result.decision in [DecisionType.BUY, DecisionType.STRONG_BUY]:
+                            # Get current price for trade execution
+                            try:
+                                import yfinance as yf
+                                ticker = yf.Ticker(symbol)
+                                current_price = ticker.fast_info.get('lastPrice') or ticker.fast_info.get('regularMarketPrice', 0)
+                            except Exception as e:
+                                logger.warning(f"Could not get price for {symbol}: {e}")
+                                current_price = 0
+                            
                             alert = {
                                 'symbol': symbol,
-                                'confidence_score': result.final_score,
+                                'confidence_score': result.total_score,
                                 'confidence_signal': result.decision.value.upper(),
+                                'current_price': current_price,
                                 'pillar_technical': result.technical_score,
                                 'pillar_fundamental': result.fundamental_score,
                                 'pillar_sentiment': result.sentiment_score,
                                 'pillar_news': result.news_score,
-                                'reasoning': result.reasoning,
+                                'reasoning': result.reasoning_summary,
                                 'timestamp': result.timestamp
                             }
                             self._metrics.signals_found += 1
@@ -443,20 +454,87 @@ class LiveLoop:
             signal_data=alert
         )
 
-        # Si le mode paper trading est désactivé, exécuter le trade
-        if not self.config.paper_trading:
+        # Paper trading: exécuter via PaperTrader
+        if self.config.paper_trading:
             await self._execute_trade(alert, decision)
         else:
-            logger.info(f"📝 Paper trade logged: {symbol}")
+            logger.warning(f"Live trading not implemented, signal logged only: {symbol}")
 
     async def _execute_trade(self, alert: Dict, decision):
-        """Exécute un trade réel"""
-        # TODO: Intégrer avec IBKR executor
+        """Exécute un trade (paper trading)"""
         symbol = alert.get('symbol')
-        logger.info(f"🔔 Would execute trade: {symbol}")
-
-        self._metrics.trades_executed += 1
-
+        price = alert.get('current_price', 0)
+        score = alert.get('confidence_score', 0)
+        
+        if not price or price <= 0:
+            logger.warning(f"Cannot execute trade for {symbol}: no valid price")
+            return
+        
+        # Get paper trader
+        paper_trader = get_paper_trader()
+        
+        # Extract pillar scores and reasoning from alert
+        pillar_technical = alert.get('pillar_technical')
+        pillar_fundamental = alert.get('pillar_fundamental')
+        pillar_sentiment = alert.get('pillar_sentiment')
+        pillar_news = alert.get('pillar_news')
+        reasoning = alert.get('reasoning')
+        
+        # Convert PillarScore objects to floats if needed
+        if hasattr(pillar_technical, 'score'):
+            pillar_technical = pillar_technical.score
+        if hasattr(pillar_fundamental, 'score'):
+            pillar_fundamental = pillar_fundamental.score
+        if hasattr(pillar_sentiment, 'score'):
+            pillar_sentiment = pillar_sentiment.score
+        if hasattr(pillar_news, 'score'):
+            pillar_news = pillar_news.score
+        
+        # Fetch company info
+        company_name = None
+        sector = None
+        industry = None
+        try:
+            import yfinance as yf
+            ticker_info = yf.Ticker(symbol)
+            info = ticker_info.info
+            company_name = info.get('shortName') or info.get('longName')
+            sector = info.get('sector')
+            industry = info.get('industry')
+        except Exception as e:
+            logger.warning(f"Could not fetch company info for {symbol}: {e}")
+        
+        # Open position with full analysis
+        position = paper_trader.open_position(
+            symbol=symbol,
+            price=price,
+            score=score,
+            decision_type=str(decision.decision.value) if hasattr(decision, 'decision') else "BUY",
+            pillar_technical=pillar_technical,
+            pillar_fundamental=pillar_fundamental,
+            pillar_sentiment=pillar_sentiment,
+            pillar_news=pillar_news,
+            reasoning=reasoning,
+            company_name=company_name,
+            sector=sector,
+            industry=industry
+        )
+        
+        if position:
+            self._metrics.trades_executed += 1
+            logger.info(f"📈 Paper trade executed: {symbol} x{position.quantity} @ {price:.2f}")
+            
+            # Notify
+            if self.config.notification_callback:
+                await self.config.notification_callback({
+                    'type': 'trade',
+                    'action': 'BUY',
+                    'symbol': symbol,
+                    'price': price,
+                    'quantity': position.quantity,
+                    'score': score
+                })
+        
         if self._on_trade_callback:
             await self._on_trade_callback(alert, decision)
 
@@ -516,7 +594,7 @@ class LiveLoop:
             if social_scanner:
                 result = await social_scanner.full_scan()
                 if result and result.trending_symbols:
-                    # Convert trending_symbols to dict for ingest_reddit_data
+                    # Convert trending_symbols to dict for ingest_social_data
                     social_data = {}
                     for ts in result.trending_symbols:
                         social_data[ts.symbol] = {
@@ -525,7 +603,7 @@ class LiveLoop:
                             'posts': []
                         }
                     if social_data:
-                        await self.heat_detector.ingest_reddit_data(social_data)
+                        await self.heat_detector.ingest_social_data(social_data)
 
         except ImportError:
             logger.debug("Social scanners not available")
@@ -731,7 +809,7 @@ class LiveLoop:
             await self.decision_journal.close()
 
         if self.state:
-            await self.state.save()
+            self.state_manager.save()
 
         logger.info("LiveLoop cleanup complete")
 

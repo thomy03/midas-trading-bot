@@ -406,7 +406,7 @@ class AgentRunner:
             self._today_trades = []
         self._today_trades.append({
             'alert': alert,
-            'decision_id': decision.decision_id if decision else None,
+            'decision_id': decision.get('id') if isinstance(decision, dict) else (decision.decision_id if hasattr(decision, 'decision_id') else None),
             'timestamp': datetime.now().isoformat()
         })
 

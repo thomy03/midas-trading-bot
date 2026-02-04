@@ -23,7 +23,7 @@ class NewsSource(Enum):
     """Sources de news disponibles"""
     NEWS_API = "newsapi"
     ALPHA_VANTAGE = "alpha_vantage"
-    REDDIT = "reddit"
+    REDDIT = "social"
     ARXIV = "arxiv"
     RSS_FEEDS = "rss_feeds"
 
@@ -69,7 +69,7 @@ class NewsFetcher:
         'seeking_alpha': 'https://seekingalpha.com/market_currents.xml',
     }
 
-    # Subreddits pertinents
+    # Subsocials pertinents
     REDDIT_SUBS = [
         'wallstreetbets',
         'stocks',
@@ -254,9 +254,9 @@ class NewsFetcher:
             print(f"Alpha Vantage error: {e}")
             return []
 
-    async def fetch_reddit_posts(
+    async def fetch_social_posts(
         self,
-        subreddits: Optional[List[str]] = None,
+        subsocials: Optional[List[str]] = None,
         query: Optional[str] = None,
         limit: int = 25,
         time_filter: str = 'day'
@@ -265,9 +265,9 @@ class NewsFetcher:
         Récupère des posts depuis Reddit (via l'API publique).
 
         Args:
-            subreddits: Liste de subreddits (défaut: REDDIT_SUBS)
+            subsocials: Liste de subsocials (défaut: REDDIT_SUBS)
             query: Recherche optionnelle
-            limit: Nombre max de posts par subreddit
+            limit: Nombre max de posts par subsocial
             time_filter: Filtre temporel (hour, day, week, month, year, all)
 
         Returns:
@@ -275,16 +275,16 @@ class NewsFetcher:
         """
         await self._ensure_session()
 
-        subreddits = subreddits or self.REDDIT_SUBS
+        subsocials = subsocials or self.REDDIT_SUBS
         all_posts = []
 
         headers = {
             'User-Agent': 'TradingBot/1.0 (Market Research)'
         }
 
-        for subreddit in subreddits:
+        for subsocial in subsocials:
             try:
-                url = f'https://www.reddit.com/r/{subreddit}/hot.json'
+                url = f'https://www.social.com/r/{subsocial}/hot.json'
                 params = {'limit': limit, 't': time_filter}
 
                 async with self.session.get(url, headers=headers, params=params) as response:
@@ -315,8 +315,8 @@ class NewsFetcher:
 
                         all_posts.append(NewsArticle(
                             title=post_data.get('title', ''),
-                            source=f'Reddit r/{subreddit}',
-                            url=f"https://reddit.com{post_data.get('permalink', '')}",
+                            source=f'Reddit r/{subsocial}',
+                            url=f"https://social.com{post_data.get('permalink', '')}",
                             published_at=published,
                             content=post_data.get('selftext', '')[:2000],
                             summary=post_data.get('title', ''),
@@ -324,7 +324,7 @@ class NewsFetcher:
                         ))
 
             except Exception as e:
-                print(f"Reddit error for r/{subreddit}: {e}")
+                print(f"Reddit error for r/{subsocial}: {e}")
                 continue
 
         # Trier par relevance
@@ -457,7 +457,7 @@ class NewsFetcher:
         # Récupérer depuis plusieurs sources en parallèle
         tasks = [
             self.fetch_newsapi(query, from_date),
-            self.fetch_reddit_posts(query=query.replace(' OR ', ' '))
+            self.fetch_social_posts(query=query.replace(' OR ', ' '))
         ]
 
         results = await asyncio.gather(*tasks, return_exceptions=True)

@@ -4,7 +4,6 @@ Scanner des réseaux sociaux pour détecter les tendances et le sentiment.
 
 Sources:
 - StockTwits: Sentiment et trending tickers
-- Reddit: Subreddits financiers (wallstreetbets, stocks, investing, etc.)
 
 Usage:
     from src.intelligence.social_scanner import SocialScanner
@@ -17,9 +16,6 @@ Usage:
 
     # Scan StockTwits seulement
     stocktwits_data = await scanner.scan_stocktwits()
-
-    # Scan Reddit seulement
-    reddit_data = await scanner.scan_reddit()
 """
 
 import os
@@ -46,7 +42,7 @@ logger = logging.getLogger(__name__)
 class SocialMention:
     """Mention d'un symbole sur les réseaux sociaux"""
     symbol: str
-    source: str  # 'stocktwits', 'reddit'
+    source: str  # 'stocktwits'
     text: str
     sentiment: str  # 'bullish', 'bearish', 'neutral'
     sentiment_score: float  # -1 to +1
@@ -369,431 +365,15 @@ class StockTwitsScanner:
 
 
 # =============================================================================
-# REDDIT SCANNER
-# =============================================================================
-
-class RedditScanner:
-    """
-    Scanner Reddit pour les subreddits financiers.
-
-    Utilise l'API Reddit publique (pas d'auth requise pour le read-only).
-    Rate limit: ~60 requests/minute pour les API non-authentifiées
-
-    Subreddits surveillés:
-    - r/wallstreetbets: Options, YOLO trades, meme stocks
-    - r/stocks: Discussions générales
-    - r/investing: Long-term investing
-    - r/options: Options trading
-    - r/pennystocks: Small caps
-    - r/stockmarket: General market
-    - r/ValueInvesting: Value plays
-    - r/Daytrading: Day trading
-    """
-
-    BASE_URL = "https://www.reddit.com"
-
-    # Subreddits à scanner avec leur poids (importance)
-    SUBREDDITS = {
-        'wallstreetbets': 1.5,      # Très actif, meme stocks
-        'stocks': 1.2,              # Discussions générales
-        'investing': 1.0,           # Long-term
-        'options': 1.0,             # Options
-        'pennystocks': 0.8,         # Small caps (plus risqué)
-        'stockmarket': 0.8,         # General
-        'ValueInvesting': 0.7,      # Value plays
-        'Daytrading': 0.7,          # Day trading
-        'SecurityAnalysis': 0.5,    # Deep analysis
-        'SPACs': 0.3,               # SPACs (moins populaire maintenant)
-    }
-
-    # Regex pour extraire les tickers
-    TICKER_PATTERN = re.compile(r'\$([A-Z]{1,5})\b|(?<!\w)([A-Z]{2,5})(?!\w)')
-
-    # Mots à ignorer (pas des tickers)
-    # V4.8: Extended list to avoid false positives from common words & financial terms
-    IGNORE_WORDS = {
-        # Single letters and common short words
-        'I', 'A', 'AM', 'PM', 'AN', 'AS', 'AT', 'BE', 'BY', 'DO', 'GO',
-        'IF', 'IN', 'IS', 'IT', 'ME', 'MY', 'NO', 'OF', 'ON', 'OR', 'SO',
-        'TO', 'UP', 'US', 'WE',
-
-        # Common 3-letter words (often mistaken for tickers)
-        'THE', 'AND', 'FOR', 'ARE', 'BUT', 'NOT', 'YOU', 'ALL',
-        'CAN', 'HER', 'WAS', 'ONE', 'OUR', 'OUT', 'DAY', 'GET',
-        'HAS', 'HIM', 'HIS', 'HOW', 'ITS', 'LET', 'MAY', 'NEW',
-        'NOW', 'OLD', 'SEE', 'TWO', 'WAY', 'WHO', 'BOY', 'DID',
-        'SAY', 'SHE', 'TOO', 'USE', 'ANY', 'BIG', 'END', 'FAR',
-        'FEW', 'GOT', 'HAD', 'HAS', 'OWN', 'PUT', 'RUN', 'SET',
-        'TOP', 'TRY', 'WHY', 'YET', 'AGO', 'BAD', 'BUY', 'LOW',
-
-        # Common 4-5 letter words
-        'THAT', 'WITH', 'HAVE', 'THIS', 'WILL', 'YOUR', 'FROM',
-        'THEY', 'BEEN', 'CALL', 'COME', 'EACH', 'FIND', 'GIVE',
-        'GOOD', 'JUST', 'KNOW', 'LAST', 'LONG', 'LOOK', 'MADE',
-        'MAKE', 'MORE', 'MOST', 'MUCH', 'MUST', 'NEED', 'NEXT',
-        'ONLY', 'OVER', 'SAME', 'TAKE', 'THAN', 'THEM', 'THEN',
-        'VERY', 'WANT', 'WELL', 'WHAT', 'WHEN', 'WORK', 'YEAR',
-        'ALSO', 'BACK', 'BEEN', 'BEST', 'BOTH', 'DOWN', 'EVEN',
-        'EVER', 'FACT', 'FEEL', 'GOES', 'GREAT', 'HIGH', 'INTO',
-        'KEEP', 'LEFT', 'LESS', 'LIFE', 'LIKE', 'LINE', 'LIVE',
-        'MOVE', 'NAME', 'NEWS', 'PART', 'PLAY', 'REAL', 'SAID',
-        'SELL', 'SHOW', 'SOME', 'STOP', 'SURE', 'TELL', 'TERM',
-        'TIME', 'TURN', 'USED', 'WEEK', 'ZERO', 'HOLD', 'RISK',
-
-        # Reddit/Social slang
-        'DD', 'YOLO', 'FOMO', 'HODL', 'FUD', 'WSB', 'IMO', 'IMHO', 'TBH',
-        'OP', 'TL', 'DR', 'TLDR', 'EDIT', 'RIP', 'LOL', 'WTF', 'BTW',
-        'AFAIK', 'IIRC', 'LMAO', 'ROFL', 'SMH', 'TIL', 'YMMV', 'AMA',
-
-        # Business/Finance titles & roles
-        'CEO', 'CFO', 'COO', 'CTO', 'CIO', 'CMO', 'VP', 'SVP', 'EVP',
-        'MD', 'DIR', 'MGR', 'HR', 'PR', 'IR',
-
-        # Market events & terms
-        'IPO', 'ATH', 'ATL', 'DIP', 'RUN', 'GAP', 'TOP', 'BOT',
-        'SEC', 'FED', 'NYSE', 'NASDAQ', 'AMEX', 'OTC', 'PINK',
-
-        # Economic indicators & metrics (often mistaken for tickers!)
-        'GDP', 'CPI', 'PPI', 'PMI', 'NFP', 'FOMC', 'QE', 'QT',
-        'ETF', 'ETN', 'REIT', 'BDC', 'MLP', 'SPAC', 'ADR',
-
-        # Financial ratios & metrics - CRITICAL to filter!
-        'EPS', 'PE', 'PB', 'PS', 'PCF', 'PEG', 'NAV', 'AUM',
-        'DCF', 'NPV', 'IRR', 'ROI', 'ROE', 'ROA', 'ROIC', 'ROCE',
-        'EBITDA', 'EBIT', 'GAAP', 'FCF', 'OCF', 'CAPEX', 'OPEX',
-        'EV', 'TAM', 'SAM', 'SOM', 'CAGR', 'YOY', 'QOQ', 'MOM',
-        'TTM', 'FY', 'FWD', 'LTM', 'NTM', 'YTD', 'MTD', 'WTD',
-
-        # Technical analysis terms
-        'RSI', 'EMA', 'SMA', 'MACD', 'VWAP', 'IV', 'HV', 'VIX',
-        'ITM', 'OTM', 'ATM', 'DTE', 'OI', 'VOL', 'ADX', 'CCI',
-        'BB', 'KC', 'ATR', 'OBV', 'MFI', 'CMF', 'PPO', 'ROC',
-
-        # Currencies
-        'USA', 'UK', 'EU', 'US', 'USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD',
-        'CHF', 'CNY', 'HKD', 'SGD', 'NZD', 'SEK', 'NOK', 'DKK', 'MXN',
-        'BTC', 'ETH', 'USDT', 'USDC',
-
-        # Options terms
-        'CALL', 'PUT', 'LEG', 'LEAP', 'LONG', 'SHORT', 'STRADDLE',
-        'STRANGLE', 'SPREAD', 'IRON', 'FLY',
-
-        # Common false positive words
-        'JUST', 'LIKE', 'WHAT', 'WHEN', 'WHERE', 'WHICH', 'WHILE',
-        'ABOUT', 'AFTER', 'AGAIN', 'BEING', 'BELOW', 'COULD',
-        'DOING', 'DURING', 'EVERY', 'FIRST', 'FOUND', 'GOING',
-        'HAVING', 'THEIR', 'THERE', 'THESE', 'THING', 'THINK',
-        'THOSE', 'THREE', 'TODAY', 'UNDER', 'UNTIL', 'WHERE',
-        'WOULD', 'STILL', 'SINCE', 'MIGHT', 'NEVER', 'OFTEN',
-        'OTHER', 'POINT', 'PRICE', 'RIGHT', 'SHARE', 'SMALL',
-        'START', 'STATE', 'STOCK', 'TRADE', 'VALUE', 'WORLD',
-
-        # Government agencies & regulations (often appear in financial news)
-        'FDA', 'SEC', 'FTC', 'DOJ', 'EPA', 'FCC', 'IRS', 'DOE',
-        'CDC', 'NIH', 'WHO', 'FBI', 'CIA', 'NSA', 'DOD', 'DHS',
-
-        # Retirement & tax terms
-        'IRA', 'ROTH', 'HSA', 'FSA',
-
-        # Tech terms (AI, chips, cloud)
-        'TPU', 'GPU', 'CPU', 'NPU', 'API', 'SDK', 'SSD', 'HDD',
-        'RAM', 'ROM', 'LLM', 'GPT', 'AGI', 'ASI', 'NLP', 'CNN',
-        'AWS', 'GCP', 'SQL', 'DNS', 'VPN', 'IOT', 'OTA', 'USB',
-
-        # Index & market references
-        'SP', 'DJI', 'NDX', 'RUT', 'SOX', 'XLF', 'XLE', 'XLK',
-
-        # Misc commonly confused
-        'MDA', 'LLAP', 'RVNC', 'CEO', 'CTO', 'CFO', 'COO',
-        'USA', 'NYC', 'GDP', 'PCE', 'ISM', 'ADP',
-    }
-
-    def __init__(self):
-        """Initialise le scanner Reddit"""
-        self.session: Optional[aiohttp.ClientSession] = None
-        self._request_count = 0
-        self._last_reset = datetime.now()
-
-        # Cache
-        self._cache: Dict[str, Tuple[Any, datetime]] = {}
-        self._cache_ttl = timedelta(minutes=10)
-
-    async def initialize(self):
-        """Initialise la session HTTP"""
-        if self.session is None:
-            headers = {
-                'User-Agent': 'TradingBot/1.0 (by /u/tradingbot_research)'
-            }
-            timeout = aiohttp.ClientTimeout(total=30)
-            self.session = aiohttp.ClientSession(headers=headers, timeout=timeout)
-        logger.info("Reddit scanner initialized")
-
-    async def close(self):
-        """Ferme la session"""
-        if self.session:
-            await self.session.close()
-            self.session = None
-
-    async def _make_request(self, url: str) -> Optional[Dict]:
-        """Effectue une requête à Reddit avec rate limiting"""
-        now = datetime.now()
-
-        # Rate limit: ~60/min
-        if (now - self._last_reset).total_seconds() > 60:
-            self._request_count = 0
-            self._last_reset = now
-
-        if self._request_count >= 55:  # Marge
-            wait_time = 60 - (now - self._last_reset).total_seconds()
-            logger.warning(f"Reddit rate limit proche, attente {wait_time:.0f}s")
-            await asyncio.sleep(wait_time)
-            self._request_count = 0
-            self._last_reset = datetime.now()
-
-        # Cache check
-        if url in self._cache:
-            data, cached_at = self._cache[url]
-            if now - cached_at < self._cache_ttl:
-                return data
-
-        try:
-            async with self.session.get(url) as response:
-                self._request_count += 1
-
-                if response.status == 200:
-                    data = await response.json()
-                    self._cache[url] = (data, now)
-                    return data
-                elif response.status == 429:
-                    logger.warning("Reddit rate limit atteint")
-                    await asyncio.sleep(60)
-                    return None
-                else:
-                    logger.error(f"Reddit error {response.status}")
-                    return None
-
-        except Exception as e:
-            logger.error(f"Reddit request error: {e}")
-            return None
-
-    async def get_hot_posts(
-        self,
-        subreddit: str,
-        limit: int = 25
-    ) -> List[Dict]:
-        """
-        Récupère les posts "hot" d'un subreddit.
-
-        Args:
-            subreddit: Nom du subreddit (sans r/)
-            limit: Nombre de posts (max 100)
-
-        Returns:
-            Liste de posts
-        """
-        url = f"{self.BASE_URL}/r/{subreddit}/hot.json?limit={min(limit, 100)}"
-        data = await self._make_request(url)
-
-        if not data or 'data' not in data:
-            return []
-
-        posts = []
-        for child in data['data'].get('children', []):
-            post_data = child.get('data', {})
-            posts.append({
-                'title': post_data.get('title', ''),
-                'selftext': post_data.get('selftext', ''),
-                'author': post_data.get('author', ''),
-                'score': post_data.get('score', 0),
-                'upvote_ratio': post_data.get('upvote_ratio', 0.5),
-                'num_comments': post_data.get('num_comments', 0),
-                'created_utc': post_data.get('created_utc', 0),
-                'permalink': post_data.get('permalink', ''),
-                'subreddit': subreddit
-            })
-
-        return posts
-
-    async def get_new_posts(
-        self,
-        subreddit: str,
-        limit: int = 25
-    ) -> List[Dict]:
-        """Récupère les nouveaux posts"""
-        url = f"{self.BASE_URL}/r/{subreddit}/new.json?limit={min(limit, 100)}"
-        data = await self._make_request(url)
-
-        if not data or 'data' not in data:
-            return []
-
-        posts = []
-        for child in data['data'].get('children', []):
-            post_data = child.get('data', {})
-            posts.append({
-                'title': post_data.get('title', ''),
-                'selftext': post_data.get('selftext', ''),
-                'author': post_data.get('author', ''),
-                'score': post_data.get('score', 0),
-                'upvote_ratio': post_data.get('upvote_ratio', 0.5),
-                'num_comments': post_data.get('num_comments', 0),
-                'created_utc': post_data.get('created_utc', 0),
-                'permalink': post_data.get('permalink', ''),
-                'subreddit': subreddit
-            })
-
-        return posts
-
-    async def scan_subreddit(self, subreddit: str) -> List[SocialMention]:
-        """
-        Scanne un subreddit et extrait les mentions de symboles.
-
-        Args:
-            subreddit: Nom du subreddit
-
-        Returns:
-            Liste de mentions sociales
-        """
-        # Récupérer hot et new posts
-        hot_posts = await self.get_hot_posts(subreddit, limit=25)
-        new_posts = await self.get_new_posts(subreddit, limit=15)
-
-        # Combiner sans duplicats
-        seen_titles = set()
-        all_posts = []
-        for post in hot_posts + new_posts:
-            if post['title'] not in seen_titles:
-                seen_titles.add(post['title'])
-                all_posts.append(post)
-
-        mentions = []
-        weight = self.SUBREDDITS.get(subreddit, 1.0)
-
-        for post in all_posts:
-            # Extraire les tickers du titre et du texte
-            full_text = f"{post['title']} {post['selftext']}"
-            symbols = self._extract_tickers(full_text)
-
-            # Analyser le sentiment
-            sentiment, sentiment_score = self._analyze_post_sentiment(post)
-
-            # Créer une mention pour chaque symbole trouvé
-            for symbol in symbols:
-                mention = SocialMention(
-                    symbol=symbol,
-                    source='reddit',
-                    text=post['title'],
-                    sentiment=sentiment,
-                    sentiment_score=sentiment_score * weight,
-                    author=post['author'],
-                    timestamp=datetime.fromtimestamp(post['created_utc']),
-                    engagement=post['score'],
-                    url=f"https://reddit.com{post['permalink']}"
-                )
-                mentions.append(mention)
-
-        return mentions
-
-    async def scan_all_subreddits(self) -> List[SocialMention]:
-        """Scanne tous les subreddits configurés"""
-        all_mentions = []
-
-        tasks = [
-            self.scan_subreddit(sub)
-            for sub in self.SUBREDDITS.keys()
-        ]
-
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        for result in results:
-            if isinstance(result, list):
-                all_mentions.extend(result)
-            elif isinstance(result, Exception):
-                logger.error(f"Reddit scan error: {result}")
-
-        return all_mentions
-
-    def _extract_tickers(self, text: str) -> Set[str]:
-        """
-        Extrait les tickers potentiels d'un texte.
-
-        Args:
-            text: Texte à analyser
-
-        Returns:
-            Set de symboles uniques
-        """
-        symbols = set()
-
-        # Pattern 1: $SYMBOL
-        for match in re.finditer(r'\$([A-Z]{1,5})\b', text):
-            symbol = match.group(1)
-            if symbol not in self.IGNORE_WORDS and len(symbol) >= 1:
-                symbols.add(symbol)
-
-        # Pattern 2: Mots en majuscules (2-5 lettres)
-        words = re.findall(r'\b[A-Z]{2,5}\b', text)
-        for word in words:
-            if word not in self.IGNORE_WORDS:
-                # Vérifier le contexte - doit ressembler à un ticker
-                symbols.add(word)
-
-        return symbols
-
-    def _analyze_post_sentiment(self, post: Dict) -> Tuple[str, float]:
-        """
-        Analyse le sentiment d'un post Reddit.
-
-        Utilise plusieurs signaux:
-        - Upvote ratio
-        - Mots clés bullish/bearish
-        - Score du post
-        """
-        text = f"{post['title']} {post['selftext']}".lower()
-
-        # Mots clés
-        bullish_words = [
-            'buy', 'calls', 'long', 'moon', 'rocket', 'bullish', 'yolo',
-            'undervalued', 'breakout', 'squeeze', 'diamond hands', 'going up',
-            'to the moon', 'all in', 'buying more', 'green', 'rally',
-            '🚀', '💎', '📈', '🐂', '💰'
-        ]
-
-        bearish_words = [
-            'sell', 'puts', 'short', 'crash', 'dump', 'bearish', 'tank',
-            'overvalued', 'bubble', 'rug pull', 'scam', 'falling knife',
-            'bag holder', 'red', 'rip', 'dead', 'avoid',
-            '📉', '🐻', '💀', '⚠️'
-        ]
-
-        bullish_count = sum(1 for w in bullish_words if w in text)
-        bearish_count = sum(1 for w in bearish_words if w in text)
-
-        # Upvote ratio influence
-        upvote_bonus = (post.get('upvote_ratio', 0.5) - 0.5) * 0.5
-
-        # Calculer le score
-        if bullish_count > bearish_count:
-            base_score = 0.3 + (bullish_count - bearish_count) * 0.1
-            score = min(base_score + upvote_bonus, 1.0)
-            return 'bullish', score
-        elif bearish_count > bullish_count:
-            base_score = -0.3 - (bearish_count - bullish_count) * 0.1
-            score = max(base_score + upvote_bonus, -1.0)
-            return 'bearish', score
-        else:
-            return 'neutral', upvote_bonus
-
-
-# =============================================================================
 # SOCIAL SCANNER (COMBINED)
 # =============================================================================
 
 class SocialScanner:
     """
-    Scanner social unifié combinant StockTwits et Reddit.
+    Scanner social utilisant StockTwits.
 
     Fonctionnalités:
-    - Agrégation des mentions multi-sources
+    - Agrégation des mentions
     - Détection des symboles trending
     - Analyse de sentiment globale
     - Cache pour les scans fréquents
@@ -809,7 +389,7 @@ class SocialScanner:
         self,
         stocktwits_token: Optional[str] = None,
         enable_stocktwits: bool = False,
-        enable_reddit: bool = False
+        enable_reddit: bool = False  # Deprecated, kept for compatibility
     ):
         """
         Initialise le scanner social.
@@ -817,10 +397,9 @@ class SocialScanner:
         Args:
             stocktwits_token: Token d'accès StockTwits optionnel
             enable_stocktwits: Activer le scan StockTwits
-            enable_reddit: Activer le scan Reddit
+            enable_reddit: Deprecated, ignored
         """
         self.stocktwits = StockTwitsScanner(access_token=stocktwits_token) if enable_stocktwits else None
-        self.reddit = RedditScanner() if enable_reddit else None
 
         self._last_scan: Optional[SocialScanResult] = None
         self._scan_cache_ttl = timedelta(minutes=15)
@@ -836,8 +415,6 @@ class SocialScanner:
         """Initialise les scanners"""
         if self.stocktwits:
             await self.stocktwits.initialize()
-        if self.reddit:
-            await self.reddit.initialize()
 
         # Charger l'historique
         self._load_history()
@@ -851,8 +428,6 @@ class SocialScanner:
 
         if self.stocktwits:
             await self.stocktwits.close()
-        if self.reddit:
-            await self.reddit.close()
 
     def _load_history(self):
         """Charge l'historique des mentions"""
@@ -888,7 +463,7 @@ class SocialScanner:
 
     async def full_scan(self, use_cache: bool = True) -> SocialScanResult:
         """
-        Effectue un scan complet de tous les réseaux sociaux.
+        Effectue un scan complet de StockTwits.
 
         Args:
             use_cache: Utiliser le cache si disponible
@@ -926,18 +501,6 @@ class SocialScanner:
             except Exception as e:
                 logger.error(f"StockTwits scan error: {e}")
                 sources_stats['stocktwits'] = 0
-
-        # Scan Reddit
-        if self.reddit:
-            try:
-                reddit_mentions = await self.reddit.scan_all_subreddits()
-                all_mentions.extend(reddit_mentions)
-                sources_stats['reddit'] = len(reddit_mentions)
-                logger.info(f"Reddit: {sources_stats['reddit']} mentions")
-
-            except Exception as e:
-                logger.error(f"Reddit scan error: {e}")
-                sources_stats['reddit'] = 0
 
         # Agréger par symbole
         trending_symbols = self._aggregate_mentions(all_mentions)
@@ -990,13 +553,6 @@ class SocialScanner:
             all_mentions.extend(mentions)
 
         return all_mentions
-
-    async def scan_reddit(self) -> List[SocialMention]:
-        """Scan Reddit seulement"""
-        if not self.reddit:
-            return []
-
-        return await self.reddit.scan_all_subreddits()
 
     async def get_symbol_sentiment(self, symbol: str) -> Dict:
         """
@@ -1053,8 +609,6 @@ class SocialScanner:
         """
         Récupère les détails enrichis d'un symbole pour le NarrativeGenerator.
 
-        Inclut les thèmes extraits, les posts clés, et le contexte.
-
         Args:
             symbol: Ticker du symbole
 
@@ -1063,69 +617,12 @@ class SocialScanner:
         """
         result = {
             'symbol': symbol,
-            'reddit': {
-                'mentions': 0,
-                'baseline': 10,  # Valeur moyenne historique
-                'sentiment': 0.5,
-                'themes': [],
-                'top_posts': [],
-                'catalysts': []
-            },
             'stocktwits': {
                 'mentions': 0,
                 'sentiment': 0.5,
                 'top_posts': []
             }
         }
-
-        # Chercher dans le dernier scan
-        if self._last_scan:
-            for trending in self._last_scan.trending_symbols:
-                if trending.symbol == symbol:
-                    result['reddit']['mentions'] = trending.mention_count
-                    result['reddit']['sentiment'] = trending.avg_sentiment
-
-                    # Extraire les thèmes des posts
-                    themes = []
-                    top_posts = []
-                    catalysts = []
-
-                    for mention in trending.top_mentions:
-                        # Ajouter le post
-                        top_posts.append(mention.text[:200])
-
-                        # Extraire les thèmes du texte
-                        text_lower = mention.text.lower()
-
-                        # Thèmes techniques
-                        if any(w in text_lower for w in ['breakout', 'technical', 'support', 'resistance']):
-                            themes.append('Technical Analysis')
-                        if any(w in text_lower for w in ['earnings', 'revenue', 'guidance']):
-                            themes.append('Earnings')
-                            catalysts.append('Earnings related')
-                        if any(w in text_lower for w in ['ai', 'artificial intelligence', 'chip', 'semiconductor']):
-                            themes.append('AI/Tech')
-                        if any(w in text_lower for w in ['partnership', 'deal', 'contract']):
-                            themes.append('Business Deal')
-                            catalysts.append('Partnership/Deal')
-                        if any(w in text_lower for w in ['fda', 'approval', 'trial']):
-                            themes.append('FDA/Biotech')
-                            catalysts.append('FDA Catalyst')
-                        if any(w in text_lower for w in ['ces', 'conference', 'keynote', 'announcement']):
-                            themes.append('Event')
-                            catalysts.append('Upcoming Event')
-                        if any(w in text_lower for w in ['squeeze', 'short interest', 'gamma']):
-                            themes.append('Short Squeeze')
-                        if any(w in text_lower for w in ['undervalued', 'cheap', 'value']):
-                            themes.append('Value Play')
-                        if any(w in text_lower for w in ['datacenter', 'cloud', 'demand']):
-                            themes.append('Demand Growth')
-
-                    result['reddit']['themes'] = list(set(themes))[:5]
-                    result['reddit']['top_posts'] = top_posts[:3]
-                    result['reddit']['catalysts'] = list(set(catalysts))[:3]
-
-                    break
 
         # StockTwits data
         if self.stocktwits:
@@ -1138,27 +635,7 @@ class SocialScanner:
             except Exception as e:
                 logger.debug(f"StockTwits error for {symbol}: {e}")
 
-        # Calculate momentum if we have history
-        if symbol in self._mention_history and self._mention_history[symbol]:
-            current = result['reddit']['mentions']
-            baseline = self._calculate_baseline(symbol)
-            result['reddit']['baseline'] = baseline
-            result['reddit']['momentum_pct'] = ((current - baseline) / baseline * 100) if baseline > 0 else 0
-
         return result
-
-    def _calculate_baseline(self, symbol: str) -> int:
-        """Calculate baseline mentions for a symbol from history"""
-        if symbol not in self._mention_history:
-            return 10
-
-        history = self._mention_history[symbol]
-        if len(history) < 2:
-            return 10
-
-        # Average of historical mentions
-        total = sum(count for _, count in history)
-        return max(1, total // len(history))
 
     def _aggregate_mentions(self, mentions: List[SocialMention]) -> List[TrendingSymbol]:
         """
@@ -1290,7 +767,7 @@ _social_scanner_instance: Optional[SocialScanner] = None
 async def get_social_scanner(
     stocktwits_token: Optional[str] = None,
     enable_stocktwits: bool = False,
-    enable_reddit: bool = False
+    enable_reddit: bool = False  # Deprecated, ignored
 ) -> SocialScanner:
     """
     Factory pour obtenir une instance du scanner social.
@@ -1302,8 +779,7 @@ async def get_social_scanner(
     if _social_scanner_instance is None:
         _social_scanner_instance = SocialScanner(
             stocktwits_token=stocktwits_token,
-            enable_stocktwits=enable_stocktwits,
-            enable_reddit=enable_reddit
+            enable_stocktwits=enable_stocktwits
         )
         await _social_scanner_instance.initialize()
 
@@ -1329,7 +805,7 @@ if __name__ == "__main__":
     async def main():
         print("=== Social Scanner Test ===\n")
 
-        scanner = SocialScanner()
+        scanner = SocialScanner(enable_stocktwits=True)
         await scanner.initialize()
 
         try:

@@ -17,6 +17,13 @@ from .ibkr_executor import (
     close_ibkr_executor
 )
 
+from .paper_trader import (
+    PaperTrader,
+    Position as PaperPosition,
+    TradeRecord,
+    get_paper_trader
+)
+
 __all__ = [
     'IBKRExecutor',
     'MockIBKRExecutor',
@@ -28,5 +35,9 @@ __all__ = [
     'Position',
     'AccountInfo',
     'get_ibkr_executor',
-    'close_ibkr_executor'
+    'close_ibkr_executor',
+    'PaperTrader',
+    'PaperPosition',
+    'TradeRecord',
+    'get_paper_trader'
 ]

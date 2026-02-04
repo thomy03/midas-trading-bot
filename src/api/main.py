@@ -110,6 +110,18 @@ class TradeResponse(BaseModel):
     status: str
     pnl: Optional[float] = None
     pnl_pct: Optional[float] = None
+    stop_loss: Optional[float] = None
+    take_profit: Optional[float] = None
+    score_at_entry: Optional[float] = None
+    pillar_technical: Optional[float] = None
+    pillar_fundamental: Optional[float] = None
+    pillar_sentiment: Optional[float] = None
+    pillar_news: Optional[float] = None
+    reasoning: Optional[str] = None
+    position_value: Optional[float] = None
+    company_name: Optional[str] = None
+    sector: Optional[str] = None
+    industry: Optional[str] = None
 
 
 class PerformanceResponse(BaseModel):
@@ -451,16 +463,39 @@ async def add_symbol_to_watchlist(
 
 @app.get("/api/v1/portfolio/summary", response_model=PortfolioSummary, tags=["Portfolio"])
 async def get_portfolio_summary(api_key: str = Depends(verify_api_key)):
-    """Get portfolio summary."""
+    """Get portfolio summary (reads from portfolio.json for paper trading)."""
+    import json
+    from pathlib import Path
+    
     try:
-        summary = market_screener.get_portfolio_summary()
-        return PortfolioSummary(
-            total_capital=summary.get('total_capital', CAPITAL),
-            available_capital=summary.get('available_capital', CAPITAL),
-            invested_capital=summary.get('invested_capital', 0),
-            open_positions=summary.get('open_positions', 0),
-            unrealized_pnl=summary.get('unrealized_pnl', 0)
-        )
+        # Read directly from portfolio.json for paper trading
+        portfolio_path = Path("data/portfolio.json")
+        if portfolio_path.exists():
+            with open(portfolio_path, 'r') as f:
+                data = json.load(f)
+            
+            total_capital = data.get('total_capital', CAPITAL)
+            positions = data.get('positions', [])
+            invested = sum(p.get('position_value', p.get('shares', 0) * p.get('entry_price', 0)) for p in positions)
+            unrealized_pnl = sum(p.get('pnl_amount', 0) for p in positions)
+            
+            return PortfolioSummary(
+                total_capital=total_capital,
+                available_capital=data.get('cash', total_capital - invested),
+                invested_capital=invested,
+                open_positions=len(positions),
+                unrealized_pnl=unrealized_pnl
+            )
+        else:
+            # Fallback to market_screener
+            summary = market_screener.get_portfolio_summary()
+            return PortfolioSummary(
+                total_capital=summary.get('total_capital', CAPITAL),
+                available_capital=summary.get('available_capital', CAPITAL),
+                invested_capital=summary.get('invested_capital', 0),
+                open_positions=summary.get('open_positions', 0),
+                unrealized_pnl=summary.get('unrealized_pnl', 0)
+            )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -470,28 +505,63 @@ async def get_trades(
     status: Optional[str] = Query(None, pattern="^(open|closed)$"),
     api_key: str = Depends(verify_api_key)
 ):
-    """Get all trades, optionally filtered by status."""
+    """Get all trades, optionally filtered by status (reads from portfolio.json for paper trading)."""
+    import json
+    from pathlib import Path
+    from datetime import datetime
+    
     try:
-        if status == "open":
-            trades = trade_tracker.get_open_trades()
-        elif status == "closed":
-            trades = trade_tracker.get_closed_trades()
-        else:
-            trades = trade_tracker.get_all_trades()
-
-        return [
-            TradeResponse(
-                trade_id=t.trade_id,
-                symbol=t.symbol,
-                entry_date=t.entry_date,
-                entry_price=t.entry_price,
-                shares=t.shares,
-                status=t.status,
-                pnl=t.pnl if t.status == 'closed' else None,
-                pnl_pct=t.pnl_pct if t.status == 'closed' else None
-            )
-            for t in trades
-        ]
+        trades = []
+        
+        # Read open positions from portfolio.json
+        if status != "closed":
+            portfolio_path = Path("data/portfolio.json")
+            if portfolio_path.exists():
+                with open(portfolio_path, 'r') as f:
+                    data = json.load(f)
+                for i, p in enumerate(data.get('positions', [])):
+                    trades.append(TradeResponse(
+                        trade_id=f"paper_{p['symbol']}_{i}",
+                        symbol=p['symbol'],
+                        entry_date=p.get('entry_date', datetime.now().isoformat()),
+                        entry_price=p['entry_price'],
+                        shares=p.get('shares', p.get('quantity', 0)),
+                        status='open',
+                        pnl=p.get('pnl_amount'),
+                        pnl_pct=p.get('pnl_percent'),
+                        stop_loss=p.get('stop_loss'),
+                        take_profit=p.get('take_profit'),
+                        score_at_entry=p.get('score_at_entry'),
+                        pillar_technical=p.get('pillar_technical'),
+                        pillar_fundamental=p.get('pillar_fundamental'),
+                        pillar_sentiment=p.get('pillar_sentiment'),
+                        pillar_news=p.get('pillar_news'),
+                        reasoning=p.get('reasoning'),
+                        position_value=p.get('position_value'),
+                        company_name=p.get('company_name'),
+                        sector=p.get('sector'),
+                        industry=p.get('industry')
+                    ))
+        
+        # Read closed trades from trades_history.json
+        if status != "open":
+            history_path = Path("data/trades_history.json")
+            if history_path.exists():
+                with open(history_path, 'r') as f:
+                    data = json.load(f)
+                for i, t in enumerate(data.get('trades', [])):
+                    trades.append(TradeResponse(
+                        trade_id=f"closed_{t['symbol']}_{i}",
+                        symbol=t['symbol'],
+                        entry_date=t.get('entry_date', ''),
+                        entry_price=t['entry_price'],
+                        shares=t.get('quantity', 0),
+                        status='closed',
+                        pnl=t.get('pnl_amount'),
+                        pnl_pct=t.get('pnl_percent')
+                    ))
+        
+        return trades
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

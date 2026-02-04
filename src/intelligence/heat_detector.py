@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class HeatEvent:
     """Evenement detecte par une source"""
-    source: str  # "reddit", "grok", "stocktwits", "price", "volume"
+    source: str  # "social", "grok", "stocktwits", "price", "volume"
     symbol: str
     timestamp: datetime
     sentiment: float  # -1 to 1
@@ -91,7 +91,7 @@ class HeatConfig:
     max_hot_symbols: int = 20
 
     # Frequences de polling (secondes)
-    reddit_poll_interval: int = 30
+    social_poll_interval: int = 30
     grok_poll_interval: int = 60
     stocktwits_poll_interval: int = 60
     price_check_interval: int = 10
@@ -161,7 +161,7 @@ class HeatDetector:
         for event in events:
             await self.add_event(event)
 
-    async def ingest_reddit_data(self, mentions: Dict[str, Dict]):
+    async def ingest_social_data(self, mentions: Dict[str, Dict]):
         """
         Ingere les donnees Reddit.
 
@@ -175,7 +175,7 @@ class HeatDetector:
             sentiment = data.get('avg_sentiment', data.get('sentiment', 0))
 
             event = HeatEvent(
-                source="reddit",
+                source="social",
                 symbol=symbol.upper(),
                 timestamp=now,
                 sentiment=sentiment,
@@ -184,7 +184,7 @@ class HeatDetector:
             )
             await self.add_event(event)
 
-        self._last_poll['reddit'] = now
+        self._last_poll['social'] = now
 
     async def ingest_grok_data(self, insights: Dict[str, Dict]):
         """
@@ -328,7 +328,7 @@ class HeatDetector:
         # Compter les mentions recentes
         recent_mentions = sum(
             1 for e in events
-            if e.source in ('reddit', 'grok', 'stocktwits')
+            if e.source in ('social', 'grok', 'stocktwits')
             and now - e.timestamp < recent_window
         )
 
@@ -462,7 +462,7 @@ class HeatDetector:
                 continue
 
             # Calculer les moyennes
-            mention_events = [e for e in events if e.source in ('reddit', 'grok', 'stocktwits')]
+            mention_events = [e for e in events if e.source in ('social', 'grok', 'stocktwits')]
             sentiments = [e.sentiment for e in events if e.sentiment != 0]
 
             self._baselines[symbol] = {

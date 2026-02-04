@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class SignalRecord:
     """Enregistrement d'un signal detecte"""
     id: str
-    source: str  # "reddit", "grok", "rsi_breakout", "volume_spike", etc.
+    source: str  # "social", "grok", "rsi_breakout", "volume_spike", etc.
     symbol: str
     timestamp: datetime
     signal_type: str  # "bullish", "bearish", "neutral"
@@ -71,7 +71,7 @@ class SourceWeight:
 @dataclass
 class CorrelationInsight:
     """Insight sur une correlation detectee"""
-    pattern: str  # "reddit_spike -> +2% in 30min"
+    pattern: str  # "social_spike -> +2% in 30min"
     source: str
     correlation_strength: float
     sample_size: int
