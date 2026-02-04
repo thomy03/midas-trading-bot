@@ -2,11 +2,12 @@
 Database manager for storing screening results and alerts
 """
 import os
+import threading
 from datetime import datetime
 from typing import List, Dict, Optional
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, Text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, scoped_session, Session
 from config.settings import DATABASE_PATH
 from src.utils.logger import logger
 
@@ -79,15 +80,23 @@ class DatabaseManager:
         self.engine = create_engine(f'sqlite:///{db_path}')
         Base.metadata.create_all(self.engine)
         self.SessionLocal = sessionmaker(bind=self.engine)
-        logger.info(f"Database initialized at {db_path}")
+        # Thread-safe scoped session for concurrent access
+        self._ScopedSession = scoped_session(self.SessionLocal)
+        # Write lock for thread-safe modifications
+        self._write_lock = threading.Lock()
+        logger.info(f"Database initialized at {db_path} (thread-safe mode)")
 
     def get_session(self) -> Session:
-        """Get a new database session"""
-        return self.SessionLocal()
+        """Get a thread-local database session (thread-safe)"""
+        return self._ScopedSession()
+    
+    def remove_session(self):
+        """Remove the current thread-local session (call after operations)"""
+        self._ScopedSession.remove()
 
     def save_alert(self, alert_data: Dict) -> StockAlert:
         """
-        Save a new stock alert
+        Save a new stock alert (thread-safe)
 
         Args:
             alert_data: Dictionary with alert information
@@ -95,24 +104,25 @@ class DatabaseManager:
         Returns:
             Created StockAlert object
         """
-        session = self.get_session()
-        try:
-            alert = StockAlert(**alert_data)
-            session.add(alert)
-            session.commit()
-            session.refresh(alert)
-            logger.info(f"Alert saved for {alert_data.get('symbol')} on {alert_data.get('timeframe')}")
-            return alert
-        except Exception as e:
-            session.rollback()
-            logger.error(f"Error saving alert: {e}")
-            raise
-        finally:
-            session.close()
+        with self._write_lock:
+            session = self.get_session()
+            try:
+                alert = StockAlert(**alert_data)
+                session.add(alert)
+                session.commit()
+                session.refresh(alert)
+                logger.info(f"Alert saved for {alert_data.get('symbol')} on {alert_data.get('timeframe')}")
+                return alert
+            except Exception as e:
+                session.rollback()
+                logger.error(f"Error saving alert: {e}")
+                raise
+            finally:
+                self.remove_session()
 
     def save_screening_history(self, history_data: Dict) -> ScreeningHistory:
         """
-        Save screening execution history
+        Save screening execution history (thread-safe)
 
         Args:
             history_data: Dictionary with screening history information
@@ -120,20 +130,21 @@ class DatabaseManager:
         Returns:
             Created ScreeningHistory object
         """
-        session = self.get_session()
-        try:
-            history = ScreeningHistory(**history_data)
-            session.add(history)
-            session.commit()
-            session.refresh(history)
-            logger.info(f"Screening history saved: {history_data.get('total_alerts_generated')} alerts")
-            return history
-        except Exception as e:
-            session.rollback()
-            logger.error(f"Error saving screening history: {e}")
-            raise
-        finally:
-            session.close()
+        with self._write_lock:
+            session = self.get_session()
+            try:
+                history = ScreeningHistory(**history_data)
+                session.add(history)
+                session.commit()
+                session.refresh(history)
+                logger.info(f"Screening history saved: {history_data.get('total_alerts_generated')} alerts")
+                return history
+            except Exception as e:
+                session.rollback()
+                logger.error(f"Error saving screening history: {e}")
+                raise
+            finally:
+                self.remove_session()
 
     def get_recent_alerts(self, days: int = 7, timeframe: Optional[str] = None) -> List[StockAlert]:
         """
@@ -159,7 +170,7 @@ class DatabaseManager:
             alerts = query.order_by(StockAlert.alert_date.desc()).all()
             return alerts
         finally:
-            session.close()
+            self.remove_session()
 
     def get_unnotified_alerts(self) -> List[StockAlert]:
         """
@@ -175,7 +186,7 @@ class DatabaseManager:
             ).order_by(StockAlert.alert_date.desc()).all()
             return alerts
         finally:
-            session.close()
+            self.remove_session()
 
     def mark_alert_as_notified(self, alert_id: int):
         """
@@ -184,7 +195,8 @@ class DatabaseManager:
         Args:
             alert_id: ID of the alert to mark
         """
-        session = self.get_session()
+        with self._write_lock:
+            session = self.get_session()
         try:
             alert = session.query(StockAlert).filter(StockAlert.id == alert_id).first()
             if alert:
@@ -196,7 +208,7 @@ class DatabaseManager:
             logger.error(f"Error marking alert as notified: {e}")
             raise
         finally:
-            session.close()
+            self.remove_session()
 
     def get_alerts_by_symbol(self, symbol: str, days: int = 30) -> List[StockAlert]:
         """
@@ -220,7 +232,7 @@ class DatabaseManager:
             ).order_by(StockAlert.alert_date.desc()).all()
             return alerts
         finally:
-            session.close()
+            self.remove_session()
 
     def save_alerts_batch(self, alerts_data: List[Dict]) -> int:
         """
@@ -235,7 +247,8 @@ class DatabaseManager:
         if not alerts_data:
             return 0
 
-        session = self.get_session()
+        with self._write_lock:
+            session = self.get_session()
         try:
             # Use bulk_insert_mappings for optimal performance
             session.bulk_insert_mappings(StockAlert, alerts_data)
@@ -259,7 +272,7 @@ class DatabaseManager:
             logger.info(f"Fallback: saved {saved_count}/{len(alerts_data)} alerts individually")
             return saved_count
         finally:
-            session.close()
+            self.remove_session()
 
     def delete_old_alerts(self, days_to_keep: int = 90) -> int:
         """
@@ -271,7 +284,8 @@ class DatabaseManager:
         Returns:
             Number of alerts deleted
         """
-        session = self.get_session()
+        with self._write_lock:
+            session = self.get_session()
         try:
             from datetime import timedelta
             cutoff_date = datetime.utcnow() - timedelta(days=days_to_keep)
@@ -288,7 +302,7 @@ class DatabaseManager:
             logger.error(f"Error deleting old alerts: {e}")
             return 0
         finally:
-            session.close()
+            self.remove_session()
 
     # ==================== Market Cap Cache ====================
 
@@ -326,7 +340,7 @@ class DatabaseManager:
             logger.error(f"Error getting cached market cap for {symbol}: {e}")
             return None
         finally:
-            session.close()
+            self.remove_session()
 
     def save_market_cap(self, symbol: str, market_cap: float, sector: str = None,
                         industry: str = None, company_name: str = None):
@@ -340,7 +354,8 @@ class DatabaseManager:
             industry: Industry name
             company_name: Company name
         """
-        session = self.get_session()
+        with self._write_lock:
+            session = self.get_session()
         try:
             # Upsert - update if exists, insert if not
             existing = session.query(MarketCapCache).filter(
@@ -369,7 +384,7 @@ class DatabaseManager:
             session.rollback()
             logger.error(f"Error caching market cap for {symbol}: {e}")
         finally:
-            session.close()
+            self.remove_session()
 
     def get_cached_market_caps_batch(self, symbols: List[str], max_age_days: int = 7) -> Dict[str, Dict]:
         """
@@ -406,7 +421,7 @@ class DatabaseManager:
             logger.error(f"Error getting batch cached market caps: {e}")
             return {}
         finally:
-            session.close()
+            self.remove_session()
 
     def save_market_caps_batch(self, data: List[Dict]):
         """
@@ -418,7 +433,8 @@ class DatabaseManager:
         if not data:
             return
 
-        session = self.get_session()
+        with self._write_lock:
+            session = self.get_session()
         try:
             for item in data:
                 existing = session.query(MarketCapCache).filter(
@@ -447,7 +463,7 @@ class DatabaseManager:
             session.rollback()
             logger.error(f"Error batch caching market caps: {e}")
         finally:
-            session.close()
+            self.remove_session()
 
 
 # Singleton instance
