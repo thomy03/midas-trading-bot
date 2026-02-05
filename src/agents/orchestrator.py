@@ -92,6 +92,14 @@ try:
 except ImportError:
     ML_VALIDATOR_AVAILABLE = False
 
+# V6 - Discovery Mode (Bull regime pépites)
+try:
+    from src.intelligence.discovery_mode import DiscoveryMode, get_discovery_mode, DiscoveryConfig
+    DISCOVERY_MODE_AVAILABLE = True
+except ImportError:
+    DISCOVERY_MODE_AVAILABLE = False
+    DiscoveryMode = None
+
 
 logger = logging.getLogger(__name__)
 
@@ -202,6 +210,12 @@ class MarketAgent:
         self.position_manager = None
         self.rotation_manager = None
         self.stock_discovery = None
+
+        # V6 - Discovery Mode (Bull regime)
+        self.discovery_mode = None
+        if DISCOVERY_MODE_AVAILABLE:
+            self.discovery_mode = get_discovery_mode()
+            logger.info("[ORCHESTRATOR] Discovery Mode initialized")
         self.ibkr_executor = None
 
         # V4.4 - Market Data Fetcher (pour fournir les donnees OHLCV aux pilliers)

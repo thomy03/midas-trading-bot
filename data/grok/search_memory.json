@@ -1,1330 +1,7 @@
 {
-  "last_updated": "2026-02-05T19:25:53.977127",
-  "total_entries": 1047,
+  "last_updated": "2026-02-05T19:59:02.219508",
+  "total_entries": 1161,
   "entries": [
-    {
-      "query": "CrowdStrike Outage",
-      "timestamp": "2026-02-05T16:54:13.029139",
-      "symbols_discovered": [
-        "CRWD"
-      ],
-      "sentiment_at_discovery": -0.7,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Nvidia AI Boom",
-      "timestamp": "2026-02-05T16:56:55.806540",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin ATH",
-      "timestamp": "2026-02-05T16:56:55.814300",
-      "symbols_discovered": [
-        "BTC-USD"
-      ],
-      "sentiment_at_discovery": 0.78,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cuts",
-      "timestamp": "2026-02-05T16:56:55.821924",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T16:56:55.829465",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.12,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Geopolitics",
-      "timestamp": "2026-02-05T16:56:55.837036",
-      "symbols_discovered": [
-        "XOM",
-        "USO"
-      ],
-      "sentiment_at_discovery": -0.45,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Gold Rally",
-      "timestamp": "2026-02-05T16:56:55.842808",
-      "symbols_discovered": [
-        "GLD"
-      ],
-      "sentiment_at_discovery": 0.72,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T16:58:51.424495",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Rally",
-      "timestamp": "2026-02-05T16:58:51.430346",
-      "symbols_discovered": [
-        "BTC",
-        "ETH"
-      ],
-      "sentiment_at_discovery": 0.78,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cut Odds",
-      "timestamp": "2026-02-05T16:58:51.436129",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T16:58:51.442631",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.12,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Prices Surge",
-      "timestamp": "2026-02-05T16:58:51.449204",
-      "symbols_discovered": [
-        "XOM",
-        "CVX"
-      ],
-      "sentiment_at_discovery": -0.45,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Gold Breakout",
-      "timestamp": "2026-02-05T16:58:51.456307",
-      "symbols_discovered": [
-        "GLD"
-      ],
-      "sentiment_at_discovery": 0.72,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin ATH",
-      "timestamp": "2026-02-05T17:00:43.942660",
-      "symbols_discovered": [
-        "BTC",
-        "ETH"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Nvidia Boom",
-      "timestamp": "2026-02-05T17:00:43.954614",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.9,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cuts",
-      "timestamp": "2026-02-05T17:00:43.967517",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.3,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:00:43.980134",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GME Meme Frenzy",
-      "timestamp": "2026-02-05T17:00:43.985899",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": 0.75,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Price Dip",
-      "timestamp": "2026-02-05T17:00:43.990971",
-      "symbols_discovered": [
-        "XOM",
-        "CVX"
-      ],
-      "sentiment_at_discovery": -0.6,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Rally",
-      "timestamp": "2026-02-05T17:02:34.377011",
-      "symbols_discovered": [
-        "BTC",
-        "ETH"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T17:02:34.391674",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.78,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cut Odds",
-      "timestamp": "2026-02-05T17:02:34.406658",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:02:34.541670",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.12,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Geopolitics",
-      "timestamp": "2026-02-05T17:02:34.547210",
-      "symbols_discovered": [
-        "XOM",
-        "CVX"
-      ],
-      "sentiment_at_discovery": -0.45,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GameStop Meme",
-      "timestamp": "2026-02-05T17:02:34.552044",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": 0.55,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Rally",
-      "timestamp": "2026-02-05T17:04:36.294468",
-      "symbols_discovered": [
-        "BTC-USD",
-        "ETH-USD",
-        "MARA"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T17:04:36.303139",
-      "symbols_discovered": [
-        "NVDA",
-        "AMD",
-        "SMCI"
-      ],
-      "sentiment_at_discovery": 0.78,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cuts",
-      "timestamp": "2026-02-05T17:04:36.314227",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ",
-        "TLT"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:04:36.321807",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.42,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Geopolitics",
-      "timestamp": "2026-02-05T17:04:36.329349",
-      "symbols_discovered": [
-        "XOM",
-        "CVX",
-        "USO"
-      ],
-      "sentiment_at_discovery": -0.55,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Meme Stock Revival",
-      "timestamp": "2026-02-05T17:04:36.337133",
-      "symbols_discovered": [
-        "GME",
-        "AMC"
-      ],
-      "sentiment_at_discovery": 0.6,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Nvidia AI Boom",
-      "timestamp": "2026-02-05T17:06:26.237331",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin ETF Inflows",
-      "timestamp": "2026-02-05T17:06:26.244927",
-      "symbols_discovered": [
-        "BTC-USD"
-      ],
-      "sentiment_at_discovery": 0.75,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cut Bets",
-      "timestamp": "2026-02-05T17:06:26.252336",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi Event",
-      "timestamp": "2026-02-05T17:06:26.259401",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.3,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Prices Slump",
-      "timestamp": "2026-02-05T17:06:26.272254",
-      "symbols_discovered": [
-        "USO",
-        "XOM"
-      ],
-      "sentiment_at_discovery": -0.55,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GameStop Meme Revival",
-      "timestamp": "2026-02-05T17:06:26.285729",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": 0.1,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin ETF Inflows",
-      "timestamp": "2026-02-05T17:08:35.111186",
-      "symbols_discovered": [
-        "BTC-USD",
-        "IBIT",
-        "ARKB"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cut Odds",
-      "timestamp": "2026-02-05T17:08:35.124818",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ",
-        "TLT"
-      ],
-      "sentiment_at_discovery": 0.72,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings Buzz",
-      "timestamp": "2026-02-05T17:08:35.135439",
-      "symbols_discovered": [
-        "NVDA",
-        "AMD",
-        "SMCI"
-      ],
-      "sentiment_at_discovery": 0.45,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi Event",
-      "timestamp": "2026-02-05T17:08:35.145407",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.68,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Gold Price Surge",
-      "timestamp": "2026-02-05T17:08:35.155518",
-      "symbols_discovered": [
-        "GLD",
-        "GDX"
-      ],
-      "sentiment_at_discovery": 0.79,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Meme Stock Revival",
-      "timestamp": "2026-02-05T17:08:35.167640",
-      "symbols_discovered": [
-        "GME",
-        "AMC"
-      ],
-      "sentiment_at_discovery": -0.12,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Surge",
-      "timestamp": "2026-02-05T17:10:24.262643",
-      "symbols_discovered": [
-        "BTC",
-        "ETH"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Nvidia AI Rally",
-      "timestamp": "2026-02-05T17:10:24.273790",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.78,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cuts",
-      "timestamp": "2026-02-05T17:10:24.285173",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.15,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:10:24.295789",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GameStop Meme",
-      "timestamp": "2026-02-05T17:10:24.306750",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": 0.72,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Price Drop",
-      "timestamp": "2026-02-05T17:10:24.317512",
-      "symbols_discovered": [
-        "XOM",
-        "CVX"
-      ],
-      "sentiment_at_discovery": -0.45,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T17:12:15.967388",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.8,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Rally",
-      "timestamp": "2026-02-05T17:12:15.983447",
-      "symbols_discovered": [
-        "BTC-USD"
-      ],
-      "sentiment_at_discovery": 0.7,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cut Odds",
-      "timestamp": "2026-02-05T17:12:15.989070",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.6,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:12:15.994385",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.3,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Geopolitics",
-      "timestamp": "2026-02-05T17:12:15.999464",
-      "symbols_discovered": [
-        "USO",
-        "XOM"
-      ],
-      "sentiment_at_discovery": -0.4,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Gold Safe Haven",
-      "timestamp": "2026-02-05T17:12:16.004791",
-      "symbols_discovered": [
-        "GLD"
-      ],
-      "sentiment_at_discovery": 0.5,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Rally",
-      "timestamp": "2026-02-05T17:14:06.643000",
-      "symbols_discovered": [
-        "BTC",
-        "ETH"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T17:14:06.656541",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.7,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cuts",
-      "timestamp": "2026-02-05T17:14:06.673662",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.6,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:14:06.683121",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.3,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GameStop Meme",
-      "timestamp": "2026-02-05T17:14:06.691270",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": 0.4,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Prices Spike",
-      "timestamp": "2026-02-05T17:14:06.700956",
-      "symbols_discovered": [
-        "XOM",
-        "CVX"
-      ],
-      "sentiment_at_discovery": -0.5,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cuts",
-      "timestamp": "2026-02-05T17:16:08.204336",
-      "symbols_discovered": [
-        "^GSPC",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.75,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T17:16:08.217752",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.82,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Rally",
-      "timestamp": "2026-02-05T17:16:08.230260",
-      "symbols_discovered": [
-        "BTC-USD",
-        "ETH-USD"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:16:08.243063",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.35,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Price Drop",
-      "timestamp": "2026-02-05T17:16:08.258248",
-      "symbols_discovered": [
-        "USO",
-        "XOM"
-      ],
-      "sentiment_at_discovery": -0.45,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GameStop Meme Surge",
-      "timestamp": "2026-02-05T17:16:08.271681",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": 0.6,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T17:18:01.241279",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Rally",
-      "timestamp": "2026-02-05T17:18:01.247465",
-      "symbols_discovered": [
-        "BTC-USD"
-      ],
-      "sentiment_at_discovery": 0.75,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cut",
-      "timestamp": "2026-02-05T17:18:01.253258",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:18:01.259016",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.3,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Boeing Strike",
-      "timestamp": "2026-02-05T17:18:01.264710",
-      "symbols_discovered": [
-        "BA"
-      ],
-      "sentiment_at_discovery": -0.6,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Demand Fears",
-      "timestamp": "2026-02-05T17:18:01.271674",
-      "symbols_discovered": [
-        "USO",
-        "XOM"
-      ],
-      "sentiment_at_discovery": -0.45,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin ETF Inflows",
-      "timestamp": "2026-02-05T17:19:50.359889",
-      "symbols_discovered": [
-        "BTC",
-        "ETH",
-        "GBTC"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings Hype",
-      "timestamp": "2026-02-05T17:19:50.372035",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.75,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cut Odds",
-      "timestamp": "2026-02-05T17:19:50.386466",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.2,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi Event",
-      "timestamp": "2026-02-05T17:19:50.400926",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Price Surge",
-      "timestamp": "2026-02-05T17:19:50.414195",
-      "symbols_discovered": [
-        "XOM",
-        "CVX",
-        "USO"
-      ],
-      "sentiment_at_discovery": -0.4,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GameStop Meme Revival",
-      "timestamp": "2026-02-05T17:19:50.427750",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": 0.1,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Halving",
-      "timestamp": "2026-02-05T17:21:49.687102",
-      "symbols_discovered": [
-        "BTC-USD",
-        "ETH-USD"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T17:21:49.700483",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.78,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cuts",
-      "timestamp": "2026-02-05T17:21:49.712642",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:21:49.725486",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.42,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GME Meme Rally",
-      "timestamp": "2026-02-05T17:21:49.738224",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": 0.55,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Geopolitics",
-      "timestamp": "2026-02-05T17:21:49.751424",
-      "symbols_discovered": [
-        "USO",
-        "XOM"
-      ],
-      "sentiment_at_discovery": -0.35,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "BTC ETFs",
-      "timestamp": "2026-02-05T17:23:35.793694",
-      "symbols_discovered": [
-        "BTC",
-        "GBTC",
-        "IBIT"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T17:23:35.801697",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.7,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cuts",
-      "timestamp": "2026-02-05T17:23:35.809483",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.6,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "TSLA Robotaxi",
-      "timestamp": "2026-02-05T17:23:35.816674",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.3,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Geopolitics",
-      "timestamp": "2026-02-05T17:23:35.823586",
-      "symbols_discovered": [
-        "USO",
-        "XOM"
-      ],
-      "sentiment_at_discovery": -0.4,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GME Meme Rally",
-      "timestamp": "2026-02-05T17:23:35.830510",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": 0.5,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Rally",
-      "timestamp": "2026-02-05T17:25:21.710710",
-      "symbols_discovered": [
-        "BTC",
-        "ETH"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T17:25:21.722092",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.78,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cuts",
-      "timestamp": "2026-02-05T17:25:21.730072",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.25,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:25:21.737516",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.72,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Surge",
-      "timestamp": "2026-02-05T17:25:21.744796",
-      "symbols_discovered": [
-        "XOM",
-        "CVX"
-      ],
-      "sentiment_at_discovery": -0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GME Meme Frenzy",
-      "timestamp": "2026-02-05T17:25:21.752499",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": -0.1,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Rally",
-      "timestamp": "2026-02-05T17:27:18.006026",
-      "symbols_discovered": [
-        "BTC",
-        "ETH"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cut",
-      "timestamp": "2026-02-05T17:27:18.019165",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.75,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T17:27:18.031972",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.45,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:27:18.046174",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.7,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Geopolitics",
-      "timestamp": "2026-02-05T17:27:18.053734",
-      "symbols_discovered": [
-        "XOM",
-        "CVX",
-        "USO"
-      ],
-      "sentiment_at_discovery": -0.6,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GameStop Meme",
-      "timestamp": "2026-02-05T17:27:18.061079",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": 0.2,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cut",
-      "timestamp": "2026-02-05T17:29:06.900636",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.75,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings",
-      "timestamp": "2026-02-05T17:29:06.914691",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin Surge",
-      "timestamp": "2026-02-05T17:29:06.927696",
-      "symbols_discovered": [
-        "BTC",
-        "ETH"
-      ],
-      "sentiment_at_discovery": 0.8,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi",
-      "timestamp": "2026-02-05T17:29:06.940610",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.2,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Prices",
-      "timestamp": "2026-02-05T17:29:06.952571",
-      "symbols_discovered": [
-        "USO",
-        "XOM"
-      ],
-      "sentiment_at_discovery": -0.4,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "GameStop Meme",
-      "timestamp": "2026-02-05T17:29:06.964907",
-      "symbols_discovered": [
-        "GME"
-      ],
-      "sentiment_at_discovery": 0.5,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Bitcoin ETF Inflows",
-      "timestamp": "2026-02-05T17:30:58.042289",
-      "symbols_discovered": [
-        "BTC",
-        "IBIT",
-        "GBTC"
-      ],
-      "sentiment_at_discovery": 0.85,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "NVDA Earnings Hype",
-      "timestamp": "2026-02-05T17:30:58.055256",
-      "symbols_discovered": [
-        "NVDA"
-      ],
-      "sentiment_at_discovery": 0.78,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Fed Rate Cut Bets",
-      "timestamp": "2026-02-05T17:30:58.067661",
-      "symbols_discovered": [
-        "SPY",
-        "QQQ"
-      ],
-      "sentiment_at_discovery": 0.35,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Tesla Robotaxi Event",
-      "timestamp": "2026-02-05T17:30:58.080120",
-      "symbols_discovered": [
-        "TSLA"
-      ],
-      "sentiment_at_discovery": 0.72,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
-    {
-      "query": "Oil Price Surge",
-      "timestamp": "2026-02-05T17:30:58.093333",
-      "symbols_discovered": [
-        "XOM",
-        "CVX"
-      ],
-      "sentiment_at_discovery": 0.65,
-      "performance_tracked": false,
-      "symbols_that_performed": [],
-      "performance_score": 0.0
-    },
     {
       "query": "GameStop Meme Revival",
       "timestamp": "2026-02-05T17:30:58.106756",
@@ -5785,6 +4462,1327 @@
         "GME"
       ],
       "sentiment_at_discovery": 0.65,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin ETF Inflows",
+      "timestamp": "2026-02-05T19:27:36.572188",
+      "symbols_discovered": [
+        "BTC",
+        "ETH"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA Earnings Hype",
+      "timestamp": "2026-02-05T19:27:36.587305",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cut Bets",
+      "timestamp": "2026-02-05T19:27:36.602865",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi Event",
+      "timestamp": "2026-02-05T19:27:36.617128",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.2,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Geopolitics",
+      "timestamp": "2026-02-05T19:27:36.630162",
+      "symbols_discovered": [
+        "XOM",
+        "USO"
+      ],
+      "sentiment_at_discovery": -0.4,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GME Meme Surge",
+      "timestamp": "2026-02-05T19:27:36.645409",
+      "symbols_discovered": [
+        "GME"
+      ],
+      "sentiment_at_discovery": 0.5,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA AI Boom",
+      "timestamp": "2026-02-05T19:29:30.558569",
+      "symbols_discovered": [
+        "NVDA",
+        "AMD",
+        "SMCI"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "BTC ETF Inflows",
+      "timestamp": "2026-02-05T19:29:30.572977",
+      "symbols_discovered": [
+        "BTC",
+        "GBTC",
+        "IBIT"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cuts",
+      "timestamp": "2026-02-05T19:29:30.586703",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ",
+        "TLT"
+      ],
+      "sentiment_at_discovery": 0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "TSLA Robotaxi",
+      "timestamp": "2026-02-05T19:29:30.599263",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.2,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GME Meme Rally",
+      "timestamp": "2026-02-05T19:29:30.611957",
+      "symbols_discovered": [
+        "GME",
+        "AMC"
+      ],
+      "sentiment_at_discovery": 0.45,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Geopolitics",
+      "timestamp": "2026-02-05T19:29:30.624304",
+      "symbols_discovered": [
+        "USO",
+        "XOM",
+        "CVX"
+      ],
+      "sentiment_at_discovery": -0.4,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin ETF Inflows",
+      "timestamp": "2026-02-05T19:31:17.447005",
+      "symbols_discovered": [
+        "BTC",
+        "ETH"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA AI Boom",
+      "timestamp": "2026-02-05T19:31:17.464433",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.9,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cuts",
+      "timestamp": "2026-02-05T19:31:17.480140",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.3,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Earnings Miss",
+      "timestamp": "2026-02-05T19:31:17.494943",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": -0.4,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Meme Stock Revival",
+      "timestamp": "2026-02-05T19:31:17.510500",
+      "symbols_discovered": [
+        "GME",
+        "AMC"
+      ],
+      "sentiment_at_discovery": 0.1,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Price Surge",
+      "timestamp": "2026-02-05T19:31:17.525925",
+      "symbols_discovered": [
+        "XOM",
+        "CVX"
+      ],
+      "sentiment_at_discovery": 0.65,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Nvidia Earnings",
+      "timestamp": "2026-02-05T19:32:59.322808",
+      "symbols_discovered": [
+        "NVDA",
+        "AMD"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin Surge",
+      "timestamp": "2026-02-05T19:32:59.338249",
+      "symbols_discovered": [
+        "BTC-USD"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cuts",
+      "timestamp": "2026-02-05T19:32:59.351507",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.2,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:32:59.366961",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.65,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Price Drop",
+      "timestamp": "2026-02-05T19:32:59.381249",
+      "symbols_discovered": [
+        "XOM",
+        "CVX"
+      ],
+      "sentiment_at_discovery": -0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GameStop Meme Rally",
+      "timestamp": "2026-02-05T19:32:59.397140",
+      "symbols_discovered": [
+        "GME"
+      ],
+      "sentiment_at_discovery": -0.1,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin Rally",
+      "timestamp": "2026-02-05T19:34:41.589189",
+      "symbols_discovered": [
+        "BTC",
+        "ETH"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA Earnings",
+      "timestamp": "2026-02-05T19:34:41.596356",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.4,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cuts",
+      "timestamp": "2026-02-05T19:34:41.604191",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.7,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GME Meme Frenzy",
+      "timestamp": "2026-02-05T19:34:41.611874",
+      "symbols_discovered": [
+        "GME"
+      ],
+      "sentiment_at_discovery": -0.2,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:34:41.619452",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.65,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Surge",
+      "timestamp": "2026-02-05T19:34:41.626939",
+      "symbols_discovered": [
+        "XOM",
+        "CVX"
+      ],
+      "sentiment_at_discovery": -0.55,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin ETF Inflows",
+      "timestamp": "2026-02-05T19:36:34.043926",
+      "symbols_discovered": [
+        "BTC",
+        "GBTC",
+        "IBIT"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA Earnings Buzz",
+      "timestamp": "2026-02-05T19:36:34.052321",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cut Odds",
+      "timestamp": "2026-02-05T19:36:34.068145",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.2,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi Event",
+      "timestamp": "2026-02-05T19:36:34.084617",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.7,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Price Spike",
+      "timestamp": "2026-02-05T19:36:34.098884",
+      "symbols_discovered": [
+        "XOM",
+        "CVX",
+        "USO"
+      ],
+      "sentiment_at_discovery": -0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GameStop Meme Revival",
+      "timestamp": "2026-02-05T19:36:34.112027",
+      "symbols_discovered": [
+        "GME"
+      ],
+      "sentiment_at_discovery": 0.1,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cut",
+      "timestamp": "2026-02-05T19:38:20.966012",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ",
+        "IWM"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin Surge",
+      "timestamp": "2026-02-05T19:38:20.973851",
+      "symbols_discovered": [
+        "BTC-USD",
+        "ETH-USD"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Nvidia Earnings",
+      "timestamp": "2026-02-05T19:38:20.981622",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.8,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:38:20.990075",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.4,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GameStop Meme",
+      "timestamp": "2026-02-05T19:38:20.998042",
+      "symbols_discovered": [
+        "GME"
+      ],
+      "sentiment_at_discovery": -0.2,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Prices Drop",
+      "timestamp": "2026-02-05T19:38:21.006809",
+      "symbols_discovered": [
+        "XOM",
+        "CVX",
+        "USO"
+      ],
+      "sentiment_at_discovery": -0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA Earnings",
+      "timestamp": "2026-02-05T19:40:07.463455",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin ETF Flows",
+      "timestamp": "2026-02-05T19:40:07.478110",
+      "symbols_discovered": [
+        "BTC",
+        "ETH"
+      ],
+      "sentiment_at_discovery": 0.68,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cut Odds",
+      "timestamp": "2026-02-05T19:40:07.493592",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:40:07.499396",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.2,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Geopolitics",
+      "timestamp": "2026-02-05T19:40:07.505024",
+      "symbols_discovered": [
+        "USO",
+        "XOM"
+      ],
+      "sentiment_at_discovery": -0.4,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Apple AI Features",
+      "timestamp": "2026-02-05T19:40:07.510377",
+      "symbols_discovered": [
+        "AAPL"
+      ],
+      "sentiment_at_discovery": 0.55,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA Earnings",
+      "timestamp": "2026-02-05T19:41:58.219074",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "BTC ETF Inflows",
+      "timestamp": "2026-02-05T19:41:58.233892",
+      "symbols_discovered": [
+        "BTC",
+        "GBTC"
+      ],
+      "sentiment_at_discovery": 0.78,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cut Odds",
+      "timestamp": "2026-02-05T19:41:58.247251",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.65,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "TSLA Robotaxi",
+      "timestamp": "2026-02-05T19:41:58.260603",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.12,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Geopolitics",
+      "timestamp": "2026-02-05T19:41:58.274911",
+      "symbols_discovered": [
+        "USO",
+        "XOM"
+      ],
+      "sentiment_at_discovery": -0.45,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Gold Rally",
+      "timestamp": "2026-02-05T19:41:58.287824",
+      "symbols_discovered": [
+        "GLD"
+      ],
+      "sentiment_at_discovery": 0.72,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA AI Boom",
+      "timestamp": "2026-02-05T19:43:47.592737",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cuts",
+      "timestamp": "2026-02-05T19:43:47.604985",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin ETF Flows",
+      "timestamp": "2026-02-05T19:43:47.618023",
+      "symbols_discovered": [
+        "BTC",
+        "MSTR"
+      ],
+      "sentiment_at_discovery": 0.7,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "TSLA Robotaxi",
+      "timestamp": "2026-02-05T19:43:47.630589",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.4,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GME Meme Frenzy",
+      "timestamp": "2026-02-05T19:43:47.643290",
+      "symbols_discovered": [
+        "GME"
+      ],
+      "sentiment_at_discovery": 0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Price Rally",
+      "timestamp": "2026-02-05T19:43:47.654841",
+      "symbols_discovered": [
+        "USO",
+        "XOM"
+      ],
+      "sentiment_at_discovery": -0.5,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin Rally",
+      "timestamp": "2026-02-05T19:45:31.878500",
+      "symbols_discovered": [
+        "BTC",
+        "ETH"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Nvidia Earnings",
+      "timestamp": "2026-02-05T19:45:31.891525",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.78,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cuts",
+      "timestamp": "2026-02-05T19:45:31.904916",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.65,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:45:31.917743",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.12,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Price Surge",
+      "timestamp": "2026-02-05T19:45:31.931171",
+      "symbols_discovered": [
+        "USO",
+        "XOM"
+      ],
+      "sentiment_at_discovery": -0.45,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GameStop Meme Frenzy",
+      "timestamp": "2026-02-05T19:45:31.943848",
+      "symbols_discovered": [
+        "GME"
+      ],
+      "sentiment_at_discovery": -0.22,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cut",
+      "timestamp": "2026-02-05T19:47:15.136538",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA Earnings",
+      "timestamp": "2026-02-05T19:47:15.144297",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin Rally",
+      "timestamp": "2026-02-05T19:47:15.152455",
+      "symbols_discovered": [
+        "BTC-USD",
+        "COIN"
+      ],
+      "sentiment_at_discovery": 0.8,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:47:15.160536",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.4,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Price Drop",
+      "timestamp": "2026-02-05T19:47:15.168269",
+      "symbols_discovered": [
+        "XOM",
+        "USO"
+      ],
+      "sentiment_at_discovery": -0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Apple AI Launch",
+      "timestamp": "2026-02-05T19:47:15.176645",
+      "symbols_discovered": [
+        "AAPL"
+      ],
+      "sentiment_at_discovery": 0.3,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin ETF Inflows",
+      "timestamp": "2026-02-05T19:48:55.605686",
+      "symbols_discovered": [
+        "BTC",
+        "ETH"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Nvidia Earnings",
+      "timestamp": "2026-02-05T19:48:55.613459",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cuts",
+      "timestamp": "2026-02-05T19:48:55.621495",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.7,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:48:55.629301",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.4,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GameStop Meme Rally",
+      "timestamp": "2026-02-05T19:48:55.636711",
+      "symbols_discovered": [
+        "GME"
+      ],
+      "sentiment_at_discovery": 0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Price Surge",
+      "timestamp": "2026-02-05T19:48:55.643706",
+      "symbols_discovered": [
+        "XOM",
+        "CVX"
+      ],
+      "sentiment_at_discovery": -0.5,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cuts",
+      "timestamp": "2026-02-05T19:50:43.252949",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ",
+        "Fed"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA Earnings",
+      "timestamp": "2026-02-05T19:50:43.258671",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin Rally",
+      "timestamp": "2026-02-05T19:50:43.266091",
+      "symbols_discovered": [
+        "BTC",
+        "ETH"
+      ],
+      "sentiment_at_discovery": 0.8,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:50:43.273201",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.4,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Price Spike",
+      "timestamp": "2026-02-05T19:50:43.280636",
+      "symbols_discovered": [
+        "XOM",
+        "USO"
+      ],
+      "sentiment_at_discovery": -0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GameStop Meme",
+      "timestamp": "2026-02-05T19:50:43.287750",
+      "symbols_discovered": [
+        "GME"
+      ],
+      "sentiment_at_discovery": 0.1,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA Earnings",
+      "timestamp": "2026-02-05T19:52:24.002618",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin ETF Inflows",
+      "timestamp": "2026-02-05T19:52:24.010676",
+      "symbols_discovered": [
+        "BTC",
+        "ETH"
+      ],
+      "sentiment_at_discovery": 0.9,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cut Odds",
+      "timestamp": "2026-02-05T19:52:24.027993",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.2,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:52:24.040522",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.7,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Price Surge",
+      "timestamp": "2026-02-05T19:52:24.055730",
+      "symbols_discovered": [
+        "USO",
+        "XOM"
+      ],
+      "sentiment_at_discovery": -0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Gold Rally",
+      "timestamp": "2026-02-05T19:52:24.066274",
+      "symbols_discovered": [
+        "GLD"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cut",
+      "timestamp": "2026-02-05T19:54:05.294849",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Nvidia Earnings",
+      "timestamp": "2026-02-05T19:54:05.309485",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.75,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin Surge",
+      "timestamp": "2026-02-05T19:54:05.316662",
+      "symbols_discovered": [
+        "BTC-USD",
+        "ETH-USD"
+      ],
+      "sentiment_at_discovery": 0.9,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:54:05.322724",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.2,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GameStop Meme Rally",
+      "timestamp": "2026-02-05T19:54:05.328125",
+      "symbols_discovered": [
+        "GME"
+      ],
+      "sentiment_at_discovery": 0.6,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Prices Drop",
+      "timestamp": "2026-02-05T19:54:05.335580",
+      "symbols_discovered": [
+        "USO",
+        "XOM"
+      ],
+      "sentiment_at_discovery": -0.65,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin Rally",
+      "timestamp": "2026-02-05T19:55:43.839892",
+      "symbols_discovered": [
+        "BTC",
+        "ETH"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA Earnings",
+      "timestamp": "2026-02-05T19:55:43.844853",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.78,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cuts",
+      "timestamp": "2026-02-05T19:55:43.859715",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.25,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:55:43.873567",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.72,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Geopolitics",
+      "timestamp": "2026-02-05T19:55:43.888135",
+      "symbols_discovered": [
+        "XOM",
+        "CVX"
+      ],
+      "sentiment_at_discovery": -0.65,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "GameStop Meme",
+      "timestamp": "2026-02-05T19:55:43.906022",
+      "symbols_discovered": [
+        "GME"
+      ],
+      "sentiment_at_discovery": -0.1,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA Earnings",
+      "timestamp": "2026-02-05T19:57:23.123240",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin Surge",
+      "timestamp": "2026-02-05T19:57:23.134500",
+      "symbols_discovered": [
+        "BTC-USD"
+      ],
+      "sentiment_at_discovery": 0.78,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cuts",
+      "timestamp": "2026-02-05T19:57:23.146457",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.65,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:57:23.157879",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.12,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Gold Rally",
+      "timestamp": "2026-02-05T19:57:23.169138",
+      "symbols_discovered": [
+        "GLD"
+      ],
+      "sentiment_at_discovery": 0.72,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Boeing Woes",
+      "timestamp": "2026-02-05T19:57:23.181981",
+      "symbols_discovered": [
+        "BA"
+      ],
+      "sentiment_at_discovery": -0.45,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Bitcoin Rally",
+      "timestamp": "2026-02-05T19:59:02.152911",
+      "symbols_discovered": [
+        "BTC-USD",
+        "ETH-USD"
+      ],
+      "sentiment_at_discovery": 0.85,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "NVDA Earnings",
+      "timestamp": "2026-02-05T19:59:02.165377",
+      "symbols_discovered": [
+        "NVDA"
+      ],
+      "sentiment_at_discovery": 0.78,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Fed Rate Cut",
+      "timestamp": "2026-02-05T19:59:02.179064",
+      "symbols_discovered": [
+        "SPY",
+        "QQQ"
+      ],
+      "sentiment_at_discovery": 0.65,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Tesla Robotaxi",
+      "timestamp": "2026-02-05T19:59:02.192047",
+      "symbols_discovered": [
+        "TSLA"
+      ],
+      "sentiment_at_discovery": 0.12,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Oil Prices Spike",
+      "timestamp": "2026-02-05T19:59:02.205214",
+      "symbols_discovered": [
+        "XOM",
+        "CVX"
+      ],
+      "sentiment_at_discovery": -0.45,
+      "performance_tracked": false,
+      "symbols_that_performed": [],
+      "performance_score": 0.0
+    },
+    {
+      "query": "Gold Safe Haven",
+      "timestamp": "2026-02-05T19:59:02.218656",
+      "symbols_discovered": [
+        "GLD"
+      ],
+      "sentiment_at_discovery": 0.55,
       "performance_tracked": false,
       "symbols_that_performed": [],
       "performance_score": 0.0

@@ -97,3 +97,11 @@ __all__ = [
     'CorrelationInsight',
     'get_signal_correlator',
 ]
+
+# V6 - Discovery Mode (Bull regime pépites)
+try:
+    from .discovery_mode import DiscoveryMode, get_discovery_mode, DiscoveryConfig
+    DISCOVERY_MODE_AVAILABLE = True
+except ImportError:
+    DISCOVERY_MODE_AVAILABLE = False
+    DiscoveryMode = None
