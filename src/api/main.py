@@ -28,6 +28,13 @@ from src.api.websocket import (
 
 from config.settings import CAPITAL
 from src.screening.screener import market_screener
+
+# Portfolio history tracking
+try:
+    from src.utils.portfolio_tracker import record_snapshot
+    PORTFOLIO_TRACKER = True
+except ImportError:
+    PORTFOLIO_TRACKER = False
 from src.data.market_data import market_data_fetcher
 from src.database.db_manager import db_manager
 from src.utils.watchlist_manager import watchlist_manager
@@ -479,6 +486,11 @@ async def get_portfolio_summary(api_key: str = Depends(verify_api_key)):
             invested = sum(p.get('position_value', p.get('shares', 0) * p.get('entry_price', 0)) for p in positions)
             unrealized_pnl = sum(p.get('pnl_amount', 0) for p in positions)
             
+            # Record snapshot for tracking history
+            if PORTFOLIO_TRACKER:
+                try:
+                    record_snapshot()
+                except: pass
             return PortfolioSummary(
                 total_capital=total_capital,
                 available_capital=data.get('cash', total_capital - invested),
@@ -489,6 +501,11 @@ async def get_portfolio_summary(api_key: str = Depends(verify_api_key)):
         else:
             # Fallback to market_screener
             summary = market_screener.get_portfolio_summary()
+            # Record snapshot for tracking history
+            if PORTFOLIO_TRACKER:
+                try:
+                    record_snapshot()
+                except: pass
             return PortfolioSummary(
                 total_capital=summary.get('total_capital', CAPITAL),
                 available_capital=summary.get('available_capital', CAPITAL),
@@ -765,27 +782,44 @@ async def get_stock_price(
     symbol: str,
     api_key: str = Depends(verify_api_key)
 ):
-    """Get current stock price and basic info."""
+    """Get current stock price - LIVE, no cache."""
+    import yfinance as yf
+    from datetime import datetime
+    
     try:
-        df = market_data_fetcher.get_historical_data(symbol.upper(), period='5d', interval='1d')
-
+        ticker = yf.Ticker(symbol.upper())
+        
+        # Get 1-minute data for real-time price (NO CACHE)
+        df = ticker.history(period="1d", interval="1m")
+        
+        if df is None or df.empty:
+            # Fallback to daily
+            df = ticker.history(period="5d", interval="1d")
+        
         if df is None or df.empty:
             raise HTTPException(status_code=404, detail="Stock data not found")
-
-        current_price = float(df['Close'].iloc[-1])
-        prev_close = float(df['Close'].iloc[-2]) if len(df) > 1 else current_price
+        
+        current_price = float(df["Close"].iloc[-1])
+        
+        # Get previous close for daily change
+        df_daily = ticker.history(period="5d", interval="1d")
+        if df_daily is not None and len(df_daily) > 1:
+            prev_close = float(df_daily["Close"].iloc[-2])
+        else:
+            prev_close = current_price
+        
         change = current_price - prev_close
         change_pct = (change / prev_close) * 100 if prev_close > 0 else 0
-
+        
         return {
             "symbol": symbol.upper(),
             "price": current_price,
             "change": change,
             "change_pct": change_pct,
-            "volume": int(df['Volume'].iloc[-1]),
-            "high": float(df['High'].iloc[-1]),
-            "low": float(df['Low'].iloc[-1]),
-            "date": df.index[-1].strftime('%Y-%m-%d')
+            "volume": int(df["Volume"].iloc[-1]) if "Volume" in df else 0,
+            "high": float(df["High"].iloc[-1]),
+            "low": float(df["Low"].iloc[-1]),
+            "date": df.index[-1].strftime("%Y-%m-%d %H:%M")
         }
     except HTTPException:
         raise

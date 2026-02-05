@@ -57,8 +57,44 @@ class ScreeningCandidate:
 class HybridScreenerConfig:
     """Configuration for hybrid screener"""
     # FMP pre-screening parameters
-    market_cap_min: int = 500_000_000  # $500M minimum
-    volume_min: int = 500_000  # 500K daily volume
+    # V5.6 - Adaptive filters based on market regime
+    # These are DEFAULT values - actual values computed by get_adaptive_filters()
+    market_cap_min: int = 500_000_000  # Default $500M minimum  
+    volume_min: int = 500_000  # Default 500K daily volume
+    
+    @staticmethod
+    def get_adaptive_filters(regime: str = "range", region: str = "us") -> dict:
+        """
+        Get market cap and volume filters based on market regime and region.
+        
+        Regime-based logic:
+        - BULL: Lower filters, allow small caps (more risk = more reward)
+        - BEAR: Higher filters, only blue chips (flight to quality)
+        - RANGE/VOLATILE: Moderate filters
+        
+        Region-based logic:
+        - EU: Lower filters (smaller market, less liquidity)
+        - US: Standard filters
+        """
+        regime = regime.lower()
+        region = region.lower()
+        
+        # Base filters by regime
+        regime_filters = {
+            "bull": {"market_cap_min": 100_000_000, "volume_min": 200_000},    # $100M, 200K
+            "range": {"market_cap_min": 300_000_000, "volume_min": 300_000},   # $300M, 300K
+            "bear": {"market_cap_min": 1_000_000_000, "volume_min": 500_000},  # $1B, 500K
+            "volatile": {"market_cap_min": 2_000_000_000, "volume_min": 1_000_000},  # $2B, 1M
+        }
+        
+        filters = regime_filters.get(regime, regime_filters["range"])
+        
+        # EU adjustment: reduce filters by 50% (smaller markets)
+        if region in ["eu", "europe"]:
+            filters["market_cap_min"] = int(filters["market_cap_min"] * 0.5)
+            filters["volume_min"] = int(filters["volume_min"] * 0.5)
+        
+        return filters
     price_min: float = 5.0
     price_max: float = 300.0
     max_fmp_candidates: int = 3000

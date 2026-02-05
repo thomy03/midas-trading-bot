@@ -8,6 +8,13 @@ import asyncio
 import logging
 import random
 from dataclasses import dataclass, field
+
+# V5.6 - Adaptive filtering
+try:
+    from src.intelligence.market_context import get_market_context, MarketRegime
+    MARKET_CONTEXT_AVAILABLE = True
+except ImportError:
+    MARKET_CONTEXT_AVAILABLE = False
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Set, Tuple
 from collections import defaultdict
@@ -112,6 +119,10 @@ class AttentionManager:
 
         # Topics en focus
         self._focus_topics: Dict[str, FocusTopic] = {}
+        
+        # V5.6 - Grok Priority: symbols found by Grok get screened FIRST
+        self._grok_priority_symbols: List[str] = []
+        self._grok_priority_updated: Optional[datetime] = None
 
         # Watchlist utilisateur
         self._watchlist: Set[str] = set()
@@ -360,11 +371,77 @@ class AttentionManager:
         topics = self._get_sorted_focus()
         return topics[0] if topics else None
 
+
+    def set_grok_priority_symbols(self, symbols: List[str]):
+        """
+        V5.6 - Set symbols found by Grok as priority for screening.
+        These will be screened FIRST before falling back to watchlist.
+        """
+        # Filter by market session
+        session_filtered = [s for s in symbols if MarketScheduler.should_scan_symbol(s)]
+        self._grok_priority_symbols = session_filtered
+        self._grok_priority_updated = datetime.now()
+        logger.info(f"🐦 GROK PRIORITY: {len(session_filtered)} symbols set for priority screening: {session_filtered[:10]}")
+    
+
+    def get_current_filters(self) -> dict:
+        """
+        V5.6 - Get adaptive market cap/volume filters based on current regime.
+        """
+        regime = "range"  # default
+        region = "us"  # default
+        
+        # Get current market regime
+        if MARKET_CONTEXT_AVAILABLE:
+            try:
+                import asyncio
+                ctx = asyncio.get_event_loop().run_until_complete(get_market_context())
+                if ctx:
+                    regime = ctx.regime.value
+            except:
+                pass
+        
+        # Get current region from scheduler
+        try:
+            from src.utils.market_scheduler import MarketScheduler
+            session = MarketScheduler.get_session_info()
+            if session.get('region') == 'europe':
+                region = 'eu'
+        except:
+            pass
+        
+        # Get adaptive filters
+        from src.screening.hybrid_screener import ScreenerConfig
+        filters = ScreenerConfig.get_adaptive_filters(regime=regime, region=region)
+        
+        logger.info(f"🎯 Adaptive filters: regime={regime}, region={region} → cap>=${filters['market_cap_min']/1e6:.0f}M, vol>{filters['volume_min']/1000:.0f}K")
+        
+        return filters
+
+    def get_grok_priority_symbols(self) -> List[str]:
+        """Get current Grok priority symbols (not in cooldown)."""
+        available = []
+        for symbol in self._grok_priority_symbols:
+            if not self._is_in_cooldown(symbol):
+                available.append(symbol)
+        return available
+
     def get_symbols_for_screening(self, limit: int = 5) -> List[str]:
         """
         Retourne les symboles a screener dans ce cycle.
-        V2: Excludes symbols in cooldown, triggers discovery if needed.
+        V5.6: GROK PRIORITY - Screen Grok symbols FIRST, then fallback to watchlist.
         """
+        result = []
+        
+        # STEP 1: Grok Priority Symbols (what's buzzing on X/Twitter)
+        grok_available = self.get_grok_priority_symbols()
+        if grok_available:
+            result.extend(grok_available[:limit])
+            logger.info(f"🐦 Screening GROK PRIORITY symbols: {result}")
+            if len(result) >= limit:
+                return result[:limit]
+        
+        # STEP 2: Hot symbols from heat detector
         topics = self._get_sorted_focus()
 
         # Filter by region

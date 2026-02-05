@@ -24,6 +24,14 @@ import json
 
 from .base import BasePillar, PillarScore
 
+# Google Trends integration
+try:
+    from pytrends.request import TrendReq
+    PYTRENDS_AVAILABLE = True
+except ImportError:
+    PYTRENDS_AVAILABLE = False
+    TrendReq = None
+
 # Polygon integration for hybrid news
 try:
     from src.data.polygon_client import get_polygon_client
@@ -71,6 +79,57 @@ class NewsPillar(BasePillar):
     def get_name(self) -> str:
         return "News"
 
+
+    async def get_trends_score(self, symbol: str) -> Dict[str, Any]:
+        """Get Google Trends interest score for a symbol."""
+        if not PYTRENDS_AVAILABLE:
+            return {"score": 50, "trend": "unknown", "error": "pytrends not available"}
+        
+        try:
+            pytrends = TrendReq(hl="en-US", tz=360, timeout=(10, 25))
+            pytrends.build_payload([symbol], timeframe="now 7-d", geo="US")
+            data = pytrends.interest_over_time()
+            
+            if data.empty:
+                return {"score": 50, "trend": "no_data", "current": 0}
+            
+            values = data[symbol].values
+            current = values[-1]
+            avg_first_half = values[:len(values)//2].mean()
+            avg_second_half = values[len(values)//2:].mean()
+            
+            # Calculate trend
+            if avg_first_half > 0:
+                change_pct = ((avg_second_half / avg_first_half) - 1) * 100
+            else:
+                change_pct = 0
+            
+            # Score based on trend
+            if change_pct > 50:
+                score = 85  # Strong buzz increase
+                trend = "surging"
+            elif change_pct > 20:
+                score = 70  # Moderate increase
+                trend = "rising"
+            elif change_pct > -10:
+                score = 50  # Stable
+                trend = "stable"
+            elif change_pct > -30:
+                score = 35  # Declining
+                trend = "declining"
+            else:
+                score = 20  # Strong decline
+                trend = "crashing"
+            
+            return {
+                "score": score,
+                "trend": trend,
+                "current_interest": int(current),
+                "change_pct": round(change_pct, 1)
+            }
+        except Exception as e:
+            logger.warning(f"Google Trends error for {symbol}: {e}")
+            return {"score": 50, "trend": "error", "error": str(e)}
     async def initialize(self):
         """Initialize Gemini client"""
         if self._gemini_client is None and self.api_key:

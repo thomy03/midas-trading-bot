@@ -21,6 +21,13 @@ from .decision_journal import DecisionJournal, get_decision_journal
 from ..intelligence.heat_detector import HeatDetector, get_heat_detector
 from ..intelligence.attention_manager import AttentionManager, get_attention_manager
 from ..execution.paper_trader import get_paper_trader, PaperTrader
+# Portfolio tracking
+try:
+    from ..utils.portfolio_tracker import record_snapshot
+    PORTFOLIO_TRACKER_AVAILABLE = True
+except ImportError:
+    PORTFOLIO_TRACKER_AVAILABLE = False
+    record_snapshot = None
 
 # V4 - Multi-pillar reasoning (4 pillars: technique, fondamental, sentiment, news)
 try:
@@ -283,6 +290,12 @@ class LiveLoop:
                 # 2. Vérifier les guardrails
                 if not await self._check_guardrails():
                     logger.warning("Guardrails check failed, pausing...")
+                    # Track portfolio value
+                    if PORTFOLIO_TRACKER_AVAILABLE:
+                        try:
+                            record_snapshot()
+                        except Exception as e:
+                            logger.warning(f"Portfolio tracking failed: {e}")
                     await self.pause()
                     await asyncio.sleep(300)  # Attendre 5 min
                     continue
@@ -377,7 +390,7 @@ class LiveLoop:
                         self._metrics.screens_performed += 1
                         
                     except Exception as e:
-                        logger.error(f"Error screening {symbol} with ReasoningEngine: {e}")
+                        import traceback; logger.error(f"Error screening {symbol} with ReasoningEngine: {e}\n{traceback.format_exc()}")
                         
                 return
             except Exception as e:
@@ -520,6 +533,55 @@ class LiveLoop:
             industry=industry
         )
         
+        # V5.5 - PORTFOLIO ROTATION: If not enough cash, try to upgrade portfolio
+        if position is None and score > 0:
+            try:
+                positions = paper_trader.portfolio.positions
+                if positions:
+                    weakest = min(positions, key=lambda p: p.score_at_entry or 0)
+                    weakest_score = weakest.score_at_entry or 0
+                    
+                    if score > weakest_score + 5:
+                        logger.info(f"🔄 ROTATION: {symbol} (score={score}) > {weakest.symbol} (score={weakest_score})")
+                        
+                        try:
+                            import yfinance as yf
+                            sell_ticker = yf.Ticker(weakest.symbol)
+                            sell_price = sell_ticker.fast_info.get('lastPrice') or weakest.entry_price
+                        except:
+                            sell_price = weakest.entry_price
+                        
+                        sell_result = paper_trader.close_position(
+                            symbol=weakest.symbol,
+                            price=sell_price,
+                            reason=f"rotation_upgrade_to_{symbol}"
+                        )
+                        
+                        if sell_result:
+                            logger.info(f"🔻 SOLD {weakest.symbol} @ ${sell_price:.2f} for rotation")
+                            
+                            position = paper_trader.open_position(
+                                symbol=symbol,
+                                price=price,
+                                score=score,
+                                decision_type=str(decision.decision.value) if hasattr(decision, 'decision') else "BUY",
+                                pillar_technical=pillar_technical,
+                                pillar_fundamental=pillar_fundamental,
+                                pillar_sentiment=pillar_sentiment,
+                                pillar_news=pillar_news,
+                                reasoning=reasoning,
+                                company_name=company_name,
+                                sector=sector,
+                                industry=industry
+                            )
+                            
+                            if position:
+                                logger.info(f"🔺 ROTATION COMPLETE: Bought {symbol} @ ${price:.2f}")
+                    else:
+                        logger.debug(f"No rotation: {symbol} ({score}) not better than {weakest.symbol} ({weakest_score})")
+            except Exception as e:
+                logger.warning(f"Rotation failed: {e}")
+        
         if position:
             self._metrics.trades_executed += 1
             logger.info(f"📈 Paper trade executed: {symbol} x{position.quantity} @ {price:.2f}")
@@ -578,7 +640,9 @@ class LiveLoop:
                 if trends:
                     # Convert List[GrokInsight] to Dict[str, Dict] for ingest_grok_data
                     grok_data = {}
+                    logger.info(f"🐦 Grok returned {len(trends)} insights")
                     for insight in trends:
+                        logger.debug(f"🐦 Insight: {insight.topic} | Symbols: {insight.mentioned_symbols}")
                         for symbol in insight.mentioned_symbols:
                             if symbol not in grok_data:
                                 grok_data[symbol] = {
@@ -588,6 +652,11 @@ class LiveLoop:
                                 }
                     if grok_data:
                         await self.heat_detector.ingest_grok_data(grok_data)
+                        
+                        # V5.6 - Set Grok symbols as PRIORITY for screening
+                        grok_symbols = list(grok_data.keys())
+                        if grok_symbols and self.attention_manager:
+                            self.attention_manager.set_grok_priority_symbols(grok_symbols)
 
             # Social (Reddit, StockTwits)
             social_scanner = await get_social_scanner()
