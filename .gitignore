@@ -109,3 +109,16 @@ data/*.json
 # Logs
 *.log
 
+
+# Runtime state files
+data/agent_state.json
+data/attention/analyzed_today.json
+data/portfolio.json
+
+# Backtest results (regenerable)
+backtest_results/
+
+# Temporary scripts
+backtest_*.py
+study_*.py
+comprehensive_*.py

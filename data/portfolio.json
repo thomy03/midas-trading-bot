@@ -1,7 +1,29 @@
 {
   "total_capital": 15000.0,
-  "cash": 15000.0,
+  "cash": 14272.800018310547,
   "total_value": 15000.0,
-  "positions": [],
-  "updated": "2026-02-06T22:45:00"
+  "positions": [
+    {
+      "symbol": "74SW.PA",
+      "shares": 24,
+      "entry_price": 30.299999237060547,
+      "entry_date": "2026-02-07T16:50:14.331804",
+      "stop_loss": 27.429025607341202,
+      "position_value": 727.1999816894531,
+      "take_profit": 35.337253721590876,
+      "score_at_entry": 75.45457166120855,
+      "current_price": 30.299999237060547,
+      "pnl_amount": 0.0,
+      "pnl_percent": 0.0,
+      "pillar_technical": 52.74378217231941,
+      "pillar_fundamental": 37.166666666666664,
+      "pillar_sentiment": 0.0,
+      "pillar_news": 67.5,
+      "reasoning": "=== 74SW.PA ANALYSIS: STRONG BUY (Score: 75.5/100) ===\n\nPILLAR BREAKDOWN:\n  Technical   :  +52.7 (buy) \n  Fundamental :  +37.2 (buy) [92%]\n  Sentiment   :   +0.0 (neutral) [50%]\n  News        :  +67.5 (strong buy) [80%]\n\nKEY INSIGHTS:\n  [Technical] Technical outlook: NEUTRAL\n  [Fundamental] Fundamental analysis for 74SOFTWARE (Technology)\n  [News] News analysis for $74SW.PA\n\nDECISION RATIONALE:\n  Bullish signals from: Technical, Fundamental, News",
+      "company_name": "74SOFTWARE",
+      "sector": "Technology",
+      "industry": "Software - Application"
+    }
+  ],
+  "updated": "2026-02-07T16:50:14.331842"
 }
