@@ -415,6 +415,27 @@ class ReasoningEngine:
 
         logger.info(f"[REASONING] {symbol}: Internal={internal_score:+.1f} → Display={total_score:.1f}/100")
 
+        # V6.2 - Adaptive ML Gate (volatility-based switching)
+        adaptive_ml_gate_applied = False
+        if ADAPTIVE_ML_GATE_AVAILABLE:
+            try:
+                ml_gate = get_ml_gate()
+                volatility = self._calculate_volatility(symbol)
+                pillar_scores_dict = {
+                    "technical": (technical_score.score + 100) / 2 if technical_score else 50,
+                    "fundamental": (fundamental_score.score + 100) / 2 if fundamental_score else 50,
+                    "sentiment": (sentiment_score.score + 100) / 2 if sentiment_score else 50,
+                    "news": (news_score.score + 100) / 2 if news_score else 50,
+                    "ml_regime": (ml_score.score + 100) / 2 if ml_score else 50
+                }
+                gate_result = ml_gate.apply(total_score, pillar_scores_dict, volatility)
+                if gate_result.mode != "ML_NEUTRAL":
+                    logger.info(f"[ADAPTIVE ML] {symbol}: Vol={volatility*100:.1f}%, Mode={gate_result.mode}, Score: {total_score:.1f} -> {gate_result.gated_score:.1f}")
+                    total_score = gate_result.gated_score
+                    adaptive_ml_gate_applied = True
+            except Exception as e:
+                logger.debug(f"[ADAPTIVE ML] Error: {e}")
+
         # Determine decision (now comparing display scale against display thresholds)
         decision = self._get_decision(total_score)
         
