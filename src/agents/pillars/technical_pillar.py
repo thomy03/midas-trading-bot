@@ -116,10 +116,10 @@ class TechnicalPillar(BasePillar):
 
         # V4.4: Verbose logging
         signal = "bullish" if total_score > 20 else "bearish" if total_score < -20 else "neutral"
-        logger.info(f"[TECHNICAL] {symbol}: Score={total_score:.1f}/100 ({signal}) | Trend={category_scores.get('trend', 0):.0f} Momentum={category_scores.get('momentum', 0):.0f} Volume={category_scores.get('volume', 0):.0f} Volatility={category_scores.get('volatility', 0):.0f}")
+        logger.info(f"[TECHNICAL] {symbol}: Score={(total_score + 100) / 2:.1f}/100 ({signal}) | Trend={category_scores.get('trend', 0):.0f} Momentum={category_scores.get('momentum', 0):.0f} Volume={category_scores.get('volume', 0):.0f} Volatility={category_scores.get('volatility', 0):.0f}")
 
         return self._create_score(
-            score=total_score,
+            score=(total_score + 100) / 2,  # Normalized to 0-100 (50=neutral)
             reasoning=reasoning,
             factors=factors,
             confidence=confidence

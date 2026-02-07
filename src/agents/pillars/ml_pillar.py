@@ -118,7 +118,7 @@ class MLPillar(BasePillar):
     
     def __init__(self, weight: float = 0.25, model_path: str = None):
         super().__init__(weight)
-        self.model_path = model_path or '/root/tradingbot-github/data/ml_model.joblib'
+        self.model_path = model_path or '/app/data/ml_model.joblib'
         self.scaler_path = self.model_path.replace('.joblib', '_scaler.joblib')
         
         self.model = None

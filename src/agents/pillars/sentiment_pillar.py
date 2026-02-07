@@ -19,6 +19,14 @@ import re
 
 from .base import BasePillar, PillarScore
 
+# V6 - Smart Signal Learner integration
+try:
+    from src.learning.smart_signal_learner import get_signal_learner, SmartSignalLearner
+    SIGNAL_LEARNER_AVAILABLE = True
+except ImportError:
+    SIGNAL_LEARNER_AVAILABLE = False
+    SmartSignalLearner = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -37,11 +45,21 @@ class SentimentPillar(BasePillar):
 
         self._client: Optional[httpx.AsyncClient] = None
 
-        # Sentiment weights (X/Twitter is primary)
+        # Sentiment weights (X/Twitter is primary, signals added in V6)
         self.source_weights = {
-            'twitter': 0.60,    # X/Twitter via Grok
-            'stocktwits': 0.40
+            'twitter': 0.50,    # X/Twitter via Grok
+            'stocktwits': 0.30,
+            'smart_signals': 0.20  # V6 - Learned weak signals (influencers, events)
         }
+        
+        # V6 - Smart Signal Learner
+        self._signal_learner = None
+        if SIGNAL_LEARNER_AVAILABLE:
+            try:
+                self._signal_learner = get_signal_learner()
+                logger.info("[SENTIMENT] Smart Signal Learner integrated")
+            except Exception as e:
+                logger.warning(f"[SENTIMENT] Smart Signal Learner unavailable: {e}")
 
     def get_name(self) -> str:
         return "Sentiment"
@@ -101,6 +119,27 @@ class SentimentPillar(BasePillar):
                     source_scores['stocktwits'] = st_result['score']
                     factors.append(st_result)
                     total_weight += self.source_weights['stocktwits']
+            
+            # V6 - Smart Signal Learner (weak signals: influencer mentions, economic events)
+            if self._signal_learner and SIGNAL_LEARNER_AVAILABLE:
+                try:
+                    signal_result = self._signal_learner.get_signal_score(symbol)
+                    if signal_result.get('signal_count', 0) > 0:
+                        source_scores['smart_signals'] = signal_result['score']
+                        total_weight += self.source_weights['smart_signals']
+                        
+                        # Add signal details to factors
+                        signal_factor = {
+                            'source': 'smart_signals',
+                            'score': signal_result['score'],
+                            'signals': signal_result.get('active_signals', [])[:3],  # Top 3
+                            'description': f"Weak signals: {signal_result.get('signal_count', 0)} active"
+                        }
+                        factors.append(signal_factor)
+                        
+                        logger.debug(f"[SENTIMENT] {symbol}: Smart signals score={signal_result['score']:.1f}")
+                except Exception as e:
+                    logger.debug(f"[SENTIMENT] Signal learner error for {symbol}: {e}")
 
             # Calculate weighted average
             if total_weight > 0:

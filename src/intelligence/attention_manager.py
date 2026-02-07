@@ -122,6 +122,15 @@ class AttentionManager:
         
         # V5.6 - Grok Priority: symbols found by Grok get screened FIRST
         self._grok_priority_symbols: List[str] = []
+        # V6.1: Load US priority symbols for manual scan
+        try:
+            import json
+            with open("/app/data/grok/priority_symbols.json", "r") as f:
+                data = json.load(f)
+                self._grok_priority_symbols = data.get("symbols", [])
+                logger.info(f"Loaded {len(self._grok_priority_symbols)} priority symbols from file")
+        except Exception as e:
+            logger.debug(f"No priority file: {e}")
         self._grok_priority_updated: Optional[datetime] = None
 
         # Watchlist utilisateur

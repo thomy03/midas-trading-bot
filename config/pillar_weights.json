@@ -1,0 +1,116 @@
+{
+  "description": "Pillar weights for Midas scoring system - Optimized for BULL regime",
+  "version": "2.0.0",
+  "updated": "2026-02-05",
+  
+  "base_weights": {
+    "technical": 0.25,
+    "fundamental": 0.20,
+    "sentiment": 0.15,
+    "momentum": 0.20,
+    "trend": 0.20
+  },
+  
+  "regime_adjustments": {
+    "BULL": {
+      "description": "BULL market - Favor momentum and trend following",
+      "technical": 0.22,
+      "fundamental": 0.15,
+      "sentiment": 0.12,
+      "momentum": 0.26,
+      "trend": 0.25,
+      
+      "sub_weights": {
+        "momentum": {
+          "rsi_momentum": 0.30,
+          "macd_signal": 0.25,
+          "price_acceleration": 0.25,
+          "volume_confirmation": 0.20
+        },
+        "trend": {
+          "ema_alignment": 0.30,
+          "higher_highs": 0.25,
+          "adx_strength": 0.25,
+          "support_respect": 0.20
+        }
+      },
+      
+      "parameters": {
+        "target_multiplier": 1.20,
+        "trailing_stop_atr": 2.0,
+        "max_hold_days": 15,
+        "pullback_tolerance": 0.03,
+        "min_trend_strength": 0.6,
+        "momentum_threshold": 0.55
+      }
+    },
+    
+    "VOLATILE": {
+      "description": "VOLATILE market - Technical signals more important",
+      "technical": 0.30,
+      "fundamental": 0.18,
+      "sentiment": 0.17,
+      "momentum": 0.18,
+      "trend": 0.17,
+      
+      "parameters": {
+        "target_multiplier": 0.95,
+        "trailing_stop_atr": 2.5,
+        "max_hold_days": 7,
+        "pullback_tolerance": 0.02,
+        "min_trend_strength": 0.5
+      }
+    },
+    
+    "BEAR": {
+      "description": "BEAR market - Conservative, favor fundamentals",
+      "technical": 0.22,
+      "fundamental": 0.28,
+      "sentiment": 0.18,
+      "momentum": 0.16,
+      "trend": 0.16,
+      
+      "parameters": {
+        "target_multiplier": 0.85,
+        "trailing_stop_atr": 1.5,
+        "max_hold_days": 5,
+        "pullback_tolerance": 0.015,
+        "min_trend_strength": 0.7
+      }
+    },
+    
+    "SIDEWAYS": {
+      "description": "SIDEWAYS market - Range trading focus",
+      "technical": 0.28,
+      "fundamental": 0.22,
+      "sentiment": 0.15,
+      "momentum": 0.17,
+      "trend": 0.18,
+      
+      "parameters": {
+        "target_multiplier": 0.90,
+        "trailing_stop_atr": 1.8,
+        "max_hold_days": 8,
+        "pullback_tolerance": 0.02,
+        "min_trend_strength": 0.4
+      }
+    }
+  },
+  
+  "scoring_thresholds": {
+    "strong_buy": 0.75,
+    "buy": 0.60,
+    "hold": 0.40,
+    "sell": 0.30,
+    "strong_sell": 0.20
+  },
+  
+  "bull_optimization_notes": [
+    "Increased momentum weight from 0.20 to 0.26 in BULL",
+    "Increased trend weight from 0.20 to 0.25 in BULL",
+    "Reduced sentiment weight (often lagging in strong trends)",
+    "Extended max_hold_days from 10 to 15 in BULL",
+    "Added 20% target multiplier in BULL regime",
+    "Increased pullback_tolerance to avoid premature exits"
+  ]
+}

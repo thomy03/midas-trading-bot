@@ -3,6 +3,9 @@ Live Loop - Boucle principale event-driven du trading bot
 Orchestre tous les composants en temps réel.
 """
 
+from src.agents.regime_adapter import get_regime_adapter, MarketRegime
+from src.intelligence.discovery_mode import get_discovery_mode, DiscoveryMode
+
 import asyncio
 import logging
 import signal
@@ -115,6 +118,10 @@ class LiveLoop:
 
     def __init__(self, config: Optional[LiveLoopConfig] = None):
         self.config = config or LiveLoopConfig()
+        # V6.1: Regime-adaptive strategy
+        self.regime_adapter = get_regime_adapter()
+        self.current_regime = MarketRegime.RANGE
+        self.discovery_mode = get_discovery_mode()
 
         # Components (initialisés dans initialize())
         self.guardrails: Optional[Guardrails] = None
@@ -270,6 +277,18 @@ class LiveLoop:
 
         while self._running and not self._shutdown_event.is_set():
             cycle_start = datetime.now()
+
+            # V6.1: Detect market regime and adapt strategy
+            try:
+                regime, confidence = self.regime_adapter.detect_regime()
+                self.current_regime = regime
+                cfg = self.regime_adapter.get_config(regime)
+                logger.info(f"🎯 REGIME: {regime.value.upper()} | Small caps: {cfg.allow_small_caps} | Defensive: {cfg.prefer_defensive}")
+                # V6.1: Activate Discovery Mode in BULL regime
+                if regime.value == "bull" and self.discovery_mode:
+                    logger.info("🔍 BULL REGIME - Discovery Mode ACTIVE (searching for hidden gems)")
+            except Exception as e:
+                logger.warning(f"Regime detection failed: {e}")
 
             try:
                 # 1. Vérifier la session de marché
@@ -439,7 +458,7 @@ class LiveLoop:
                 logger.info(f"   🏢 Piliers L2: Health={alert.get('l2_health_score',0)}/20, Context={alert.get('l2_context_score',0)}/10, Sentiment={alert.get('l2_sentiment_score',0)}/30 | ELITE={alert.get('l2_is_elite', False)}")
 
         # Filtrer par score minimum (BUY >= 55, STRONG_BUY >= 75)
-        min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 55
+        min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 75
         if confidence < min_score:
             logger.info(f"⏭️ Signal {symbol} skipped: score {confidence} < {min_score}")
             return

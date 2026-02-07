@@ -53,6 +53,14 @@ except ImportError:
     ML_PILLAR_AVAILABLE = False
     MLPillar = None
 
+# V6 - Knowledge Engine (learns from mistakes and explosions)
+try:
+    from src.learning.knowledge_engine import get_knowledge_engine, KnowledgeEngine
+    KNOWLEDGE_ENGINE_AVAILABLE = True
+except ImportError:
+    KNOWLEDGE_ENGINE_AVAILABLE = False
+    KnowledgeEngine = None
+
 
 from src.intelligence.market_context import (
     MarketContext,
@@ -137,6 +145,11 @@ class ReasoningConfig:
     news_weight: float = 0.10
     ml_weight: float = 0.15  # V5.3 - ML Pillar
 
+    # V5.4 - ML Confirmation Gate
+    ml_confirmation_enabled: bool = True   # Require ML to confirm BUY signals
+    ml_confirmation_threshold: float = 40  # Min ML score to allow BUY (0-100 scale)
+    ml_confirmation_boost: float = 5       # Bonus points if ML score > 60
+
     # V4.8: Decision thresholds on DISPLAY scale (0-100)
     # This matches the UI display for user clarity
     # Old internal scale was -100 to +100, now unified to 0-100
@@ -193,6 +206,16 @@ class ReasoningEngine:
                 logger.info(f"[REASONING] Adaptive scoring enabled. Current weights: {self._adaptive_scorer.weights.to_dict()}")
             except Exception as e:
                 logger.warning(f"[REASONING] Adaptive scoring unavailable: {e}")
+        
+        # V6 - Knowledge Engine
+        self._knowledge_engine = None
+        if KNOWLEDGE_ENGINE_AVAILABLE:
+            try:
+                self._knowledge_engine = get_knowledge_engine()
+                stats = self._knowledge_engine.get_statistics()
+                logger.info(f"[REASONING] Knowledge Engine enabled. Lessons: {stats.get('lessons_learned', 0)}, Mistakes recorded: {stats.get('total_mistakes_recorded', 0)}")
+            except Exception as e:
+                logger.warning(f"[REASONING] Knowledge Engine unavailable: {e}")
 
         self._initialized = False
 
@@ -386,6 +409,53 @@ class ReasoningEngine:
 
         # Determine decision (now comparing display scale against display thresholds)
         decision = self._get_decision(total_score)
+        
+        # V5.4 - ML Confirmation Gate: ML must confirm BUY signals
+        ml_confirmation_applied = False
+        original_decision = decision
+        if self.config.ml_confirmation_enabled and ml_score:
+            ml_display_score = (ml_score.score + 100) / 2  # Convert to 0-100 scale
+            
+            if decision in (DecisionType.BUY, DecisionType.STRONG_BUY):
+                if ml_display_score < self.config.ml_confirmation_threshold:
+                    # ML does not confirm the buy signal - downgrade to HOLD
+                    logger.warning(f"[ML GATE] {symbol}: ML score {ml_display_score:.1f} < {self.config.ml_confirmation_threshold} - Downgrading {decision.value} to HOLD")
+                    decision = DecisionType.HOLD
+                    ml_confirmation_applied = True
+                elif ml_display_score >= 60:
+                    # ML strongly confirms - apply bonus
+                    total_score = min(100, total_score + self.config.ml_confirmation_boost)
+                    logger.info(f"[ML GATE] {symbol}: ML confirmation boost applied (+{self.config.ml_confirmation_boost} pts)")
+        
+        # V6 - Knowledge Engine checks (learn from mistakes)
+        knowledge_warnings = []
+        if self._knowledge_engine and KNOWLEDGE_ENGINE_AVAILABLE:
+            try:
+                # Build indicator dict for knowledge checks
+                indicator_data = {
+                    'rsi': technical_score.details.get('rsi', 50) if technical_score.details else 50,
+                    'volume_ratio': technical_score.details.get('volume_ratio', 1) if technical_score.details else 1,
+                    'market_cap': fundamental_score.details.get('market_cap', 1e12) if fundamental_score.details else 1e12,
+                    'price_vs_sma50': technical_score.details.get('price_vs_sma50', 0) if technical_score.details else 0,
+                }
+                
+                # Check for trap patterns
+                traps = self._knowledge_engine.check_for_traps(indicator_data)
+                for trap in traps:
+                    knowledge_warnings.append(f"⚠️ TRAP: {trap['description']}")
+                    # Reduce confidence if trap detected
+                    if decision in (DecisionType.BUY, DecisionType.STRONG_BUY):
+                        total_score = max(0, total_score - trap.get('confidence_reduction', 0.2) * 20)
+                        logger.warning(f"[KNOWLEDGE] {symbol}: Trap detected - {trap['trap']}")
+                
+                # Get relevant lessons
+                lessons = self._knowledge_engine.get_relevant_lessons(indicator_data)
+                for lesson in lessons[:2]:  # Top 2 lessons
+                    if lesson.lesson_type == "mistake" and decision in (DecisionType.BUY, DecisionType.STRONG_BUY):
+                        knowledge_warnings.append(f"📚 Lesson: {lesson.title}")
+                
+            except Exception as e:
+                logger.debug(f"[KNOWLEDGE] Error checking knowledge: {e}")
 
         # Calculate overall confidence
         confidence = self._calculate_overall_confidence([
@@ -411,6 +481,19 @@ class ReasoningEngine:
         # Add market context risks
         if market_context:
             risk_factors.extend(self._get_market_context_risks(market_context))
+        
+        # V5.4 - Add ML confirmation status to factors
+        if ml_confirmation_applied:
+            risk_factors.insert(0, f"⚠️ ML Confirmation Failed: ML score too low, original {original_decision.value} downgraded to HOLD")
+        elif ml_score and self.config.ml_confirmation_enabled:
+            ml_display = (ml_score.score + 100) / 2
+            if ml_display >= 60:
+                key_factors.insert(0, {"factor": f"✅ ML Confirmation: Strong ({ml_display:.0f}/100)", "weight": 0.2, "direction": "bullish"})
+        
+        # V6 - Add knowledge warnings
+        if knowledge_warnings:
+            for warning in knowledge_warnings:
+                risk_factors.insert(0, warning)
 
         return ReasoningResult(
             symbol=symbol,

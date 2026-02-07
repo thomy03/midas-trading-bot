@@ -269,14 +269,32 @@ class PaperTrader:
             stop_loss = price * (1 - sl_pct)
             take_profit = price * (1 + tp_pct)
         
-        # Calculate position size based on risk (1% risk per trade)
+        # Calculate position size based on confidence/score
+        # Higher score = bigger position
+        if score >= 90:
+            risk_pct = 1.5  # High conviction
+            max_pos_pct = 0.10  # 10%
+        elif score >= 85:
+            risk_pct = 1.2
+            max_pos_pct = 0.08  # 8%
+        elif score >= 80:
+            risk_pct = 1.0
+            max_pos_pct = 0.06  # 6%
+        elif score >= 75:
+            risk_pct = 0.7
+            max_pos_pct = 0.05  # 5%
+        else:
+            risk_pct = 0.5
+            max_pos_pct = 0.03  # 3%
+        
         quantity = calculate_position_size_from_risk(
             capital=self.get_total_value(),
             entry_price=price,
             stop_loss=stop_loss,
-            risk_per_trade_pct=1.0,  # Risk 1% of capital per trade
-            max_position_pct=self.max_position_pct * 100
+            risk_per_trade_pct=risk_pct,
+            max_position_pct=max_pos_pct * 100
         )
+        logger.info(f"{symbol}: Score={score:.1f} -> Risk={risk_pct}%, MaxPos={max_pos_pct*100}%")
         
         if quantity < 1:
             logger.warning(f"Cannot afford even 1 share of {symbol} at {price}")
