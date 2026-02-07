@@ -68,6 +68,14 @@ from src.intelligence.market_context import (
     VolatilityRegime,
     get_market_context,
 )
+# V6.2 - Adaptive ML Gate (volatility-based)
+try:
+    from .adaptive_ml_gate import get_ml_gate, AdaptiveMLGate
+    ADAPTIVE_ML_GATE_AVAILABLE = True
+except ImportError:
+    ADAPTIVE_ML_GATE_AVAILABLE = False
+    print('[WARNING] Adaptive ML Gate not available')
+
 
 logger = logging.getLogger(__name__)
 
@@ -522,6 +530,23 @@ class ReasoningEngine:
             reasoning="Pillar analysis failed",
             data_quality=0.0
         )
+
+
+    def _calculate_volatility(self, symbol: str, period: int = 20) -> float:
+        """Calculate recent volatility for adaptive ML Gate"""
+        try:
+            import yfinance as yf
+            df = yf.download(symbol, period='1mo', progress=False)
+            if len(df) >= period:
+                close = df['Close'].values.flatten() if hasattr(df['Close'].values, 'flatten') else df['Close'].values
+                returns = []
+                for i in range(1, min(period+1, len(close))):
+                    returns.append((close[i] - close[i-1]) / close[i-1])
+                import numpy as np
+                return float(np.std(returns)) if returns else 0.02
+            return 0.02
+        except:
+            return 0.02
 
     def _get_decision(self, total_score: float) -> DecisionType:
         """Determine decision based on total score (display scale 0-100)
