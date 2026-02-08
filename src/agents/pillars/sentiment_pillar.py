@@ -35,9 +35,16 @@ class SentimentPillar(BasePillar):
     Sentiment analysis pillar using Grok for X/Twitter analysis.
     """
 
-    def __init__(self, weight: float = 0.25):
+    def __init__(self, weight: float = 0.25, contrarian_mode: bool = True):
         super().__init__(weight)
         self._cache_ttl = 600  # 10 min cache for sentiment
+
+        # V6.2: Contrarian mode - extreme sentiment becomes a contrary signal
+        # Euphoria (>85) = RED FLAG (potential top), Panic (<15) = OPPORTUNITY
+        self.contrarian_mode = contrarian_mode
+        self.contrarian_euphoria_threshold = 85   # Score above this = extreme bullish
+        self.contrarian_panic_threshold = 15      # Score below this = extreme bearish
+        self.contrarian_boost = 15                # Points to add/subtract
 
         # API config
         self.grok_api_key = os.getenv('GROK_API_KEY', '')
@@ -51,7 +58,7 @@ class SentimentPillar(BasePillar):
             'stocktwits': 0.30,
             'smart_signals': 0.20  # V6 - Learned weak signals (influencers, events)
         }
-        
+
         # V6 - Smart Signal Learner
         self._signal_learner = None
         if SIGNAL_LEARNER_AVAILABLE:
@@ -149,6 +156,38 @@ class SentimentPillar(BasePillar):
                 ) / total_weight * (total_weight / sum(self.source_weights.values()))
             else:
                 total_score = 0
+
+            # V6.2: Contrarian adjustment - extreme sentiment is a contrary signal
+            # Research shows retail sentiment (Twitter/StockTwits) is contrarian:
+            # extreme euphoria often precedes tops, extreme panic often precedes bottoms.
+            if self.contrarian_mode and total_score != 0:
+                original_score = total_score
+                # Normalize to 0-100 for threshold comparison
+                normalized = (total_score + 100) / 2  # -100..+100 -> 0..100
+
+                if normalized > self.contrarian_euphoria_threshold:
+                    # Extreme bullish sentiment -> RED FLAG, reduce score
+                    total_score -= self.contrarian_boost
+                    factors.append({
+                        'source': 'contrarian_adjustment',
+                        'score': -self.contrarian_boost,
+                        'message': f"Contrarian: Extreme euphoria detected (score {normalized:.0f}/100) -> reducing score by {self.contrarian_boost}",
+                        'description': 'Extreme bullish retail sentiment often signals a local top'
+                    })
+                    logger.info(f"[SENTIMENT] {symbol}: CONTRARIAN euphoria adjustment {original_score:.0f} -> {total_score:.0f}")
+                elif normalized < self.contrarian_panic_threshold:
+                    # Extreme bearish sentiment -> OPPORTUNITY, boost score
+                    total_score += self.contrarian_boost
+                    factors.append({
+                        'source': 'contrarian_adjustment',
+                        'score': self.contrarian_boost,
+                        'message': f"Contrarian: Extreme panic detected (score {normalized:.0f}/100) -> boosting score by {self.contrarian_boost}",
+                        'description': 'Extreme bearish retail sentiment often signals a buying opportunity'
+                    })
+                    logger.info(f"[SENTIMENT] {symbol}: CONTRARIAN panic adjustment {original_score:.0f} -> {total_score:.0f}")
+
+                # Clamp
+                total_score = max(-100, min(100, total_score))
 
             # Data quality based on sources available
             data_quality = total_weight / sum(self.source_weights.values())

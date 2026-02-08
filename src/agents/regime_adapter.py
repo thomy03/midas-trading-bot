@@ -131,7 +131,7 @@ class RegimeAdapter:
         self.regime_confidence = 0.0
         self.last_detection = None
         
-    def detect_regime(self) -> tuple[MarketRegime, float]:
+    def detect_regime(self):
         """Detect current market regime using SPY and VIX"""
         try:
             # Get SPY data

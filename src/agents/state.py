@@ -8,7 +8,7 @@ import json
 import logging
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, date, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from enum import Enum
 
 logger = logging.getLogger(__name__)
@@ -285,7 +285,7 @@ class StateManager:
 
         logger.info(f"Market regime updated: {regime.value} (confidence: {confidence:.1%})")
 
-    def get_market_regime(self) -> tuple[MarketRegime, float]:
+    def get_market_regime(self) -> Tuple[MarketRegime, float]:
         """Retourne le régime de marché actuel et sa confiance"""
         return MarketRegime(self.state.market_regime), self.state.regime_confidence
 

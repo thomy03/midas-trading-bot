@@ -32,6 +32,20 @@ except ImportError:
     PORTFOLIO_TRACKER_AVAILABLE = False
     record_snapshot = None
 
+# V7 - Risk management integration
+try:
+    from ..execution.defensive_manager import DefensiveManager, get_defensive_manager
+    from ..execution.correlation_manager import CorrelationManager, CorrelationConfig, PortfolioPosition, get_correlation_manager
+    from ..execution.position_manager import AdaptivePositionManager, get_position_manager
+    from ..execution.position_sizer import PositionSizer, get_position_sizer
+    RISK_MANAGEMENT_AVAILABLE = True
+except ImportError:
+    RISK_MANAGEMENT_AVAILABLE = False
+    DefensiveManager = None
+    CorrelationManager = None
+    AdaptivePositionManager = None
+    PositionSizer = None
+
 # V4 - Multi-pillar reasoning (4 pillars: technique, fondamental, sentiment, news)
 try:
     from .reasoning_engine import ReasoningEngine, get_reasoning_engine, DecisionType
@@ -79,6 +93,14 @@ class LiveLoopConfig:
     analyze_when_closed: bool = True  # Analyse meme hors marche
     paper_trading: bool = True
 
+    # V7: Risk management
+    enable_defensive_mode: bool = True
+    enable_correlation_checks: bool = True
+    enable_position_monitor: bool = True
+    daily_loss_limit_pct: float = 0.03     # 3% daily loss -> pause
+    max_drawdown_pct: float = 0.15         # 15% drawdown -> max defensive
+    consecutive_loss_limit: int = 5        # 5 losses -> defensive mode
+
     # Limites
     max_concurrent_screens: int = 3
     max_heat_sources: int = 5
@@ -122,6 +144,13 @@ class LiveLoop:
         self.regime_adapter = get_regime_adapter()
         self.current_regime = MarketRegime.RANGE
         self.discovery_mode = get_discovery_mode()
+
+        # V7: Risk management components
+        self.defensive_manager: Optional[DefensiveManager] = None
+        self.correlation_manager: Optional[CorrelationManager] = None
+        self.position_monitor: Optional[AdaptivePositionManager] = None
+        self._position_monitor_task: Optional[asyncio.Task] = None
+        self._consecutive_losses: int = 0
 
         # Components (initialisés dans initialize())
         self.guardrails: Optional[Guardrails] = None
@@ -177,6 +206,13 @@ class LiveLoop:
                 self.config.notification_callback
             )
 
+        # V7: Initialize risk management
+        if RISK_MANAGEMENT_AVAILABLE:
+            self.defensive_manager = get_defensive_manager()
+            self.correlation_manager = get_correlation_manager()
+            self.position_monitor = get_position_manager()
+            logger.info("V7 Risk management initialized")
+
         logger.info("LiveLoop initialized successfully")
 
     def set_signal_callback(self, callback: Callable):
@@ -211,12 +247,16 @@ class LiveLoop:
         self._heat_task = asyncio.create_task(self._heat_loop())
         self._health_task = asyncio.create_task(self._health_loop())
 
+        # V7: Position monitor loop
+        if self.config.enable_position_monitor and self.position_monitor:
+            self._position_monitor_task = asyncio.create_task(self._position_monitor_loop())
+
+        tasks = [self._main_task, self._heat_task, self._health_task]
+        if self._position_monitor_task:
+            tasks.append(self._position_monitor_task)
+
         try:
-            await asyncio.gather(
-                self._main_task,
-                self._heat_task,
-                self._health_task
-            )
+            await asyncio.gather(*tasks)
         except asyncio.CancelledError:
             logger.info("LiveLoop tasks cancelled")
         finally:
@@ -230,7 +270,7 @@ class LiveLoop:
         self._shutdown_event.set()
 
         # Annuler les tâches
-        for task in [self._main_task, self._heat_task, self._health_task]:
+        for task in [self._main_task, self._heat_task, self._health_task, self._position_monitor_task]:
             if task and not task.done():
                 task.cancel()
 
@@ -479,6 +519,66 @@ class LiveLoop:
             logger.warning(f"Trade blocked by guardrail: {e}")
             return
 
+        # V7: Sector-regime score adjustment
+        try:
+            from src.agents.sector_regime_scorer import get_sector_regime_scorer
+            regime_str = self.current_regime.value.upper() if hasattr(self.current_regime, 'value') else 'RANGE'
+            sector_scorer = get_sector_regime_scorer()
+            sector_adj = sector_scorer.get_adjustment(
+                symbol, regime=regime_str,
+                sector=alert.get('sector'),
+                market_cap=alert.get('market_cap'),
+            )
+            if abs(sector_adj) > 0:
+                confidence = max(0, min(100, confidence + sector_adj))
+                alert['confidence_score'] = confidence
+                logger.debug(f"[SECTOR] {symbol} score adjusted by {sector_adj:+.1f} -> {confidence:.1f}")
+        except Exception as e:
+            logger.debug(f"Sector scoring not available: {e}")
+
+        # V7: Defensive mode check
+        if self.defensive_manager and self.config.enable_defensive_mode and RISK_MANAGEMENT_AVAILABLE:
+            try:
+                regime_str = self.current_regime.value.upper() if hasattr(self.current_regime, 'value') else 'RANGE'
+                level = self.defensive_manager.get_defensive_level(
+                    regime=regime_str,
+                    consecutive_losses=self._consecutive_losses
+                )
+                allowed, reason = self.defensive_manager.should_enter_trade(
+                    score=confidence,
+                    current_positions=len(get_paper_trader().portfolio.positions) if hasattr(get_paper_trader(), 'portfolio') else 0
+                )
+                if not allowed:
+                    logger.info(f"[DEFENSIVE] Trade {symbol} blocked: {reason}")
+                    return
+            except Exception as e:
+                logger.warning(f"Defensive check error: {e}")
+
+        # V7: Correlation check
+        if self.correlation_manager and self.config.enable_correlation_checks and RISK_MANAGEMENT_AVAILABLE:
+            try:
+                paper_trader = get_paper_trader()
+                if hasattr(paper_trader, 'portfolio') and paper_trader.portfolio.positions:
+                    existing = [
+                        PortfolioPosition(
+                            symbol=p.symbol,
+                            sector=getattr(p, 'sector', 'Unknown'),
+                            value=p.quantity * (p.current_price if hasattr(p, 'current_price') and p.current_price else p.entry_price)
+                        )
+                        for p in paper_trader.portfolio.positions
+                    ]
+                    total_value = sum(p.value for p in existing) + paper_trader.portfolio.cash
+                    allowed, reason = self.correlation_manager.check_new_position(
+                        new_symbol=symbol,
+                        existing_positions=existing,
+                        total_portfolio_value=total_value
+                    )
+                    if not allowed:
+                        logger.info(f"[CORRELATION] Trade {symbol} blocked: {reason}")
+                        return
+            except Exception as e:
+                logger.warning(f"Correlation check error: {e}")
+
         # Journaliser la décision
         decision = await self.decision_journal.log_decision(
             symbol=symbol,
@@ -618,6 +718,27 @@ class LiveLoop:
         
         if self._on_trade_callback:
             await self._on_trade_callback(alert, decision)
+
+    # -------------------------------------------------------------------------
+    # V7: POSITION MONITOR LOOP
+    # -------------------------------------------------------------------------
+
+    async def _position_monitor_loop(self):
+        """V7: Monitor open positions for exit signals every 60 seconds."""
+        logger.info("V7 Position monitor loop started")
+        while self._running and not self._shutdown_event.is_set():
+            try:
+                if self.position_monitor and self.position_monitor.positions:
+                    for symbol in list(self.position_monitor.positions.keys()):
+                        exit_signal = self.position_monitor.check_exit(symbol)
+                        if exit_signal:
+                            reason, details = exit_signal
+                            logger.info(f"[MONITOR] Exit signal for {symbol}: {reason.value} - {details}")
+                            await self.position_monitor.execute_exit(symbol, reason, details)
+            except Exception as e:
+                logger.error(f"Position monitor error: {e}")
+            await asyncio.sleep(60)
+        logger.info("V7 Position monitor loop ended")
 
     # -------------------------------------------------------------------------
     # HEAT DETECTION LOOP
@@ -847,6 +968,16 @@ class LiveLoop:
             # Drawdown check
             drawdown = self.state.get_current_drawdown()
             await self.guardrails.check_drawdown(drawdown)
+
+            # V7: Circuit breakers
+            if daily_pnl < -(self.config.daily_loss_limit_pct * 100):
+                logger.warning(f"[CIRCUIT BREAKER] Daily loss {daily_pnl:.1f}% exceeds limit")
+                return False
+
+            if drawdown > self.config.max_drawdown_pct * 100:
+                if self.defensive_manager:
+                    self.defensive_manager.get_defensive_level('VOLATILE', vix_level=40, drawdown_pct=drawdown/100)
+                logger.warning(f"[CIRCUIT BREAKER] Drawdown {drawdown:.1f}% -> MAXIMUM defensive")
 
             # Position count
             position_count = self.state.get_open_positions_count()

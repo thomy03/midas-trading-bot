@@ -118,16 +118,31 @@ class MLPillar(BasePillar):
     
     def __init__(self, weight: float = 0.25, model_path: str = None):
         super().__init__(weight)
-        self.model_path = model_path or '/app/data/ml_model.joblib'
+        # V7: Try trained model first, then fallback to legacy path
+        self.model_path = model_path or self._find_model_path()
         self.scaler_path = self.model_path.replace('.joblib', '_scaler.joblib')
-        
+
         self.model = None
         self.scaler = None
         self.feature_names = self._get_all_features()
         self.last_regime: Optional[MarketRegime] = None
-        
+        self._using_v7_model = False
+
         # Load existing model if available
         self._load_model()
+
+    @staticmethod
+    def _find_model_path() -> str:
+        """V7: Look for trained model in multiple locations."""
+        candidates = [
+            'models/ml_model_v7.joblib',         # V7 trained model
+            '/app/models/ml_model_v7.joblib',     # Docker path
+            '/app/data/ml_model.joblib',          # Legacy path
+        ]
+        for path in candidates:
+            if os.path.exists(path):
+                return path
+        return candidates[0]  # Default to V7 path
     
     def _get_all_features(self) -> List[str]:
         """Get flat list of all feature names"""

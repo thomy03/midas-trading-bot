@@ -1,25 +1,27 @@
 {
-  "description": "Pillar weights for Midas scoring system - Optimized for BULL regime",
-  "version": "2.0.0",
-  "updated": "2026-02-05",
-  
+  "description": "Pillar weights for Midas V7 scoring system",
+  "version": "3.0.0",
+  "updated": "2026-02-08",
+
   "base_weights": {
     "technical": 0.25,
     "fundamental": 0.20,
     "sentiment": 0.15,
-    "momentum": 0.20,
-    "trend": 0.20
+    "news": 0.05,
+    "ml": 0.20,
+    "trend": 0.15
   },
-  
+
   "regime_adjustments": {
     "BULL": {
-      "description": "BULL market - Favor momentum and trend following",
+      "description": "BULL market - Favor ML and trend following",
       "technical": 0.22,
       "fundamental": 0.15,
       "sentiment": 0.12,
-      "momentum": 0.26,
-      "trend": 0.25,
-      
+      "news": 0.05,
+      "ml": 0.26,
+      "trend": 0.20,
+
       "sub_weights": {
         "momentum": {
           "rsi_momentum": 0.30,
@@ -34,7 +36,7 @@
           "support_respect": 0.20
         }
       },
-      
+
       "parameters": {
         "target_multiplier": 1.20,
         "trailing_stop_atr": 2.0,
@@ -44,15 +46,16 @@
         "momentum_threshold": 0.55
       }
     },
-    
+
     "VOLATILE": {
-      "description": "VOLATILE market - Technical signals more important",
+      "description": "VOLATILE market - Technical signals more important, ML reduced",
       "technical": 0.30,
       "fundamental": 0.18,
       "sentiment": 0.17,
-      "momentum": 0.18,
-      "trend": 0.17,
-      
+      "news": 0.05,
+      "ml": 0.18,
+      "trend": 0.12,
+
       "parameters": {
         "target_multiplier": 0.95,
         "trailing_stop_atr": 2.5,
@@ -61,15 +64,16 @@
         "min_trend_strength": 0.5
       }
     },
-    
+
     "BEAR": {
-      "description": "BEAR market - Conservative, favor fundamentals",
+      "description": "BEAR market - Conservative, favor fundamentals and sentiment (contrarian)",
       "technical": 0.22,
       "fundamental": 0.28,
       "sentiment": 0.18,
-      "momentum": 0.16,
-      "trend": 0.16,
-      
+      "news": 0.05,
+      "ml": 0.16,
+      "trend": 0.11,
+
       "parameters": {
         "target_multiplier": 0.85,
         "trailing_stop_atr": 1.5,
@@ -78,15 +82,16 @@
         "min_trend_strength": 0.7
       }
     },
-    
-    "SIDEWAYS": {
-      "description": "SIDEWAYS market - Range trading focus",
+
+    "RANGE": {
+      "description": "RANGE/SIDEWAYS market - Balanced approach",
       "technical": 0.28,
       "fundamental": 0.22,
       "sentiment": 0.15,
-      "momentum": 0.17,
-      "trend": 0.18,
-      
+      "news": 0.05,
+      "ml": 0.17,
+      "trend": 0.13,
+
       "parameters": {
         "target_multiplier": 0.90,
         "trailing_stop_atr": 1.8,
@@ -96,7 +101,7 @@
       }
     }
   },
-  
+
   "scoring_thresholds": {
     "strong_buy": 0.75,
     "buy": 0.60,
@@ -104,13 +109,13 @@
     "sell": 0.30,
     "strong_sell": 0.20
   },
-  
-  "bull_optimization_notes": [
-    "Increased momentum weight from 0.20 to 0.26 in BULL",
-    "Increased trend weight from 0.20 to 0.25 in BULL",
-    "Reduced sentiment weight (often lagging in strong trends)",
-    "Extended max_hold_days from 10 to 15 in BULL",
-    "Added 20% target multiplier in BULL regime",
-    "Increased pullback_tolerance to avoid premature exits"
+
+  "v7_notes": [
+    "V7: Added 'ml' and 'news' pillar keys (backtester uses these)",
+    "V7: Renamed SIDEWAYS to RANGE for consistency with MarketRegime enum",
+    "V7: 'trend' weight is folded into 'technical' in backtester scoring",
+    "V7: Weights will be optimized by threshold_optimizer.py on validation data",
+    "V7: ML pillar now uses trained model instead of heuristic (Mode E)",
+    "V7: Sentiment uses enhanced VIX proxy with spike/trend detection"
   ]
 }

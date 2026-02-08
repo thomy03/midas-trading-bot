@@ -13,7 +13,7 @@ import logging
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 import yfinance as yf
 from .dynamic_stops import calculate_dynamic_stops, calculate_position_size_from_risk
 
@@ -212,7 +212,7 @@ class PaperTrader:
             return pos.current_price * pos.quantity
         return 0.0
     
-    def can_open_position(self, symbol: str, price: float) -> tuple[bool, str]:
+    def can_open_position(self, symbol: str, price: float) -> Tuple[bool, str]:
         """Check if we can open a new position"""
         # Already have position?
         if symbol in self.positions:
