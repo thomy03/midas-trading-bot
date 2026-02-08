@@ -1,1 +1,0 @@
-"""Trendline analysis configuration"""

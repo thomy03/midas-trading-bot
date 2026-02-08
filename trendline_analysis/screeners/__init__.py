@@ -1,1 +1,0 @@
-"""Trendline-based screening components"""
