@@ -77,16 +77,20 @@ class V6BacktestConfig:
     max_positions: int = 20
     position_size_pct: float = 0.10       # 10% of CURRENT capital per position
 
+    # V7.1: Leverage / margin trading
+    leverage: float = 1.3                  # 1.3x = 130% buying power (optimized, IBKR Reg T allows 2x)
+    margin_cost_annual: float = 0.06       # Annual margin interest rate (6% IBKR)
+
     # Scoring thresholds
     # Live system uses 75 with all 5 real pillars.
     # In backtest, sentiment/news are neutral (50) or VIX proxy, which drags
-    # weighted scores toward the mean. 65 is calibrated for backtest score distributions.
-    buy_threshold: float = 65.0           # Score >= 65 -> BUY (calibrated for backtest)
+    # weighted scores toward the mean. 55 is optimized via parameter sweep.
+    buy_threshold: float = 55.0           # Score >= 55 -> BUY (optimized from 65)
     sell_threshold: float = 40.0          # Score < 40 -> SELL signal
 
     # Exit parameters
     default_stop_loss_pct: float = 0.08   # 8% default stop
-    trailing_atr_multiplier: float = 2.5  # Trailing stop = entry - ATR * multiplier
+    trailing_atr_multiplier: float = 3.5  # Trailing stop = entry - ATR * multiplier (optimized from 2.5)
     max_hold_days: int = 120
 
     # ML Gate
@@ -103,8 +107,8 @@ class V6BacktestConfig:
     volatile_vix_threshold: float = 30.0
     volatile_vol_threshold: float = 35.0
 
-    # Scoring mode (A/B/C/D comparison)
-    scoring_mode: ScoringMode = ScoringMode.THREE_PILLARS_VIX
+    # Scoring mode (A/B/C/D/E comparison) - B outperforms C (VIX proxy hurts)
+    scoring_mode: ScoringMode = ScoringMode.THREE_PILLARS
 
     # Transaction costs
     costs: TransactionCosts = field(default_factory=TransactionCosts)
@@ -128,8 +132,53 @@ class V6BacktestConfig:
     # V7: Fundamental bias correction
     fundamental_bias_penalty: float = 0.7  # Multiply fundamental score by this (30% penalty)
 
-    # V7: Sector-regime scoring
-    sector_regime_scoring: bool = True     # Apply sector bonus/malus by regime
+    # V7.1: Adaptive profit target exit
+    profit_target_enabled: bool = True
+    profit_target_pct: float = 0.18         # Exit when trade gains >= 18%
+
+    # V7.1: Score-based exit (technical degradation)
+    score_exit_enabled: bool = True
+    score_exit_threshold: float = 35.0      # Exit if tech_score drops below this
+    score_exit_check_interval: int = 5      # Re-check every N days
+
+    # V7.1: Regime-change trailing stop tightening
+    regime_tightening_enabled: bool = True
+    regime_tight_atr_multiplier: float = 2.0  # Tighter ATR multiplier in BEAR/VOLATILE
+
+    # V7.1: Cross-sectional momentum scoring
+    momentum_scoring_enabled: bool = True
+    momentum_lookback_months: int = 6       # Lookback period for relative momentum
+    momentum_bonus_max: float = 10.0        # Max bonus points for top momentum
+    momentum_penalty_max: float = 5.0       # Max penalty for bottom momentum
+
+    # V7.1: Market breadth filter
+    breadth_filter_enabled: bool = True
+    breadth_bearish_threshold: float = 0.30  # Below 30% = reduce sizing
+    breadth_sizing_reduction: float = 0.50   # Reduce to 50% size when breadth bearish
+
+    # V7.1: Regime-adaptive thresholds
+    regime_adaptive_enabled: bool = True
+    regime_buy_thresholds: Dict[str, float] = field(default_factory=lambda: {
+        'BULL': 53.0,
+        'RANGE': 55.0,
+        'BEAR': 60.0,
+        'VOLATILE': 58.0
+    })
+    regime_atr_multipliers: Dict[str, float] = field(default_factory=lambda: {
+        'BULL': 3.5,
+        'RANGE': 3.5,
+        'BEAR': 2.5,
+        'VOLATILE': 2.5
+    })
+
+    # V7.1: Volatility-scaled position sizing
+    vol_scaling_enabled: bool = True
+    vol_target: float = 0.15               # Target annualized vol (15%)
+    vol_scaling_min: float = 0.5            # Min scaling factor (don't go below 50%)
+    vol_scaling_max: float = 1.5            # Max scaling factor (don't go above 150%)
+
+    # V7: Sector-regime scoring (disabled by default - no measurable impact in backtest)
+    sector_regime_scoring: bool = False    # Apply sector bonus/malus by regime
 
     # V7: ML trained model path
     ml_model_path: str = 'models/ml_model_v7.joblib'
@@ -939,6 +988,7 @@ class BacktestPosition:
     regime_at_entry: str
     trailing_atr: float = 0.0   # ATR at entry for trailing stop
     sector: str = 'Unknown'     # V7: For correlation tracking
+    last_score_check_day: int = 0  # V7.1: Last day we checked tech score
 
 
 # ── Main V6 Backtester ──────────────────────────────────────────────────
@@ -997,10 +1047,14 @@ class V6Backtester:
         self.sector_scorer = None
         if self.config.sector_regime_scoring:
             try:
-                from src.agents.sector_regime_scorer import SectorRegimeScorer
-                self.sector_scorer = SectorRegimeScorer()
-            except ImportError:
-                logger.warning("SectorRegimeScorer not available")
+                import importlib.util as _ilu
+                _scorer_path = os.path.join(os.path.dirname(__file__), '..', 'agents', 'sector_regime_scorer.py')
+                _spec = _ilu.spec_from_file_location("sector_regime_scorer", _scorer_path)
+                _mod = _ilu.module_from_spec(_spec)
+                _spec.loader.exec_module(_mod)
+                self.sector_scorer = _mod.SectorRegimeScorer()
+            except Exception as e:
+                logger.warning(f"SectorRegimeScorer not available: {e}")
 
         # V7: Position sizer
         self.position_sizer = None
@@ -1013,6 +1067,118 @@ class V6Backtester:
                 )
             except ImportError:
                 logger.warning("PositionSizer not available - using fixed sizing")
+
+    def _compute_momentum_scores(
+        self,
+        symbol_data: Dict[str, pd.DataFrame],
+        date: pd.Timestamp
+    ) -> Dict[str, float]:
+        """V7.1: Cross-sectional momentum scoring.
+
+        Computes relative return of each symbol vs the median of the group
+        over the lookback period. Returns bonus/penalty in points.
+        """
+        if not self.config.momentum_scoring_enabled:
+            return {}
+
+        lookback_days = self.config.momentum_lookback_months * 21  # ~21 trading days/month
+        returns = {}
+        for sym, df in symbol_data.items():
+            if date not in df.index:
+                continue
+            loc = df.index.get_loc(date)
+            if loc < lookback_days:
+                continue
+            price_now = float(df['Close'].iloc[loc])
+            price_past = float(df['Close'].iloc[loc - lookback_days])
+            if price_past > 0:
+                returns[sym] = (price_now - price_past) / price_past
+
+        if len(returns) < 5:
+            return {}
+
+        median_ret = np.median(list(returns.values()))
+        scores = {}
+        sorted_rets = sorted(returns.values())
+        n = len(sorted_rets)
+
+        for sym, ret in returns.items():
+            # Rank-based: percentile position
+            rank = sum(1 for r in sorted_rets if r <= ret) / n
+            if rank >= 0.75:
+                # Top quartile: bonus proportional to rank
+                scores[sym] = self.config.momentum_bonus_max * (rank - 0.75) / 0.25
+            elif rank <= 0.25:
+                # Bottom quartile: penalty proportional to rank
+                scores[sym] = -self.config.momentum_penalty_max * (0.25 - rank) / 0.25
+            else:
+                scores[sym] = 0.0
+
+        return scores
+
+    def _compute_breadth(
+        self,
+        symbol_data: Dict[str, pd.DataFrame],
+        date: pd.Timestamp
+    ) -> float:
+        """V7.1: Market breadth - % of symbols above their EMA50.
+
+        Returns a float 0.0-1.0 representing the fraction of symbols
+        whose close is above their 50-day EMA.
+        """
+        above = 0
+        total = 0
+        for sym, df in symbol_data.items():
+            if date not in df.index:
+                continue
+            loc = df.index.get_loc(date)
+            if loc < 50:
+                continue
+            total += 1
+            ind = self.tech_scorer._indicators.get(sym)
+            if ind is not None and loc < len(ind.ema50):
+                if float(ind.close.iloc[loc]) > float(ind.ema50.iloc[loc]):
+                    above += 1
+        return above / total if total > 0 else 0.5
+
+    def _get_vol_scaling_factor(
+        self,
+        symbol_data: Dict[str, pd.DataFrame],
+        date: pd.Timestamp
+    ) -> float:
+        """V7.1: Volatility-scaled position sizing factor.
+
+        Returns a multiplier for position size based on realized market vol
+        vs target vol. If realized vol is 2x target, factor = 0.5.
+        """
+        if not self.config.vol_scaling_enabled:
+            return 1.0
+
+        # Use SPY realized vol as market proxy
+        spy_key = None
+        for key in self.data_mgr._cache:
+            if key.startswith('SPY_'):
+                spy_key = key
+                break
+        if spy_key is None:
+            return 1.0
+
+        spy_df = self.data_mgr._cache[spy_key]
+        if date not in spy_df.index:
+            return 1.0
+
+        loc = spy_df.index.get_loc(date)
+        if loc < 60:
+            return 1.0
+
+        # 20-day realized annualized vol
+        returns = spy_df['Close'].pct_change().iloc[max(0, loc-20):loc+1]
+        realized_vol = float(returns.std()) * np.sqrt(252)
+        if realized_vol <= 0:
+            return 1.0
+
+        factor = self.config.vol_target / realized_vol
+        return max(self.config.vol_scaling_min, min(self.config.vol_scaling_max, factor))
 
     def run(
         self,
@@ -1077,6 +1243,7 @@ class V6Backtester:
         regime_counts: Dict[str, int] = {'BULL': 0, 'BEAR': 0, 'RANGE': 0, 'VOLATILE': 0}
         gate_stats: Dict[str, int] = {'5P_ONLY': 0, 'ML_BOOST': 0, 'ML_BLOCK': 0, 'ML_NEUTRAL': 0, 'DISABLED': 0}
         score_distribution: List[float] = []  # Track all generated scores
+        total_margin_cost = 0.0  # V7.1: Accumulated margin interest
 
         # Walk forward through trading days
         mode = self.config.scoring_mode
@@ -1101,6 +1268,7 @@ class V6Backtester:
                         vix_20d_ago = float(vix_slice['Close'].iloc[-21])
 
             # Mark-to-market: calculate portfolio value
+            invested_value = 0.0
             portfolio_value = capital
             for pos in positions.values():
                 sym_df = symbol_data.get(pos.symbol)
@@ -1108,7 +1276,18 @@ class V6Backtester:
                     current_price = float(sym_df.loc[date, 'Close'])
                 else:
                     current_price = pos.entry_price
-                portfolio_value += pos.shares * current_price
+                pos_val = pos.shares * current_price
+                invested_value += pos_val
+                portfolio_value += pos_val
+
+            # V7.1: Margin interest cost (daily)
+            # If capital < 0, we're borrowing from broker
+            if capital < 0:
+                daily_rate = self.config.margin_cost_annual / 252
+                margin_interest = abs(capital) * daily_rate
+                capital -= margin_interest
+                portfolio_value -= margin_interest
+                total_margin_cost += margin_interest
 
             equity_history[date] = portfolio_value
 
@@ -1128,7 +1307,8 @@ class V6Backtester:
                     pos.highest_price = current_high
 
                 should_exit, exit_reason = self._check_exit(
-                    pos, current_price, current_low, date, regime
+                    pos, current_price, current_low, date, regime,
+                    symbol_data=symbol_data
                 )
 
                 if should_exit:
@@ -1149,6 +1329,23 @@ class V6Backtester:
             # Get regime-specific weights
             weights = self.config.regime_weights.get(regime.value, self.config.regime_weights['RANGE'])
             regime_stop = self.config.regime_stops.get(regime.value, self.config.default_stop_loss_pct)
+
+            # V7.1: Compute cross-sectional momentum scores for this date
+            momentum_scores = self._compute_momentum_scores(symbol_data, date)
+
+            # V7.1: Compute market breadth
+            breadth = self._compute_breadth(symbol_data, date)
+
+            # V7.1: Compute vol scaling factor
+            vol_scale = self._get_vol_scaling_factor(symbol_data, date)
+
+            # V7.1: Regime-adaptive buy threshold
+            if self.config.regime_adaptive_enabled:
+                effective_buy_threshold = self.config.regime_buy_thresholds.get(
+                    regime.value, self.config.buy_threshold
+                )
+            else:
+                effective_buy_threshold = self.config.buy_threshold
 
             for sym, sym_df in symbol_data.items():
                 if sym in positions:
@@ -1178,24 +1375,33 @@ class V6Backtester:
                     gate_mode = 'DISABLED'
 
                 elif mode == ScoringMode.ML_TRAINED:
-                    # V7 Mode E: Use trained ML model
+                    # V7 Mode E: Use trained ML model as confidence gate
                     fund_score = self.fund_scorer.score(fundamentals.get(sym, {}))
-                    if self.ml_trained and self.ml_trained.is_available:
+                    sentiment_score = self.vix_proxy.score(vix_level, vix_5d_ago, vix_20d_ago)
+
+                    # Base score from non-ML pillars (tech + fund + sentiment)
+                    w_tech = weights.get('technical', 0.25) + weights.get('trend', 0.15)
+                    w_fund = weights.get('fundamental', 0.20)
+                    w_sent = weights.get('sentiment', 0.15)
+                    w_base = w_tech + w_fund + w_sent
+                    base_score = (
+                        tech_score * (w_tech / w_base) +
+                        fund_score * (w_fund / w_base) +
+                        sentiment_score * (w_sent / w_base)
+                    )
+
+                    # Only call expensive ML prediction for promising candidates
+                    ml_score = 50.0
+                    volatility = 0.02
+                    if base_score >= 55.0 and self.ml_trained and self.ml_trained.is_available:
                         ml_score, volatility = self.ml_trained.predict(
                             sym_df, date_loc, regime.value, spy_df, vix_df
                         )
-                    else:
-                        ml_score, volatility = self.tech_scorer.ml_score_at(sym, date_loc)
+                        # ML acts as gate: boost/penalize based on ML confidence
+                        ml_confidence = (ml_score - 50.0) / 50.0  # -1 to +1
+                        ml_adjustment = ml_confidence * 10.0  # +/- 10 points max
+                        base_score = max(0, min(100, base_score + ml_adjustment))
 
-                    sentiment_score = self.vix_proxy.score(vix_level, vix_5d_ago, vix_20d_ago)
-                    news_score = 50.0
-                    base_score = (
-                        tech_score * (weights.get('technical', 0.25) + weights.get('trend', 0.15)) +
-                        fund_score * weights.get('fundamental', 0.20) +
-                        sentiment_score * weights.get('sentiment', 0.15) +
-                        news_score * weights.get('news', 0.05) +
-                        ml_score * weights.get('ml', 0.20)
-                    )
                     gate_mode = 'DISABLED'
 
                 else:
@@ -1252,10 +1458,15 @@ class V6Backtester:
                 else:
                     gated_score = base_score
                 gate_stats[gate_mode] = gate_stats.get(gate_mode, 0) + 1
+
+                # ── V7.1: Add cross-sectional momentum bonus ──
+                if momentum_scores and sym in momentum_scores:
+                    gated_score = max(0, min(100, gated_score + momentum_scores[sym]))
+
                 score_distribution.append(gated_score)
 
                 # ── Entry decision ──
-                if gated_score >= self.config.buy_threshold:
+                if gated_score >= effective_buy_threshold:
                     current_price = float(sym_df.loc[date, 'Close'])
 
                     # V7: Defensive mode check
@@ -1268,15 +1479,16 @@ class V6Backtester:
                         )
                         invested_pct = invested_value / portfolio_value if portfolio_value > 0 else 0
 
-                        # Defensive limits by regime
+                        # Defensive limits by regime (thresholds relative to buy_threshold)
+                        bt = self.config.buy_threshold
                         if regime == MarketRegime.VOLATILE:
-                            max_invested, min_score = 0.15, 90.0
+                            max_invested, min_score = 0.30, bt + 15
                         elif regime == MarketRegime.BEAR:
-                            max_invested, min_score = 0.30, 85.0
+                            max_invested, min_score = 0.50, bt + 10
                         elif regime == MarketRegime.RANGE:
-                            max_invested, min_score = 0.70, 78.0
+                            max_invested, min_score = 0.80, bt + 3
                         else:
-                            max_invested, min_score = 1.0, self.config.buy_threshold
+                            max_invested, min_score = 1.0, bt
 
                         if invested_pct >= max_invested:
                             continue  # Skip - max invested reached
@@ -1304,11 +1516,11 @@ class V6Backtester:
                         max_inv = 1.0
                         if self.config.defensive_mode:
                             if regime == MarketRegime.VOLATILE:
-                                max_inv = 0.15
-                            elif regime == MarketRegime.BEAR:
                                 max_inv = 0.30
+                            elif regime == MarketRegime.BEAR:
+                                max_inv = 0.50
                             elif regime == MarketRegime.RANGE:
-                                max_inv = 0.70
+                                max_inv = 0.80
 
                         sizing = self.position_sizer.calculate_size(
                             capital=capital,
@@ -1321,7 +1533,20 @@ class V6Backtester:
                         )
                         position_value = capital * sizing.adjusted_size_pct
                     else:
-                        position_value = capital * self.config.position_size_pct
+                        # V7.1: Leverage multiplies buying power
+                        buying_power = portfolio_value * self.config.leverage
+                        available = max(0, buying_power - invested_value)
+                        position_value = min(
+                            available * self.config.position_size_pct,
+                            portfolio_value * self.config.position_size_pct * self.config.leverage
+                        )
+
+                    # V7.1: Volatility-scaled sizing
+                    position_value *= vol_scale
+
+                    # V7.1: Breadth filter - reduce sizing in weak markets
+                    if self.config.breadth_filter_enabled and breadth < self.config.breadth_bearish_threshold:
+                        position_value *= self.config.breadth_sizing_reduction
 
                     effective_entry = current_price * self.config.costs.entry_cost_factor()
                     shares = int(position_value / effective_entry)
@@ -1330,9 +1555,17 @@ class V6Backtester:
                         continue
 
                     # ATR-based stop (pre-computed)
+                    # V7.1: Use regime-adaptive ATR multiplier
+                    if self.config.regime_adaptive_enabled:
+                        entry_atr_mult = self.config.regime_atr_multipliers.get(
+                            regime.value, self.config.trailing_atr_multiplier
+                        )
+                    else:
+                        entry_atr_mult = self.config.trailing_atr_multiplier
+
                     if atr_val > 0:
                         trailing_atr = atr_val
-                        stop_loss = current_price - (atr_val * self.config.trailing_atr_multiplier)
+                        stop_loss = current_price - (atr_val * entry_atr_mult)
                         # Clamp to regime stop
                         max_stop = current_price * (1 - regime_stop)
                         stop_loss = max(stop_loss, max_stop)
@@ -1346,9 +1579,11 @@ class V6Backtester:
                         tight_stop = current_price * (1 - tight_stop_pct)
                         stop_loss = max(stop_loss, tight_stop)
 
-                    # Deduct cost from capital
+                    # Deduct cost from capital (can go negative with leverage = margin borrowing)
                     total_cost = effective_entry * shares + self.config.costs.commission_per_trade
-                    if total_cost > capital:
+                    # V7.1: With leverage, max borrowable = (leverage - 1) * portfolio_value
+                    max_margin = (self.config.leverage - 1) * portfolio_value
+                    if total_cost > capital + max_margin:
                         continue
 
                     capital -= effective_entry * shares + self.config.costs.commission_per_trade
@@ -1458,21 +1693,49 @@ class V6Backtester:
         current_price: float,
         current_low: float,
         date: pd.Timestamp,
-        regime: MarketRegime
+        regime: MarketRegime,
+        symbol_data: Dict[str, pd.DataFrame] = None
     ) -> Tuple[bool, str]:
         """Check exit conditions for a position."""
         # Stop loss hit
         if current_low <= pos.stop_loss:
             return True, 'stop_loss'
 
-        # Trailing stop (ATR-based)
+        hold_days = (date - pos.entry_date).days
+
+        # V7.1: Adaptive profit target exit
+        if self.config.profit_target_enabled:
+            gain_pct = (current_price - pos.entry_price) / pos.entry_price
+            if gain_pct >= self.config.profit_target_pct:
+                return True, 'profit_target'
+
+        # V7.1: Regime-change trailing stop tightening
+        # Use tighter ATR multiplier if regime is BEAR/VOLATILE
         if pos.trailing_atr > 0:
-            trailing_stop = pos.highest_price - (pos.trailing_atr * self.config.trailing_atr_multiplier)
+            if self.config.regime_tightening_enabled and regime in (MarketRegime.BEAR, MarketRegime.VOLATILE):
+                atr_mult = self.config.regime_tight_atr_multiplier
+            elif self.config.regime_adaptive_enabled:
+                atr_mult = self.config.regime_atr_multipliers.get(
+                    regime.value, self.config.trailing_atr_multiplier
+                )
+            else:
+                atr_mult = self.config.trailing_atr_multiplier
+            trailing_stop = pos.highest_price - (pos.trailing_atr * atr_mult)
             if current_low <= trailing_stop:
                 return True, 'trailing_stop'
 
+        # V7.1: Score-based exit (technical degradation)
+        if (self.config.score_exit_enabled and symbol_data is not None
+                and hold_days - pos.last_score_check_day >= self.config.score_exit_check_interval):
+            pos.last_score_check_day = hold_days
+            sym_df = symbol_data.get(pos.symbol)
+            if sym_df is not None and date in sym_df.index:
+                date_loc = sym_df.index.get_loc(date)
+                tech_score = self.tech_scorer.score_at(pos.symbol, date_loc)
+                if tech_score < self.config.score_exit_threshold:
+                    return True, 'score_degradation'
+
         # Max hold period
-        hold_days = (date - pos.entry_date).days
         if hold_days >= self.config.max_hold_days:
             return True, 'max_hold_period'
 
