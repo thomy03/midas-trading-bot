@@ -52,7 +52,7 @@ services:
       - "127.0.0.1:8000:8000"
     volumes:
       - ./data:/app/data:ro
-      - ./logs:/app/logs:ro
+      - ./logs:/app/logs
     env_file:
       - .env
     environment:

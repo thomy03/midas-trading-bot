@@ -148,11 +148,15 @@ class MarketScreener:
         self.db = db_manager
 
         # Choisir le détecteur RSI
-        if use_enhanced_detector:
+        if use_enhanced_detector and EnhancedRSIBreakoutAnalyzer is not None:
             self.rsi_analyzer = EnhancedRSIBreakoutAnalyzer(precision_mode=precision_mode)
             logger.info(f"Using ENHANCED RSI detector (precision={precision_mode})")
-        else:
+        elif RSIBreakoutAnalyzer is not None:
             self.rsi_analyzer = RSIBreakoutAnalyzer()
+            logger.info("Using standard RSI detector")
+        else:
+            self.rsi_analyzer = None
+            logger.warning("RSI breakout analyzer not available (trendline_analysis module not installed)")
             logger.info("Using STANDARD RSI detector")
 
         self.use_enhanced_detector = use_enhanced_detector
@@ -317,6 +321,9 @@ class MarketScreener:
                 return None
 
             # Analyze RSI breakout
+            if self.rsi_analyzer is None:
+                logger.debug(f"{symbol}: RSI analyzer not available, skipping RSI analysis")
+                return None
             result = self.rsi_analyzer.analyze(df, lookback_periods=lookback)
 
             if result:
