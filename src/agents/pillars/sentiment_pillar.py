@@ -93,6 +93,21 @@ class SentimentPillar(BasePillar):
         Args:
             symbol: Stock symbol
             data: Optional pre-fetched sentiment data
+        """
+        # V8.1: If LLM disabled, return neutral score
+        if os.environ.get("DISABLE_LLM", "false").lower() == "true":
+            logger.info(f"[SENTIMENT] {symbol}: LLM disabled, returning neutral (50)")
+            return PillarScore(
+                pillar_name="Sentiment",
+                score=50.0,
+                signal=PillarSignal.NEUTRAL,
+                confidence=0.5,
+                reasoning=f"LLM disabled - neutral sentiment for {symbol}",
+                factors=[],
+                timestamp=datetime.now().isoformat(),
+                data_quality=0.5,
+            )
+        """
 
         Returns:
             PillarScore with sentiment analysis result

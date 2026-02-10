@@ -1,14 +1,13 @@
-# Midas V8 - Production Docker Compose (Hetzner VPS)
+# Midas V8.1 - Production Docker Compose (Hetzner VPS)
+# A/B Testing: 2 agents (LLM vs No-LLM) × 4 strategies = 8 results
 #
 # Usage:
-#   docker compose -f docker-compose.prod.yml up -d        # Start all
-#   docker compose -f docker-compose.prod.yml logs -f agent # View agent logs
-#   docker compose -f docker-compose.prod.yml down          # Stop all
-#
-# Requirements: .env file with API keys (see .env.production)
+#   docker compose -f docker-compose.prod.yml up -d
+#   docker compose -f docker-compose.prod.yml logs -f agent
+#   docker compose -f docker-compose.prod.yml down
 
 services:
-  # ==================== Agent Service (Live Loop V8) ====================
+  # ==================== Agent WITH LLMs (Grok/Gemini/V8 Intelligence) ====================
   agent:
     build:
       context: .
@@ -25,6 +24,9 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=Europe/Paris
+      - DISABLE_LLM=false
+      - AGENT_ID=llm
+      - MULTI_STRATEGY_FILE=data/multi_strategy_llm.json
     healthcheck:
       test: ["CMD", "pgrep", "-f", "run_agent.py"]
       interval: 60s
@@ -40,7 +42,42 @@ services:
         reservations:
           memory: 2G
 
-  # ==================== API Service (FastAPI) ====================
+  # ==================== Agent WITHOUT LLMs (Pure Technical/Fundamental) ====================
+  agent-nollm:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: midas-agent-nollm
+    restart: unless-stopped
+    command: ["python", "run_agent.py", "--mode", "live", "--paper"]
+    volumes:
+      - ./data-nollm:/app/data
+      - ./logs-nollm:/app/logs
+      - ./models:/app/models:ro
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=Europe/Paris
+      - DISABLE_LLM=true
+      - AGENT_ID=nollm
+      - MULTI_STRATEGY_FILE=data/multi_strategy_nollm.json
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "run_agent.py"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - midas-net
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+
+  # ==================== API Service (serves both agents' data) ====================
   api:
     build:
       context: .
@@ -51,7 +88,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/app/data
+      - ./data-nollm:/app/data-nollm:ro
       - ./logs:/app/logs
     env_file:
       - .env

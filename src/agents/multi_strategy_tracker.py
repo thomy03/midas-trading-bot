@@ -16,7 +16,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 INITIAL_CAPITAL = 15000.0
-DATA_FILE = "data/multi_strategy_state.json"
+DATA_FILE = os.environ.get("MULTI_STRATEGY_FILE", "data/multi_strategy_state.json")
 
 
 @dataclass

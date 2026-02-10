@@ -1,0 +1,82 @@
+{
+  "dont_catch_falling_knife": {
+    "lesson_id": "dont_catch_falling_knife",
+    "lesson_type": "mistake",
+    "title": "Don't catch falling knives",
+    "description": "RSI oversold in a downtrend often goes MORE oversold. Wait for reversal confirmation.",
+    "conditions": [
+      "rsi < 30",
+      "below_sma50",
+      "strong_downtrend"
+    ],
+    "indicators_involved": [
+      "rsi",
+      "sma50",
+      "trend"
+    ],
+    "times_observed": 100,
+    "times_helped": 0,
+    "confidence": 0.9,
+    "created_at": "",
+    "last_updated": ""
+  },
+  "volume_confirms_breakout": {
+    "lesson_id": "volume_confirms_breakout",
+    "lesson_type": "success",
+    "title": "Volume confirms breakouts",
+    "description": "Breakouts with 2x+ volume are much more reliable than low-volume breakouts.",
+    "conditions": [
+      "price_breakout",
+      "volume_ratio > 2"
+    ],
+    "indicators_involved": [
+      "volume",
+      "resistance_break"
+    ],
+    "times_observed": 100,
+    "times_helped": 0,
+    "confidence": 0.85,
+    "created_at": "",
+    "last_updated": ""
+  },
+  "beware_pump_and_dump": {
+    "lesson_id": "beware_pump_and_dump",
+    "lesson_type": "trap",
+    "title": "Beware pump and dump patterns",
+    "description": "Small cap + huge volume spike + no news = likely pump and dump. Don't chase.",
+    "conditions": [
+      "market_cap < 500M",
+      "volume_spike > 5x",
+      "no_catalyst"
+    ],
+    "indicators_involved": [
+      "volume",
+      "market_cap"
+    ],
+    "times_observed": 50,
+    "times_helped": 0,
+    "confidence": 0.8,
+    "created_at": "",
+    "last_updated": ""
+  },
+  "trend_is_friend": {
+    "lesson_id": "trend_is_friend",
+    "lesson_type": "success",
+    "title": "Trend is your friend",
+    "description": "Trading WITH the trend (above SMA50, SMA200) has much higher success rate.",
+    "conditions": [
+      "above_sma50",
+      "above_sma200"
+    ],
+    "indicators_involved": [
+      "sma50",
+      "sma200",
+      "trend"
+    ],
+    "times_observed": 200,
+    "times_helped": 0,
+    "confidence": 0.9,
+    "created_at": "",
+    "last_updated": ""
+  }
+}

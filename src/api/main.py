@@ -1161,14 +1161,69 @@ async def get_portfolio_positions(api_key: str = Depends(verify_api_key)):
 
 @app.get("/api/v1/strategies/comparison", tags=["Strategies"])
 async def get_strategy_comparison():
-    """Get comparison of all 4 strategy profiles."""
-    try:
-        from src.agents.multi_strategy_tracker import get_multi_tracker
-        tracker = get_multi_tracker()
-        return tracker.get_comparison()
-    except Exception as e:
-        logger.error(f"Strategy comparison error: {e}")
-        return {"strategies": [], "error": str(e)}
+    """Get comparison of all 8 strategies (2 agents x 4 profiles)."""
+    import json, os
+    all_strategies = []
+    
+    # Agent WITH LLM
+    llm_file = "data/multi_strategy_llm.json"
+    if os.path.exists(llm_file):
+        try:
+            with open(llm_file, "r") as f:
+                data = json.load(f)
+            for sid, sdata in data.get("strategies", {}).items():
+                sdata["id"] = f"llm_{sid}"
+                sdata["name"] = f"🤖 {sdata.get('name', sid)}"
+                sdata["agent"] = "llm"
+                all_strategies.append(sdata)
+        except Exception as e:
+            logger.warning(f"Error reading LLM strategies: {e}")
+    
+    # Agent WITHOUT LLM
+    nollm_file = "data-nollm/multi_strategy_nollm.json"
+    if os.path.exists(nollm_file):
+        try:
+            with open(nollm_file, "r") as f:
+                data = json.load(f)
+            for sid, sdata in data.get("strategies", {}).items():
+                sdata["id"] = f"nollm_{sid}"
+                sdata["name"] = f"📊 {sdata.get('name', sid)}"
+                sdata["agent"] = "nollm"
+                all_strategies.append(sdata)
+        except Exception as e:
+            logger.warning(f"Error reading No-LLM strategies: {e}")
+    
+    # Fallback: try default file if no dual-agent data
+    if not all_strategies:
+        try:
+            from src.agents.multi_strategy_tracker import get_multi_tracker
+            tracker = get_multi_tracker()
+            return tracker.get_comparison()
+        except Exception as e:
+            logger.error(f"Strategy comparison error: {e}")
+    
+    # Sort by return
+    all_strategies.sort(key=lambda x: x.get("return_pct", ((x.get("cash", 15000) + sum(p.get("current_price", 0) * p.get("shares", 0) for p in x.get("positions", []))) - 15000) / 150), reverse=True)
+    
+    # Compute return_pct and other derived fields if missing
+    for s in all_strategies:
+        equity = s.get("cash", 15000)
+        for p in s.get("positions", []):
+            equity += p.get("current_price", 0) * p.get("shares", 0)
+        initial = s.get("initial_capital", 15000)
+        s["equity"] = round(equity, 2)
+        s["return_pct"] = round(((equity - initial) / initial) * 100, 2) if initial > 0 else 0
+        s["open_positions"] = len(s.get("positions", []))
+        total = s.get("total_trades", 0)
+        wins = s.get("winning_trades", 0)
+        s["win_rate"] = round((wins / total) * 100, 1) if total > 0 else 0
+    
+    return {
+        "strategies": all_strategies,
+        "agents": {"llm": "🤖 With LLMs", "nollm": "📊 Without LLMs"},
+        "total_strategies": len(all_strategies),
+        "updated_at": datetime.now().isoformat()
+    }
 
 @app.post("/api/v1/strategies/reset", tags=["Strategies"])
 async def reset_strategies():

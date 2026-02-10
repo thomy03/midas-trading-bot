@@ -1,0 +1,28 @@
+{
+  "updated": "2024-12-10T00:00:00Z",
+  "source": "manual",
+  "market": "CRYPTO",
+  "count": 20,
+  "tickers": [
+    {"symbol": "BTC-USD", "name": "Bitcoin", "type": "crypto"},
+    {"symbol": "ETH-USD", "name": "Ethereum", "type": "crypto"},
+    {"symbol": "SOL-USD", "name": "Solana", "type": "crypto"},
+    {"symbol": "BNB-USD", "name": "Binance Coin", "type": "crypto"},
+    {"symbol": "XRP-USD", "name": "Ripple", "type": "crypto"},
+    {"symbol": "ADA-USD", "name": "Cardano", "type": "crypto"},
+    {"symbol": "AVAX-USD", "name": "Avalanche", "type": "crypto"},
+    {"symbol": "DOGE-USD", "name": "Dogecoin", "type": "crypto"},
+    {"symbol": "DOT-USD", "name": "Polkadot", "type": "crypto"},
+    {"symbol": "MATIC-USD", "name": "Polygon", "type": "crypto"},
+    {"symbol": "LINK-USD", "name": "Chainlink", "type": "crypto"},
+    {"symbol": "UNI-USD", "name": "Uniswap", "type": "crypto"},
+    {"symbol": "ATOM-USD", "name": "Cosmos", "type": "crypto"},
+    {"symbol": "LTC-USD", "name": "Litecoin", "type": "crypto"},
+    {"symbol": "ETC-USD", "name": "Ethereum Classic", "type": "crypto"},
+    {"symbol": "XLM-USD", "name": "Stellar", "type": "crypto"},
+    {"symbol": "NEAR-USD", "name": "NEAR Protocol", "type": "crypto"},
+    {"symbol": "APT-USD", "name": "Aptos", "type": "crypto"},
+    {"symbol": "ARB-USD", "name": "Arbitrum", "type": "crypto"},
+    {"symbol": "OP-USD", "name": "Optimism", "type": "crypto"}
+  ]
+}

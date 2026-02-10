@@ -1,0 +1,1076 @@
+{
+  "updated": "2026-02-05T15:36:38.892750",
+  "source": "comprehensive_eu_indices",
+  "market": "europe_full",
+  "count": 356,
+  "tickers": [
+    {
+      "symbol": "1COV.DE"
+    },
+    {
+      "symbol": "1U1.DE"
+    },
+    {
+      "symbol": "A2A.MI"
+    },
+    {
+      "symbol": "AAD.DE"
+    },
+    {
+      "symbol": "AALB.AS"
+    },
+    {
+      "symbol": "AB.BR"
+    },
+    {
+      "symbol": "ABI.BR"
+    },
+    {
+      "symbol": "ABN.AS"
+    },
+    {
+      "symbol": "AC.PA"
+    },
+    {
+      "symbol": "ACA.PA"
+    },
+    {
+      "symbol": "ACKB.BR"
+    },
+    {
+      "symbol": "ACOMO.AS"
+    },
+    {
+      "symbol": "ACS.MC"
+    },
+    {
+      "symbol": "ACX.MC"
+    },
+    {
+      "symbol": "AD.AS"
+    },
+    {
+      "symbol": "ADS.DE"
+    },
+    {
+      "symbol": "AED.BR"
+    },
+    {
+      "symbol": "AENA.MC"
+    },
+    {
+      "symbol": "AF.PA"
+    },
+    {
+      "symbol": "AFX.DE"
+    },
+    {
+      "symbol": "AGN.AS"
+    },
+    {
+      "symbol": "AGS.BR"
+    },
+    {
+      "symbol": "AI.PA"
+    },
+    {
+      "symbol": "AIR.DE"
+    },
+    {
+      "symbol": "AIR.PA"
+    },
+    {
+      "symbol": "AKE.PA"
+    },
+    {
+      "symbol": "AKZA.AS"
+    },
+    {
+      "symbol": "ALD.PA"
+    },
+    {
+      "symbol": "ALO.PA"
+    },
+    {
+      "symbol": "ALT.PA"
+    },
+    {
+      "symbol": "ALTR.LS"
+    },
+    {
+      "symbol": "ALV.DE"
+    },
+    {
+      "symbol": "AM3D.DE"
+    },
+    {
+      "symbol": "AMG.AS"
+    },
+    {
+      "symbol": "AMP.MI"
+    },
+    {
+      "symbol": "AMS.MC"
+    },
+    {
+      "symbol": "AMUN.PA"
+    },
+    {
+      "symbol": "ANA.MC"
+    },
+    {
+      "symbol": "ARCAD.AS"
+    },
+    {
+      "symbol": "ARGX.BR"
+    },
+    {
+      "symbol": "ASML.AS"
+    },
+    {
+      "symbol": "ASR.AS"
+    },
+    {
+      "symbol": "AT1.DE"
+    },
+    {
+      "symbol": "ATL.MI"
+    },
+    {
+      "symbol": "ATO.PA"
+    },
+    {
+      "symbol": "AVIO.AS"
+    },
+    {
+      "symbol": "AZE.BR"
+    },
+    {
+      "symbol": "AZM.MI"
+    },
+    {
+      "symbol": "BAMI.MI"
+    },
+    {
+      "symbol": "BAMNB.AS"
+    },
+    {
+      "symbol": "BAR.BR"
+    },
+    {
+      "symbol": "BAS.DE"
+    },
+    {
+      "symbol": "BAYN.DE"
+    },
+    {
+      "symbol": "BB.PA"
+    },
+    {
+      "symbol": "BBVA.MC"
+    },
+    {
+      "symbol": "BC8.DE"
+    },
+    {
+      "symbol": "BCP.LS"
+    },
+    {
+      "symbol": "BEI.DE"
+    },
+    {
+      "symbol": "BESI.AS"
+    },
+    {
+      "symbol": "BGN.MI"
+    },
+    {
+      "symbol": "BIM.PA"
+    },
+    {
+      "symbol": "BIO.DE"
+    },
+    {
+      "symbol": "BKT.MC"
+    },
+    {
+      "symbol": "BMED.MI"
+    },
+    {
+      "symbol": "BMW.DE"
+    },
+    {
+      "symbol": "BN.PA"
+    },
+    {
+      "symbol": "BNP.PA"
+    },
+    {
+      "symbol": "BNR.DE"
+    },
+    {
+      "symbol": "BOL.PA"
+    },
+    {
+      "symbol": "BOSS.DE"
+    },
+    {
+      "symbol": "BPE.MI"
+    },
+    {
+      "symbol": "BZU.MI"
+    },
+    {
+      "symbol": "CA.PA"
+    },
+    {
+      "symbol": "CABK.MC"
+    },
+    {
+      "symbol": "CAP.PA"
+    },
+    {
+      "symbol": "CFN.LS"
+    },
+    {
+      "symbol": "CGG.PA"
+    },
+    {
+      "symbol": "CLNX.MC"
+    },
+    {
+      "symbol": "CMCOM.AS"
+    },
+    {
+      "symbol": "CNP.PA"
+    },
+    {
+      "symbol": "COFB.BR"
+    },
+    {
+      "symbol": "COL.MC"
+    },
+    {
+      "symbol": "COLR.BR"
+    },
+    {
+      "symbol": "CON.DE"
+    },
+    {
+      "symbol": "COP.DE"
+    },
+    {
+      "symbol": "COR.AS"
+    },
+    {
+      "symbol": "COR.LS"
+    },
+    {
+      "symbol": "COV.PA"
+    },
+    {
+      "symbol": "CPR.MI"
+    },
+    {
+      "symbol": "CRBN.AS"
+    },
+    {
+      "symbol": "CS.PA"
+    },
+    {
+      "symbol": "CTT.LS"
+    },
+    {
+      "symbol": "DB1.DE"
+    },
+    {
+      "symbol": "DBG.PA"
+    },
+    {
+      "symbol": "DBK.DE"
+    },
+    {
+      "symbol": "DBV.PA"
+    },
+    {
+      "symbol": "DEQ.DE"
+    },
+    {
+      "symbol": "DG.PA"
+    },
+    {
+      "symbol": "DHL.DE"
+    },
+    {
+      "symbol": "DIA.MI"
+    },
+    {
+      "symbol": "DIC.DE"
+    },
+    {
+      "symbol": "DIE.BR"
+    },
+    {
+      "symbol": "DIM.PA"
+    },
+    {
+      "symbol": "DSM.AS"
+    },
+    {
+      "symbol": "DSY.PA"
+    },
+    {
+      "symbol": "DTE.DE"
+    },
+    {
+      "symbol": "DUE.DE"
+    },
+    {
+      "symbol": "DWNI.DE"
+    },
+    {
+      "symbol": "ECMPA.AS"
+    },
+    {
+      "symbol": "EDEN.PA"
+    },
+    {
+      "symbol": "EDP.LS"
+    },
+    {
+      "symbol": "EDPR.LS"
+    },
+    {
+      "symbol": "EI.PA"
+    },
+    {
+      "symbol": "EL.PA"
+    },
+    {
+      "symbol": "ELE.MC"
+    },
+    {
+      "symbol": "ELI.BR"
+    },
+    {
+      "symbol": "ELIOR.PA"
+    },
+    {
+      "symbol": "EN.PA"
+    },
+    {
+      "symbol": "ENEL.MI"
+    },
+    {
+      "symbol": "ENG.MC"
+    },
+    {
+      "symbol": "ENGI.PA"
+    },
+    {
+      "symbol": "ENI.MI"
+    },
+    {
+      "symbol": "EOAN.DE"
+    },
+    {
+      "symbol": "ERF.PA"
+    },
+    {
+      "symbol": "ERG.MI"
+    },
+    {
+      "symbol": "ETL.PA"
+    },
+    {
+      "symbol": "EVD.DE"
+    },
+    {
+      "symbol": "EVK.DE"
+    },
+    {
+      "symbol": "EVS.BR"
+    },
+    {
+      "symbol": "EVT.DE"
+    },
+    {
+      "symbol": "EXO.AS"
+    },
+    {
+      "symbol": "FAGR.BR"
+    },
+    {
+      "symbol": "FBK.MI"
+    },
+    {
+      "symbol": "FDJ.PA"
+    },
+    {
+      "symbol": "FDR.MC"
+    },
+    {
+      "symbol": "FER.MC"
+    },
+    {
+      "symbol": "FGR.PA"
+    },
+    {
+      "symbol": "FLOW.AS"
+    },
+    {
+      "symbol": "FME.DE"
+    },
+    {
+      "symbol": "FNAC.PA"
+    },
+    {
+      "symbol": "FPE3.DE"
+    },
+    {
+      "symbol": "FRE.DE"
+    },
+    {
+      "symbol": "FTI.PA"
+    },
+    {
+      "symbol": "G.MI"
+    },
+    {
+      "symbol": "G1A.DE"
+    },
+    {
+      "symbol": "GALP.LS"
+    },
+    {
+      "symbol": "GBF.DE"
+    },
+    {
+      "symbol": "GBLB.BR"
+    },
+    {
+      "symbol": "GFC.PA"
+    },
+    {
+      "symbol": "GFJ.DE"
+    },
+    {
+      "symbol": "GIL.DE"
+    },
+    {
+      "symbol": "GLE.PA"
+    },
+    {
+      "symbol": "GLJ.DE"
+    },
+    {
+      "symbol": "GLPG.AS"
+    },
+    {
+      "symbol": "GRF.MC"
+    },
+    {
+      "symbol": "GTT.PA"
+    },
+    {
+      "symbol": "GXI.DE"
+    },
+    {
+      "symbol": "HAB.DE"
+    },
+    {
+      "symbol": "HBH.DE"
+    },
+    {
+      "symbol": "HCO.PA"
+    },
+    {
+      "symbol": "HDD.DE"
+    },
+    {
+      "symbol": "HEI.DE"
+    },
+    {
+      "symbol": "HEIA.AS"
+    },
+    {
+      "symbol": "HEIJM.AS"
+    },
+    {
+      "symbol": "HEN3.DE"
+    },
+    {
+      "symbol": "HER.MI"
+    },
+    {
+      "symbol": "HLE.DE"
+    },
+    {
+      "symbol": "HNR1.DE"
+    },
+    {
+      "symbol": "HO.PA"
+    },
+    {
+      "symbol": "HOT.DE"
+    },
+    {
+      "symbol": "IAG.MC"
+    },
+    {
+      "symbol": "IBA.BR"
+    },
+    {
+      "symbol": "IBE.MC"
+    },
+    {
+      "symbol": "IDR.MC"
+    },
+    {
+      "symbol": "IFX.DE"
+    },
+    {
+      "symbol": "IG.MI"
+    },
+    {
+      "symbol": "ILD.PA"
+    },
+    {
+      "symbol": "IMCD.AS"
+    },
+    {
+      "symbol": "INGA.AS"
+    },
+    {
+      "symbol": "INW.MI"
+    },
+    {
+      "symbol": "IP.MI"
+    },
+    {
+      "symbol": "IPS.PA"
+    },
+    {
+      "symbol": "ISP.MI"
+    },
+    {
+      "symbol": "ITX.MC"
+    },
+    {
+      "symbol": "JDEP.AS"
+    },
+    {
+      "symbol": "JEN.DE"
+    },
+    {
+      "symbol": "JMT.LS"
+    },
+    {
+      "symbol": "KBC.BR"
+    },
+    {
+      "symbol": "KCO.DE"
+    },
+    {
+      "symbol": "KER.PA"
+    },
+    {
+      "symbol": "KGX.DE"
+    },
+    {
+      "symbol": "KOF.PA"
+    },
+    {
+      "symbol": "KPN.AS"
+    },
+    {
+      "symbol": "KRN.DE"
+    },
+    {
+      "symbol": "KWS.DE"
+    },
+    {
+      "symbol": "LDO.MI"
+    },
+    {
+      "symbol": "LEG.DE"
+    },
+    {
+      "symbol": "LEO.DE"
+    },
+    {
+      "symbol": "LHA.DE"
+    },
+    {
+      "symbol": "LI.PA"
+    },
+    {
+      "symbol": "LIN.DE"
+    },
+    {
+      "symbol": "LOG.MC"
+    },
+    {
+      "symbol": "LR.PA"
+    },
+    {
+      "symbol": "MAP.MC"
+    },
+    {
+      "symbol": "MB.MI"
+    },
+    {
+      "symbol": "MBG.DE"
+    },
+    {
+      "symbol": "MC.PA"
+    },
+    {
+      "symbol": "MEL.MC"
+    },
+    {
+      "symbol": "MELE.BR"
+    },
+    {
+      "symbol": "MF.PA"
+    },
+    {
+      "symbol": "ML.PA"
+    },
+    {
+      "symbol": "MMT.PA"
+    },
+    {
+      "symbol": "MOBB.BR"
+    },
+    {
+      "symbol": "MONC.MI"
+    },
+    {
+      "symbol": "MRK.DE"
+    },
+    {
+      "symbol": "MRK.PA"
+    },
+    {
+      "symbol": "MRL.MC"
+    },
+    {
+      "symbol": "MT.AS"
+    },
+    {
+      "symbol": "MT.PA"
+    },
+    {
+      "symbol": "MTS.MC"
+    },
+    {
+      "symbol": "MTX.DE"
+    },
+    {
+      "symbol": "MUV2.DE"
+    },
+    {
+      "symbol": "NDA.DE"
+    },
+    {
+      "symbol": "NEM.DE"
+    },
+    {
+      "symbol": "NEXI.MI"
+    },
+    {
+      "symbol": "NN.AS"
+    },
+    {
+      "symbol": "NOEJ.DE"
+    },
+    {
+      "symbol": "NOS.LS"
+    },
+    {
+      "symbol": "NSI.AS"
+    },
+    {
+      "symbol": "NTGY.MC"
+    },
+    {
+      "symbol": "NXI.PA"
+    },
+    {
+      "symbol": "OCI.AS"
+    },
+    {
+      "symbol": "ONTX.BR"
+    },
+    {
+      "symbol": "OPN.PA"
+    },
+    {
+      "symbol": "OR.PA"
+    },
+    {
+      "symbol": "ORA.PA"
+    },
+    {
+      "symbol": "OSR.DE"
+    },
+    {
+      "symbol": "PAH3.DE"
+    },
+    {
+      "symbol": "PAJ.PA"
+    },
+    {
+      "symbol": "PBB.DE"
+    },
+    {
+      "symbol": "PHIA.AS"
+    },
+    {
+      "symbol": "PHM.MC"
+    },
+    {
+      "symbol": "PHR.LS"
+    },
+    {
+      "symbol": "PIRC.MI"
+    },
+    {
+      "symbol": "PNL.AS"
+    },
+    {
+      "symbol": "POM.PA"
+    },
+    {
+      "symbol": "POST.AS"
+    },
+    {
+      "symbol": "PROX.BR"
+    },
+    {
+      "symbol": "PRX.AS"
+    },
+    {
+      "symbol": "PRY.MI"
+    },
+    {
+      "symbol": "PSM.DE"
+    },
+    {
+      "symbol": "PST.MI"
+    },
+    {
+      "symbol": "PUB.PA"
+    },
+    {
+      "symbol": "PUM.DE"
+    },
+    {
+      "symbol": "QUA.PA"
+    },
+    {
+      "symbol": "RAA.DE"
+    },
+    {
+      "symbol": "RACE.MI"
+    },
+    {
+      "symbol": "RAND.AS"
+    },
+    {
+      "symbol": "REC.MI"
+    },
+    {
+      "symbol": "RED.MC"
+    },
+    {
+      "symbol": "REE.MC"
+    },
+    {
+      "symbol": "REN.AS"
+    },
+    {
+      "symbol": "RENE.LS"
+    },
+    {
+      "symbol": "REP.MC"
+    },
+    {
+      "symbol": "RHK.DE"
+    },
+    {
+      "symbol": "RHM.DE"
+    },
+    {
+      "symbol": "RI.PA"
+    },
+    {
+      "symbol": "RMS.PA"
+    },
+    {
+      "symbol": "RNO.PA"
+    },
+    {
+      "symbol": "ROVI.MC"
+    },
+    {
+      "symbol": "RUBIS.PA"
+    },
+    {
+      "symbol": "RWE.DE"
+    },
+    {
+      "symbol": "RXL.PA"
+    },
+    {
+      "symbol": "SAB.MC"
+    },
+    {
+      "symbol": "SAF.PA"
+    },
+    {
+      "symbol": "SAN.MC"
+    },
+    {
+      "symbol": "SAN.PA"
+    },
+    {
+      "symbol": "SANT.DE"
+    },
+    {
+      "symbol": "SAP.DE"
+    },
+    {
+      "symbol": "SBMO.AS"
+    },
+    {
+      "symbol": "SBT.PA"
+    },
+    {
+      "symbol": "SDF.DE"
+    },
+    {
+      "symbol": "SEM.LS"
+    },
+    {
+      "symbol": "SEV.PA"
+    },
+    {
+      "symbol": "SFER.MI"
+    },
+    {
+      "symbol": "SGO.PA"
+    },
+    {
+      "symbol": "SGRE.MC"
+    },
+    {
+      "symbol": "SHA.DE"
+    },
+    {
+      "symbol": "SHELL.AS"
+    },
+    {
+      "symbol": "SHL.DE"
+    },
+    {
+      "symbol": "SIE.DE"
+    },
+    {
+      "symbol": "SIFG.AS"
+    },
+    {
+      "symbol": "SIX2.DE"
+    },
+    {
+      "symbol": "SK.PA"
+    },
+    {
+      "symbol": "SKB.DE"
+    },
+    {
+      "symbol": "SLB.PA"
+    },
+    {
+      "symbol": "SLIGR.AS"
+    },
+    {
+      "symbol": "SLR.MC"
+    },
+    {
+      "symbol": "SOF.BR"
+    },
+    {
+      "symbol": "SOI.PA"
+    },
+    {
+      "symbol": "SOLB.BR"
+    },
+    {
+      "symbol": "SON.LS"
+    },
+    {
+      "symbol": "SOP.PA"
+    },
+    {
+      "symbol": "SRG.MI"
+    },
+    {
+      "symbol": "SRT.DE"
+    },
+    {
+      "symbol": "STLAP.PA"
+    },
+    {
+      "symbol": "STM.MI"
+    },
+    {
+      "symbol": "STMPA.PA"
+    },
+    {
+      "symbol": "SU.PA"
+    },
+    {
+      "symbol": "SW.PA"
+    },
+    {
+      "symbol": "SY1.DE"
+    },
+    {
+      "symbol": "SZG.DE"
+    },
+    {
+      "symbol": "SZU.DE"
+    },
+    {
+      "symbol": "TEC.PA"
+    },
+    {
+      "symbol": "TEF.MC"
+    },
+    {
+      "symbol": "TEG.DE"
+    },
+    {
+      "symbol": "TEN.MI"
+    },
+    {
+      "symbol": "TEP.PA"
+    },
+    {
+      "symbol": "TESB.BR"
+    },
+    {
+      "symbol": "TFI.PA"
+    },
+    {
+      "symbol": "TIT.MI"
+    },
+    {
+      "symbol": "TKA.DE"
+    },
+    {
+      "symbol": "TKWY.AS"
+    },
+    {
+      "symbol": "TLX.DE"
+    },
+    {
+      "symbol": "TOM2.AS"
+    },
+    {
+      "symbol": "TRI.PA"
+    },
+    {
+      "symbol": "TRN.MI"
+    },
+    {
+      "symbol": "TTE.PA"
+    },
+    {
+      "symbol": "UBI.PA"
+    },
+    {
+      "symbol": "UCB.BR"
+    },
+    {
+      "symbol": "UCG.MI"
+    },
+    {
+      "symbol": "UMI.BR"
+    },
+    {
+      "symbol": "UN01.DE"
+    },
+    {
+      "symbol": "UNA.AS"
+    },
+    {
+      "symbol": "UNI.MI"
+    },
+    {
+      "symbol": "URW.AS"
+    },
+    {
+      "symbol": "URW.PA"
+    },
+    {
+      "symbol": "UTDI.DE"
+    },
+    {
+      "symbol": "VAN.BR"
+    },
+    {
+      "symbol": "VCT.PA"
+    },
+    {
+      "symbol": "VETO.PA"
+    },
+    {
+      "symbol": "VGP.BR"
+    },
+    {
+      "symbol": "VIE.PA"
+    },
+    {
+      "symbol": "VIL.PA"
+    },
+    {
+      "symbol": "VIV.PA"
+    },
+    {
+      "symbol": "VNA.DE"
+    },
+    {
+      "symbol": "VOW3.DE"
+    },
+    {
+      "symbol": "VPK.AS"
+    },
+    {
+      "symbol": "WAC.DE"
+    },
+    {
+      "symbol": "WCH.DE"
+    },
+    {
+      "symbol": "WDP.BR"
+    },
+    {
+      "symbol": "WHA.AS"
+    },
+    {
+      "symbol": "WKL.AS"
+    },
+    {
+      "symbol": "WLN.PA"
+    },
+    {
+      "symbol": "XIOR.BR"
+    },
+    {
+      "symbol": "ZAL.DE"
+    }
+  ]
+}
