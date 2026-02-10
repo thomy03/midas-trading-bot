@@ -1,9 +1,9 @@
-import { REGIME_BG } from "@/lib/constants";
+import { REGIME_BG, Regime } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export function RegimeBadge({ regime }: { regime: string }) {
-  const upper = regime.toUpperCase();
-  const cls = REGIME_BG[upper] || REGIME_BG.RANGE;
+  const upper = regime.toUpperCase() as Regime;
+  const cls = REGIME_BG[upper] ?? REGIME_BG.RANGE;
 
   return (
     <span
