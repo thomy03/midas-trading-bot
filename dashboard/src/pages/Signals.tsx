@@ -114,13 +114,13 @@ export default function Signals() {
                 <div>
                   <span className="font-medium text-white">{a.symbol}</span>
                   <span className="ml-2 text-[10px] text-gray-500">
-                    ${a.current_price.toFixed(2)}
+                    ${(a.current_price ?? 0).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   {a.confidence_score && (
                     <span className="text-xs text-gray-400">
-                      {a.confidence_score.toFixed(0)}
+                      {(a.confidence_score ?? 0).toFixed(0)}
                     </span>
                   )}
                   <Badge

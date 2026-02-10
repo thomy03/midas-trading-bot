@@ -14,10 +14,10 @@ export const REGIME_COLORS = {
 } as const
 
 export const REGIME_LABELS = {
-  BULL: '🐂 Bull',
-  BEAR: '🐻 Bear',
-  RANGE: '📊 Range',
-  VOLATILE: '⚡ Volatile',
+  BULL: 'Bull',
+  BEAR: 'Bear',
+  RANGE: 'Range',
+  VOLATILE: 'Volatile',
 } as const
 
 export const SIGNAL_COLORS = {
@@ -29,9 +29,24 @@ export const SIGNAL_COLORS = {
 export type Regime = keyof typeof REGIME_COLORS
 export type SignalType = keyof typeof SIGNAL_COLORS
 
-export const REGIME_BG = {
-  BULL: 'bg-green-100 text-green-800',
-  BEAR: 'bg-red-100 text-red-800',
-  RANGE: 'bg-amber-100 text-amber-800',
-  VOLATILE: 'bg-violet-100 text-violet-800',
-} as const
+export const REGIME_BG: Record<string, string> = {
+  BULL: 'bg-green-500/20 text-green-400 border-green-500/30',
+  BEAR: 'bg-red-500/20 text-red-400 border-red-500/30',
+  RANGE: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+  VOLATILE: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+  UNKNOWN: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+}
+
+export const SECTOR_ETFS: Record<string, string> = {
+  Technology: "XLK",
+  Healthcare: "XLV",
+  Financials: "XLF",
+  "Consumer Disc.": "XLY",
+  Communication: "XLC",
+  Industrials: "XLI",
+  "Consumer Staples": "XLP",
+  Energy: "XLE",
+  Utilities: "XLU",
+  "Real Estate": "XLRE",
+  Materials: "XLB",
+}

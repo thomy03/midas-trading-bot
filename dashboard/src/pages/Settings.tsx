@@ -85,7 +85,7 @@ export default function Settings() {
                     {pillar}
                   </span>
                   <span className="text-gray-400">
-                    {(data.weight * 100).toFixed(0)}%
+                    {((data.weight ?? 0) * 100).toFixed(0)}%
                   </span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-surface-3">
@@ -106,7 +106,7 @@ export default function Settings() {
                         key={ind.name}
                         className="text-[9px] text-gray-500"
                       >
-                        {ind.name} ({(ind.accuracy * 100).toFixed(0)}%)
+                        {ind.name} ({((ind.accuracy ?? 0) * 100).toFixed(0)}%)
                       </span>
                     ))}
                   </div>

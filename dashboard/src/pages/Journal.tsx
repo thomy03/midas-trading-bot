@@ -70,7 +70,7 @@ export default function Journal() {
                     <div>
                       <span className="text-gray-500">Entry:</span>{" "}
                       <span className="text-white">
-                        ${t.entry_price.toFixed(2)}
+                        ${(t.entry_price ?? 0).toFixed(2)}
                       </span>
                     </div>
                     <div>
@@ -81,7 +81,7 @@ export default function Journal() {
                       <div>
                         <span className="text-gray-500">Score:</span>{" "}
                         <span className="text-white">
-                          {t.score_at_entry.toFixed(0)}
+                          {(t.score_at_entry ?? 0).toFixed(0)}
                         </span>
                       </div>
                     )}

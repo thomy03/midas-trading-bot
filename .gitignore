@@ -73,6 +73,7 @@ cleanup_*.sh
 !docs/**/*.html
 !dashboard/**/*.html
 !dashboard/index.html
+!dashboard/src/**
 
 # Screenshots and images
 *.png

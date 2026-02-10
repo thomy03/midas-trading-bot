@@ -79,7 +79,7 @@ export default function Performance() {
             </div>
             <div>
               <div className="text-lg font-bold text-green-400">
-                {(perf.win_rate * 100).toFixed(0)}%
+                {((perf.win_rate ?? 0) * 100).toFixed(0)}%
               </div>
               <div className="text-gray-500">Win Rate</div>
             </div>

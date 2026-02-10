@@ -51,8 +51,8 @@ export default function Market() {
           </div>
           <div className="mt-1 text-xs text-gray-500">
             Avg: {breadth.avg_performance > 0 ? "+" : ""}
-            {breadth.avg_performance.toFixed(2)}% | Ratio:{" "}
-            {breadth.breadth_ratio.toFixed(2)}
+            {(breadth.avg_performance ?? 0).toFixed(2)}% | Ratio:{" "}
+            {(breadth.breadth_ratio ?? 0).toFixed(2)}
           </div>
         </Card>
       )}
