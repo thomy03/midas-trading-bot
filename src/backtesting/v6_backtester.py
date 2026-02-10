@@ -177,6 +177,11 @@ class V6BacktestConfig:
     vol_scaling_min: float = 0.5            # Min scaling factor (don't go below 50%)
     vol_scaling_max: float = 1.5            # Max scaling factor (don't go above 150%)
 
+    # V8: Macro regime signals (yield curve, credit spreads, etc.)
+    macro_regime_enabled: bool = False     # Blend macro signals into regime detection
+    # V8: Thematic ETF momentum bonus
+    thematic_etf_enabled: bool = False     # Add ETF outperformance bonus to scoring
+
     # V7: Sector-regime scoring (disabled by default - no measurable impact in backtest)
     sector_regime_scoring: bool = False    # Apply sector bonus/malus by regime
 
@@ -212,6 +217,87 @@ class V6BacktestConfig:
         'RANGE': 0.06,
         'VOLATILE': 0.04
     })
+
+
+# ── Profile Presets ─────────────────────────────────────────────────────
+
+# Diversified universe (30 symbols across sectors)
+SYMBOLS_DIVERSIFIED = [
+    'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA',      # Tech
+    'JPM', 'BAC', 'GS', 'V', 'MA',                  # Financials
+    'JNJ', 'UNH', 'PFE', 'ABBV', 'MRK',             # Healthcare
+    'XOM', 'CVX', 'COP',                              # Energy
+    'PG', 'KO', 'PEP', 'WMT', 'COST',               # Consumer
+    'CAT', 'HON', 'UPS',                              # Industrials
+    'DIS', 'NFLX', 'CMCSA',                           # Media
+    'NEE',                                              # Utilities
+]
+
+# Tech-heavy universe (30 symbols, Nasdaq 100 top holdings + growth)
+SYMBOLS_TECH_HEAVY = [
+    'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA',  # Mega tech
+    'AVGO', 'ADBE', 'CRM', 'AMD', 'INTC', 'QCOM', 'TXN',      # Semis + software
+    'NFLX', 'PYPL', 'ISRG', 'INTU', 'AMAT', 'LRCX',           # Growth tech
+    'COST', 'PEP', 'AMGN', 'GILD', 'MRNA',                      # Nasdaq staples/biotech
+    'V', 'MA', 'UNH', 'JPM', 'GS',                               # Financials (some)
+]
+
+
+def make_profile_config(profile):
+    # type: (str) -> Tuple[V6BacktestConfig, List[str]]
+    """Create a (config, symbols) pair for a named profile.
+
+    Args:
+        profile: 'growth' or 'safe'
+
+    Returns:
+        (V6BacktestConfig, list of symbols)
+    """
+    if profile == 'growth':
+        # Tech-Heavy 1.0x + momentum - approaches QQQ CAGR with better Sharpe
+        # Ablation: momentum is the ONLY V7.1 feature that improves Growth
+        #   +2.65% CAGR, +0.05 Sharpe (selects top-performing stocks)
+        config = V6BacktestConfig(
+            buy_threshold=55.0,
+            trailing_atr_multiplier=3.5,
+            scoring_mode=ScoringMode.THREE_PILLARS,
+            leverage=1.0,
+            # Only momentum ON (proven +2.65% CAGR in ablation)
+            profit_target_enabled=False,
+            score_exit_enabled=False,
+            regime_tightening_enabled=False,
+            momentum_scoring_enabled=True,
+            breadth_filter_enabled=False,
+            regime_adaptive_enabled=False,
+            vol_scaling_enabled=False,
+        )
+        return config, list(SYMBOLS_TECH_HEAVY)
+
+    elif profile == 'safe':
+        # Diversified 1.3x + regime thresholds - beats SPY, half the MaxDD
+        # V8: macro_regime adds +1.22% CAGR, +0.07 Sharpe, -0.8% MaxDD
+        config = V6BacktestConfig(
+            buy_threshold=55.0,
+            trailing_atr_multiplier=3.5,
+            scoring_mode=ScoringMode.THREE_PILLARS,
+            leverage=1.3,
+            margin_cost_annual=0.06,
+            # Only regime_adaptive ON (best Sharpe/DD reducer from ablation)
+            profit_target_enabled=False,
+            score_exit_enabled=False,
+            regime_tightening_enabled=False,
+            momentum_scoring_enabled=False,
+            breadth_filter_enabled=False,
+            regime_adaptive_enabled=True,
+            vol_scaling_enabled=False,
+            # V8: macro regime improves Safe (+1.22% CAGR, +0.07 Sharpe, -0.8% MaxDD)
+            macro_regime_enabled=True,
+            thematic_etf_enabled=False,
+        )
+        return config, list(SYMBOLS_DIVERSIFIED)
+
+    else:
+        raise ValueError("Unknown profile: %s. Use 'growth' or 'safe'." % profile)
 
 
 # ── Data Management ──────────────────────────────────────────────────────
@@ -1043,6 +1129,34 @@ class V6Backtester:
                 use_regime_models=self.config.use_regime_models
             )
 
+        # V8: Macro signal fetcher (direct import to bypass __init__.py zoneinfo issue)
+        self.macro_fetcher = None
+        if self.config.macro_regime_enabled:
+            try:
+                import importlib.util as _ilu
+                _macro_path = os.path.join(os.path.dirname(__file__), '..', 'intelligence', 'macro_signals.py')
+                _spec = _ilu.spec_from_file_location("macro_signals", _macro_path)
+                _macro_mod = _ilu.module_from_spec(_spec)
+                _spec.loader.exec_module(_macro_mod)
+                self.macro_fetcher = _macro_mod.MacroSignalFetcher()
+            except Exception as e:
+                logger.warning("MacroSignalFetcher not available: %s", e)
+
+        # V8: ETF momentum function (loaded via importlib to bypass __init__.py)
+        self._etf_momentum_func = None
+        self._etf_proxies = {}
+        if self.config.thematic_etf_enabled:
+            try:
+                import importlib.util as _ilu
+                _orch_path = os.path.join(os.path.dirname(__file__), '..', 'intelligence', 'intelligence_orchestrator.py')
+                _spec = _ilu.spec_from_file_location("intelligence_orchestrator", _orch_path)
+                _orch_mod = _ilu.module_from_spec(_spec)
+                _spec.loader.exec_module(_orch_mod)
+                self._etf_momentum_func = _orch_mod.calculate_etf_momentum_bonus
+                self._etf_proxies = _orch_mod.THEME_ETF_PROXIES
+            except Exception as e:
+                logger.warning("ETF momentum not available: %s", e)
+
         # V7: Sector-regime scorer
         self.sector_scorer = None
         if self.config.sector_regime_scoring:
@@ -1202,6 +1316,27 @@ class V6Backtester:
             logger.error("Could not fetch SPY data - aborting backtest")
             return self._empty_result()
 
+        # V8: Pre-fetch macro indicator data
+        tnx_df, irx_df, hyg_df, lqd_df, uup_df = None, None, None, None, None
+        macro_sector_data = {}
+        if self.config.macro_regime_enabled and self.macro_fetcher is not None:
+            logger.info("Pre-fetching macro indicator data...")
+            tnx_df = self.data_mgr.get_ohlcv('^TNX', buffer_start, end_date)
+            irx_df = self.data_mgr.get_ohlcv('^IRX', buffer_start, end_date)
+            hyg_df = self.data_mgr.get_ohlcv('HYG', buffer_start, end_date)
+            lqd_df = self.data_mgr.get_ohlcv('LQD', buffer_start, end_date)
+            uup_df = self.data_mgr.get_ohlcv('UUP', buffer_start, end_date)
+            for etf_sym in ['XLU', 'XLP', 'XLK', 'XLY']:
+                df = self.data_mgr.get_ohlcv(etf_sym, buffer_start, end_date)
+                if df is not None:
+                    macro_sector_data[etf_sym] = df
+
+        # V8: Pre-fetch thematic ETF data
+        if self.config.thematic_etf_enabled and self._etf_proxies:
+            logger.info("Pre-fetching thematic ETF data...")
+            for etf_sym in self._etf_proxies:
+                self.data_mgr.get_ohlcv(etf_sym, buffer_start, end_date)
+
         # Pre-fetch fundamentals for all symbols
         logger.info("Pre-fetching fundamental data...")
         fundamentals = {}
@@ -1249,8 +1384,33 @@ class V6Backtester:
         mode = self.config.scoring_mode
         logger.info(f"Walking forward through {len(trading_days)} trading days (mode={mode.value})...")
         for day_idx, date in enumerate(trading_days):
-            # Detect regime
+            # Detect regime (V8: with optional macro blend)
             regime = self.regime_detector.detect(spy_df, vix_df, date)
+
+            # V8: Blend macro signals into regime if enabled
+            if self.macro_fetcher is not None and self.config.macro_regime_enabled:
+                try:
+                    macro_result = self.macro_fetcher.get_macro_regime_score(
+                        date=date, tnx_df=tnx_df, irx_df=irx_df,
+                        hyg_df=hyg_df, lqd_df=lqd_df, uup_df=uup_df,
+                        sector_data=macro_sector_data
+                    )
+                    if macro_result.confidence > 0.3:
+                        # Map current regime to numeric, blend, re-map
+                        regime_num = {'BULL': 0.5, 'BEAR': -0.5, 'RANGE': 0.0, 'VOLATILE': -0.3}
+                        tech_score = regime_num.get(regime.value, 0.0)
+                        blended = tech_score * 0.70 + macro_result.score * 0.30
+                        if blended > 0.25:
+                            regime = MarketRegime.BULL
+                        elif blended < -0.25:
+                            regime = MarketRegime.BEAR
+                        elif blended < -0.15:
+                            regime = MarketRegime.VOLATILE
+                        else:
+                            regime = MarketRegime.RANGE
+                except Exception as e:
+                    logger.debug("Macro regime blend failed at %s: %s", date, e)
+
             regime_counts[regime.value] += 1
 
             # Get VIX level for mode C/E
@@ -1462,6 +1622,15 @@ class V6Backtester:
                 # ── V7.1: Add cross-sectional momentum bonus ──
                 if momentum_scores and sym in momentum_scores:
                     gated_score = max(0, min(100, gated_score + momentum_scores[sym]))
+
+                # ── V8: Thematic ETF momentum bonus ──
+                if self.config.thematic_etf_enabled and self._etf_momentum_func is not None:
+                    try:
+                        etf_bonus = self._etf_momentum_func(sym, date, self.data_mgr)
+                        if etf_bonus > 0:
+                            gated_score = min(100, gated_score + etf_bonus)
+                    except Exception:
+                        pass
 
                 score_distribution.append(gated_score)
 

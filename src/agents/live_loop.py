@@ -152,6 +152,9 @@ class LiveLoop:
         self._position_monitor_task: Optional[asyncio.Task] = None
         self._consecutive_losses: int = 0
 
+        # V8: Intelligence Orchestrator
+        self._intelligence_orchestrator = None
+
         # Components (initialisés dans initialize())
         self.guardrails: Optional[Guardrails] = None
         self.state: Optional[AgentState] = None
@@ -212,6 +215,60 @@ class LiveLoop:
             self.correlation_manager = get_correlation_manager()
             self.position_monitor = get_position_manager()
             logger.info("V7 Risk management initialized")
+
+        # V8: Initialize Intelligence Orchestrator
+        try:
+            from src.intelligence.intelligence_orchestrator import IntelligenceOrchestrator
+            from src.intelligence.gemini_client import GeminiClient
+            from src.intelligence.market_context import get_market_context_analyzer
+
+            gemini = GeminiClient()
+            await gemini.initialize()
+
+            # Gather available sources (graceful if some are missing)
+            grok_scanner = None
+            news_fetcher = None
+            trend_discovery = None
+            try:
+                from src.intelligence.grok_scanner import GrokScanner
+                grok_scanner = GrokScanner()
+                await grok_scanner.initialize()
+            except Exception:
+                logger.debug("Grok scanner not available for V8 orchestrator")
+            try:
+                from src.intelligence.news_fetcher import NewsFetcher
+                news_fetcher = NewsFetcher()
+            except Exception:
+                logger.debug("News fetcher not available for V8 orchestrator")
+            try:
+                from src.intelligence.trend_discovery import TrendDiscovery
+                trend_discovery = TrendDiscovery()
+                await trend_discovery.initialize()
+            except Exception:
+                logger.debug("Trend discovery not available for V8 orchestrator")
+
+            market_ctx = get_market_context_analyzer()
+
+            # Portfolio symbols from attention manager or config
+            portfolio_syms = []
+            if hasattr(self, 'attention_manager') and self.attention_manager:
+                try:
+                    portfolio_syms = list(self.attention_manager.get_tracked_symbols())
+                except Exception:
+                    pass
+
+            self._intelligence_orchestrator = IntelligenceOrchestrator(
+                gemini_client=gemini,
+                grok_scanner=grok_scanner,
+                news_fetcher=news_fetcher,
+                trend_discovery=trend_discovery,
+                market_context=market_ctx,
+                portfolio_symbols=portfolio_syms
+            )
+            logger.info("V8 Intelligence Orchestrator initialized")
+        except Exception as e:
+            logger.info("V8 Intelligence Orchestrator not available: %s", e)
+            self._intelligence_orchestrator = None
 
         logger.info("LiveLoop initialized successfully")
 
@@ -535,6 +592,33 @@ class LiveLoop:
                 logger.debug(f"[SECTOR] {symbol} score adjusted by {sector_adj:+.1f} -> {confidence:.1f}")
         except Exception as e:
             logger.debug(f"Sector scoring not available: {e}")
+
+        # V8: Intelligence Orchestrator overlay
+        if self._intelligence_orchestrator is not None:
+            try:
+                brief = await self._intelligence_orchestrator.get_brief()
+                intel_adj = self._intelligence_orchestrator.get_symbol_adjustment(symbol, brief)
+                if intel_adj != 0:
+                    old_conf = confidence
+                    confidence = max(0, min(100, confidence + intel_adj))
+                    alert['confidence_score'] = confidence
+                    logger.info(
+                        "V8 Intel: %s %+.1f pts (%.0f -> %.0f) | %s",
+                        symbol, intel_adj, old_conf, confidence,
+                        brief.reasoning_summary[:80] if brief.reasoning_summary else ''
+                    )
+                # Log portfolio alerts
+                if hasattr(self, 'decision_journal') and self.decision_journal:
+                    for pa in brief.portfolio_alerts[:3]:
+                        try:
+                            await self.decision_journal.log_decision(
+                                symbol='PORTFOLIO', action='INTEL_ALERT',
+                                signal_data={'alert': pa}
+                            )
+                        except Exception:
+                            pass
+            except Exception as e:
+                logger.debug(f"Intelligence orchestrator not available: {e}")
 
         # V7: Defensive mode check
         if self.defensive_manager and self.config.enable_defensive_mode and RISK_MANAGEMENT_AVAILABLE:

@@ -116,6 +116,14 @@ class MarketContext:
     position_size_multiplier: float = 1.0  # Adjust position sizing
     recommended_actions: List[str] = field(default_factory=list)
 
+    # V8: Macro signals
+    yield_curve_spread: Optional[float] = None
+    credit_spread_momentum: Optional[float] = None
+    dollar_momentum: Optional[float] = None
+    defensive_rotation: Optional[float] = None
+    macro_regime_score: Optional[float] = None  # -1 (BEAR) to +1 (BULL)
+    macro_regime_bias: Optional[str] = None     # bullish/bearish/neutral
+
     def to_dict(self) -> Dict:
         return {
             'timestamp': self.timestamp,
@@ -135,7 +143,15 @@ class MarketContext:
             },
             'risk_score': self.risk_score,
             'position_size_multiplier': self.position_size_multiplier,
-            'recommended_actions': self.recommended_actions
+            'recommended_actions': self.recommended_actions,
+            'macro': {
+                'yield_curve_spread': self.yield_curve_spread,
+                'credit_spread_momentum': self.credit_spread_momentum,
+                'dollar_momentum': self.dollar_momentum,
+                'defensive_rotation': self.defensive_rotation,
+                'macro_regime_score': self.macro_regime_score,
+                'macro_regime_bias': self.macro_regime_bias,
+            }
         }
 
     def get_summary(self) -> str:
@@ -173,10 +189,12 @@ class MarketContextAnalyzer:
         'XLC': 'Communication Services'
     }
 
-    def __init__(self):
+    def __init__(self, enable_macro=True):
         self._cache: Optional[MarketContext] = None
         self._cache_time: Optional[datetime] = None
         self._cache_ttl = 300  # 5 minutes
+        self._enable_macro = enable_macro
+        self._macro_fetcher = None
 
     async def get_context(self, force_refresh: bool = False) -> MarketContext:
         """
@@ -197,15 +215,24 @@ class MarketContextAnalyzer:
         logger.info("Analyzing market context...")
 
         try:
-            # Fetch data in parallel
-            spy_data, vix_data, sector_data = await asyncio.gather(
+            # V8: Fetch macro signals in parallel with existing data
+            fetch_tasks = [
                 self._fetch_spy_data(),
                 self._fetch_vix_data(),
                 self._fetch_sector_data(),
-                return_exceptions=True
-            )
+            ]
+            if self._enable_macro:
+                fetch_tasks.append(self._fetch_macro_data())
 
-            # Handle errors
+            results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
+
+            spy_data = results[0] if not isinstance(results[0], Exception) else {}
+            vix_data = results[1] if not isinstance(results[1], Exception) else {}
+            sector_data = results[2] if not isinstance(results[2], Exception) else []
+            macro_data = None
+            if self._enable_macro and len(results) > 3:
+                macro_data = results[3] if not isinstance(results[3], Exception) else None
+
             if isinstance(spy_data, Exception):
                 logger.warning(f"SPY data fetch failed: {spy_data}")
                 spy_data = {}
@@ -216,8 +243,8 @@ class MarketContextAnalyzer:
                 logger.warning(f"Sector data fetch failed: {sector_data}")
                 sector_data = []
 
-            # Determine regime
-            regime = self._determine_regime(spy_data, vix_data)
+            # Determine regime (V8: with optional macro input)
+            regime = self._determine_regime(spy_data, vix_data, macro_data=macro_data)
 
             # Determine volatility regime
             volatility = self._determine_volatility_regime(vix_data)
@@ -240,6 +267,20 @@ class MarketContextAnalyzer:
             # Generate recommendations
             recommendations = self._generate_recommendations(regime, volatility, risk_appetite)
 
+            # V8: Extract macro fields
+            macro_kwargs = {}
+            if macro_data is not None:
+                if macro_data.yield_curve is not None:
+                    macro_kwargs['yield_curve_spread'] = macro_data.yield_curve.value
+                if macro_data.credit_spread is not None:
+                    macro_kwargs['credit_spread_momentum'] = macro_data.credit_spread.value
+                if macro_data.dollar_strength is not None:
+                    macro_kwargs['dollar_momentum'] = macro_data.dollar_strength.value
+                if macro_data.defensive_rotation is not None:
+                    macro_kwargs['defensive_rotation'] = macro_data.defensive_rotation.value
+                macro_kwargs['macro_regime_score'] = macro_data.score
+                macro_kwargs['macro_regime_bias'] = macro_data.bias
+
             context = MarketContext(
                 timestamp=datetime.now().isoformat(),
                 regime=regime,
@@ -257,7 +298,8 @@ class MarketContextAnalyzer:
                 lagging_sectors=lagging,
                 risk_score=risk_score,
                 position_size_multiplier=position_mult,
-                recommended_actions=recommendations
+                recommended_actions=recommendations,
+                **macro_kwargs
             )
 
             # Cache result
@@ -401,8 +443,23 @@ class MarketContextAnalyzer:
 
         return await loop.run_in_executor(None, fetch)
 
-    def _determine_regime(self, spy_data: Dict, vix_data: Dict) -> MarketRegime:
-        """Determine current market regime"""
+    async def _fetch_macro_data(self):
+        """V8: Fetch macro signal data."""
+        loop = asyncio.get_event_loop()
+
+        def fetch():
+            if self._macro_fetcher is None:
+                from .macro_signals import MacroSignalFetcher
+                self._macro_fetcher = MacroSignalFetcher()
+            return self._macro_fetcher.get_macro_regime_score()
+
+        return await loop.run_in_executor(None, fetch)
+
+    def _determine_regime(self, spy_data: Dict, vix_data: Dict, macro_data=None) -> MarketRegime:
+        """Determine current market regime.
+
+        V8: Blends technical regime (70%) with macro signals (30%) when available.
+        """
         if not spy_data:
             return MarketRegime.RANGE
 
@@ -412,24 +469,35 @@ class MarketContextAnalyzer:
         price = spy_data.get('price', 0)
         ema200 = spy_data.get('ema200')
 
-        # Crash detection
+        # Crash detection (override - no blending)
         if change_5d < -10 or vix > 40:
             return MarketRegime.CRASH
 
-        # Strong bear
+        # Technical regime score: map to numeric
+        tech_score = 0.0  # neutral
         if trend == 'down' and vix > 30:
+            tech_score = -1.0  # strong bear
+        elif trend == 'down' or (ema200 and price < ema200):
+            tech_score = -0.5  # bear
+        elif trend == 'up' and vix < 15 and change_5d > 2:
+            tech_score = 1.0  # strong bull
+        elif trend == 'up' or (ema200 and price > ema200 * 1.05):
+            tech_score = 0.5  # bull
+
+        # V8: Blend with macro if available (30% macro, 70% technical)
+        if macro_data is not None and hasattr(macro_data, 'score') and macro_data.confidence > 0.3:
+            blended = tech_score * 0.70 + macro_data.score * 0.30
+        else:
+            blended = tech_score
+
+        # Map blended score back to regime
+        if blended <= -0.75:
             return MarketRegime.STRONG_BEAR
-
-        # Bear
-        if trend == 'down' or (ema200 and price < ema200):
+        elif blended <= -0.25:
             return MarketRegime.BEAR
-
-        # Strong bull
-        if trend == 'up' and vix < 15 and change_5d > 2:
+        elif blended >= 0.75:
             return MarketRegime.STRONG_BULL
-
-        # Bull
-        if trend == 'up' or (ema200 and price > ema200 * 1.05):
+        elif blended >= 0.25:
             return MarketRegime.BULL
 
         return MarketRegime.RANGE
