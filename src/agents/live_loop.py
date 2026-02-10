@@ -597,6 +597,20 @@ class LiveLoop:
         if self._intelligence_orchestrator is not None:
             try:
                 brief = await self._intelligence_orchestrator.get_brief()
+                # Dump brief to JSON for dashboard API
+                try:
+                    import json as _json
+                    _brief_path = os.path.join("data", "intelligence_brief.json")
+                    with open(_brief_path, "w") as _bf:
+                        _json.dump({
+                            "reasoning_summary": brief.reasoning_summary if hasattr(brief, 'reasoning_summary') else "",
+                            "portfolio_alerts": brief.portfolio_alerts[:5] if hasattr(brief, 'portfolio_alerts') else [],
+                            "market_events": getattr(brief, 'market_events', [])[:10],
+                            "megatrends": getattr(brief, 'megatrends', [])[:5],
+                            "timestamp": datetime.now().isoformat(),
+                        }, _bf, indent=2, default=str)
+                except Exception:
+                    pass
                 intel_adj = self._intelligence_orchestrator.get_symbol_adjustment(symbol, brief)
                 if intel_adj != 0:
                     old_conf = confidence

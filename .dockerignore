@@ -79,6 +79,10 @@ backtest_*.csv
 # Database (will be created in container or mounted)
 # *.db
 
+# Dashboard build artifacts
+dashboard/node_modules
+dashboard/dist
+
 # Claude/AI files
 .claude/
 

@@ -1,7 +1,16 @@
 # Midas V8 - Production Dockerfile
 # Optimized for Hetzner VPS (x86_64, 8GB RAM)
 
-# ============== Build Stage ==============
+# ============== Dashboard Build Stage ==============
+FROM node:20-alpine AS dashboard-builder
+
+WORKDIR /dashboard
+COPY dashboard/package.json dashboard/package-lock.json* ./
+RUN npm ci --ignore-scripts 2>/dev/null || npm install
+COPY dashboard/ ./
+RUN npm run build
+
+# ============== Python Build Stage ==============
 FROM python:3.11-slim AS builder
 
 WORKDIR /app
@@ -42,6 +51,9 @@ COPY src/ ./src/
 COPY config/ ./config/
 COPY run_agent.py .
 COPY requirements.txt .
+
+# Copy dashboard build output
+COPY --from=dashboard-builder /dashboard/dist ./dashboard/dist
 
 # Create data directories
 RUN mkdir -p /app/data /app/data/cache /app/data/grok /app/data/tickers \

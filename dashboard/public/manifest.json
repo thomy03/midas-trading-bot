@@ -1,0 +1,16 @@
+{
+  "name": "Midas Trading",
+  "short_name": "Midas",
+  "description": "Midas algorithmic trading dashboard",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#d4a017",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

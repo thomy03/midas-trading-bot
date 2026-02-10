@@ -36,8 +36,8 @@ class TestHealthEndpoints:
 
     @pytest.mark.integration
     def test_root_endpoint(self):
-        """Test root endpoint returns API info"""
-        response = client.get("/")
+        """Test API info endpoint returns API info"""
+        response = client.get("/api/info")
 
         assert response.status_code == 200
         data = response.json()

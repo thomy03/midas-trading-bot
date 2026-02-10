@@ -14,8 +14,10 @@ from contextlib import asynccontextmanager
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from fastapi import FastAPI, HTTPException, Depends, Query, BackgroundTasks, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Depends, Query, BackgroundTasks, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
 
@@ -236,11 +238,19 @@ app.add_middleware(
 )
 
 
+# ==================== Static Files (Dashboard SPA) ====================
+
+DASHBOARD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "dashboard", "dist")
+
+if os.path.isdir(DASHBOARD_DIR):
+    app.mount("/assets", StaticFiles(directory=os.path.join(DASHBOARD_DIR, "assets")), name="static-assets")
+
+
 # ==================== Health & Info ====================
 
-@app.get("/", tags=["Info"])
-async def root():
-    """API root endpoint"""
+@app.get("/api/info", tags=["Info"])
+async def api_info():
+    """API info endpoint"""
     return {
         "name": "TradingBot V3 API",
         "version": "3.0.0",
@@ -1039,3 +1049,121 @@ async def get_pillar_weights():
         return {"status": "ok", "weights": weights}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+# ==================== Agent Status Endpoint ====================
+
+@app.get("/api/v1/agent/status", tags=["Agent"])
+async def get_agent_status(api_key: str = Depends(verify_api_key)):
+    """Get live agent status, regime, metrics, hot symbols, and intelligence brief."""
+    import json
+    from pathlib import Path
+
+    result = {
+        "running": False,
+        "phase": "unknown",
+        "market_regime": "RANGE",
+        "metrics": {},
+        "hot_symbols": [],
+        "intelligence_brief": None,
+    }
+
+    # Read agent state
+    state_path = Path("data/agent_state.json")
+    if state_path.exists():
+        try:
+            with open(state_path, "r") as f:
+                state = json.load(f)
+            result["running"] = state.get("running", False)
+            result["phase"] = state.get("session", state.get("phase", "unknown"))
+            result["market_regime"] = state.get("market_regime", "RANGE")
+            result["metrics"] = state.get("metrics", {})
+            result["hot_symbols"] = state.get("hot_symbols", [])
+        except Exception:
+            pass
+
+    # Read intelligence brief
+    brief_path = Path("data/intelligence_brief.json")
+    if brief_path.exists():
+        try:
+            with open(brief_path, "r") as f:
+                result["intelligence_brief"] = json.load(f)
+        except Exception:
+            pass
+
+    return result
+
+
+# ==================== Portfolio History Endpoint ====================
+
+@app.get("/api/v1/portfolio/history", tags=["Portfolio"])
+async def get_portfolio_history(api_key: str = Depends(verify_api_key)):
+    """Get portfolio equity curve (daily history vs SPY)."""
+    try:
+        from src.utils.portfolio_tracker import get_performance_stats
+        stats = get_performance_stats()
+        return stats
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== Portfolio Positions Endpoint ====================
+
+@app.get("/api/v1/portfolio/positions", tags=["Portfolio"])
+async def get_portfolio_positions(api_key: str = Depends(verify_api_key)):
+    """Get detailed positions with allocation percentages and pillar scores."""
+    import json
+    from pathlib import Path
+
+    portfolio_path = Path("data/portfolio.json")
+    if not portfolio_path.exists():
+        return {"positions": [], "total_value": 0}
+
+    try:
+        with open(portfolio_path, "r") as f:
+            data = json.load(f)
+
+        positions = data.get("positions", [])
+        cash = data.get("cash", 0)
+        total_capital = data.get("total_capital", cash)
+
+        total_invested = sum(
+            p.get("position_value", p.get("shares", 0) * p.get("entry_price", 0))
+            for p in positions
+        )
+        total_value = cash + total_invested
+
+        enriched = []
+        for p in positions:
+            pos_value = p.get("position_value", p.get("shares", 0) * p.get("entry_price", 0))
+            enriched.append({
+                **p,
+                "position_value": pos_value,
+                "allocation_pct": (pos_value / total_value * 100) if total_value > 0 else 0,
+            })
+
+        return {
+            "positions": enriched,
+            "cash": cash,
+            "total_value": total_value,
+            "total_capital": total_capital,
+            "positions_count": len(positions),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== SPA Catch-All (MUST be last) ====================
+
+@app.get("/{path:path}", include_in_schema=False)
+async def serve_spa(path: str):
+    """Serve the React SPA for any non-API route."""
+    index_path = os.path.join(DASHBOARD_DIR, "index.html")
+    if os.path.isdir(DASHBOARD_DIR) and os.path.isfile(index_path):
+        return FileResponse(index_path)
+    return {
+        "name": "TradingBot V3 API",
+        "version": "3.0.0",
+        "docs": "/docs",
+        "dashboard": "not built - run: cd dashboard && npm run build",
+    }
