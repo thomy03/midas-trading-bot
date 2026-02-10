@@ -4,16 +4,16 @@ import {
   Wallet,
   TrendingUp,
   Zap,
-  Globe,
+  FlaskConical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
   { to: "/", icon: LayoutDashboard, label: "Home" },
   { to: "/portfolio", icon: Wallet, label: "Portfolio" },
-  { to: "/performance", icon: TrendingUp, label: "Perf" },
+  { to: "/strategies", icon: FlaskConical, label: "A/B Test" },
   { to: "/signals", icon: Zap, label: "Signals" },
-  { to: "/market", icon: Globe, label: "Market" },
+  { to: "/performance", icon: TrendingUp, label: "Perf" },
 ];
 
 export function BottomNav() {

@@ -545,6 +545,38 @@ class LiveLoop:
         
         logger.info(f"📊 Signal detected: {symbol} - {signal_type} (score: {confidence})")
         
+        # V8.1: Evaluate signal against all 4 strategy profiles
+        try:
+            from src.agents.multi_strategy_tracker import get_multi_tracker
+            tracker = get_multi_tracker()
+            pillar_scores = {
+                "technical": float(getattr(alert.get("pillar_technical", 0), "score", alert.get("pillar_technical", 0)) or 0),
+                "fundamental": float(getattr(alert.get("pillar_fundamental", 0), "score", alert.get("pillar_fundamental", 0)) or 0),
+                "sentiment": float(getattr(alert.get("pillar_sentiment", 0), "score", alert.get("pillar_sentiment", 0)) or 0),
+                "news": float(getattr(alert.get("pillar_news", 0), "score", alert.get("pillar_news", 0)) or 0),
+                "ml": float(alert.get("ml_score", 0) or 0),
+            }
+            ml_score = float(alert.get("ml_score", 0) or 0)
+            current_price = float(alert.get("current_price", 0) or 0)
+            atr = float(alert.get("atr", current_price * 0.02) or current_price * 0.02)
+            
+            if current_price > 0:
+                multi_results = tracker.evaluate_signal(
+                    symbol=symbol,
+                    total_score=confidence,
+                    ml_score=ml_score,
+                    pillar_scores=pillar_scores,
+                    current_price=current_price,
+                    atr=atr,
+                )
+                accepted = [k for k, v in multi_results.items() if v.startswith("accepted")]
+                if accepted:
+                    logger.info(f"   🧪 Multi-strategy: {len(accepted)}/4 accepted: {multi_results}")
+                else:
+                    logger.info(f"   🧪 Multi-strategy: 0/4 accepted")
+        except Exception as e:
+            logger.warning(f"Multi-strategy tracker error: {e}")
+        
         # Log detailed scores (4 piliers)
         if 'pillar_technical' in alert:
             logger.info(f"   📊 4 PILIERS: Tech={alert.get('pillar_technical',0)}/25, Fonda={alert.get('pillar_fundamental',0)}/25, Sentiment={alert.get('pillar_sentiment',0)}/25, News={alert.get('pillar_news',0)}/25")

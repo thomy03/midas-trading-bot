@@ -7,6 +7,7 @@ import Signals from "./pages/Signals";
 import Market from "./pages/Market";
 import Journal from "./pages/Journal";
 import Settings from "./pages/Settings";
+import Strategies from "./pages/Strategies";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/strategies" element={<Strategies />} />
         <Route path="/performance" element={<Performance />} />
         <Route path="/signals" element={<Signals />} />
         <Route path="/market" element={<Market />} />

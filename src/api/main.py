@@ -1155,6 +1155,56 @@ async def get_portfolio_positions(api_key: str = Depends(verify_api_key)):
 
 # ==================== SPA Catch-All (MUST be last) ====================
 
+# ============================================================
+# V8.1: Multi-Strategy Comparison Endpoints
+# ============================================================
+
+@app.get("/api/v1/strategies/comparison", tags=["Strategies"])
+async def get_strategy_comparison():
+    """Get comparison of all 4 strategy profiles."""
+    try:
+        from src.agents.multi_strategy_tracker import get_multi_tracker
+        tracker = get_multi_tracker()
+        return tracker.get_comparison()
+    except Exception as e:
+        logger.error(f"Strategy comparison error: {e}")
+        return {"strategies": [], "error": str(e)}
+
+@app.post("/api/v1/strategies/reset", tags=["Strategies"])
+async def reset_strategies():
+    """Reset all virtual strategy portfolios."""
+    try:
+        from src.agents.multi_strategy_tracker import get_multi_tracker
+        tracker = get_multi_tracker()
+        tracker.reset()
+        return {"status": "ok", "message": "All strategies reset to initial capital"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+@app.get("/api/v1/strategies/profiles", tags=["Strategies"])
+async def get_strategy_profiles():
+    """Get the 4 strategy profile definitions."""
+    try:
+        from config.strategies import get_all_profiles
+        profiles = get_all_profiles()
+        return {
+            pid: {
+                "id": p.id,
+                "name": p.name,
+                "description": p.description,
+                "color": p.color,
+                "min_score": p.min_score,
+                "max_positions": p.max_positions,
+                "position_size_pct": p.position_size_pct,
+                "use_ml_gate": p.use_ml_gate,
+                "pillar_weights": p.pillar_weights,
+            }
+            for pid, p in profiles.items()
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.get("/{path:path}", include_in_schema=False)
 async def serve_spa(path: str):
     """Serve the React SPA for any non-API route."""
@@ -1167,3 +1217,5 @@ async def serve_spa(path: str):
         "docs": "/docs",
         "dashboard": "not built - run: cd dashboard && npm run build",
     }
+
+

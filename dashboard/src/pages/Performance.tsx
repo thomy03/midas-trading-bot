@@ -6,8 +6,11 @@ import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { formatPct } from "@/lib/utils";
 
 export default function Performance() {
-  const { data: history, isLoading: hLoading } = usePortfolioHistory();
+  const { data: rawHistory, isLoading: hLoading } = usePortfolioHistory();
   const { data: perf, isLoading: pLoading } = usePerformance();
+
+  // Handle API returning {error: ...} instead of real data
+  const history = rawHistory && !('error' in rawHistory) ? rawHistory : null;
 
   if (hLoading || pLoading) return <LoadingSkeleton rows={4} />;
 
@@ -19,7 +22,7 @@ export default function Performance() {
           <CardTitle>Equity Curve</CardTitle>
           {history && (
             <span className="text-xs text-gray-500">
-              {history.days_tracked} days
+              {history.days_tracked ?? 0} days
             </span>
           )}
         </CardHeader>
@@ -37,35 +40,35 @@ export default function Performance() {
         <Card>
           <div className="text-xs text-gray-500">Total Return</div>
           <div className="mt-1 text-xl font-bold">
-            <span className={history && history.total_return_pct >= 0 ? "text-green-400" : "text-red-400"}>
-              {history ? formatPct(history.total_return_pct) : "--"}
+            <span className={(history?.total_return_pct ?? 0) >= 0 ? "text-green-400" : "text-red-400"}>
+              {history?.total_return_pct != null ? formatPct(history.total_return_pct) : "--"}
             </span>
           </div>
         </Card>
         <Card>
           <div className="text-xs text-gray-500">Alpha vs SPY</div>
           <div className="mt-1 text-xl font-bold">
-            <span className={history && history.alpha_pct >= 0 ? "text-green-400" : "text-red-400"}>
-              {history ? formatPct(history.alpha_pct) : "--"}
+            <span className={(history?.alpha_pct ?? 0) >= 0 ? "text-green-400" : "text-red-400"}>
+              {history?.alpha_pct != null ? formatPct(history.alpha_pct) : "--"}
             </span>
           </div>
         </Card>
         <Card>
           <div className="text-xs text-gray-500">Sharpe Ratio</div>
           <div className="mt-1 text-xl font-bold text-white">
-            {perf?.sharpe_ratio?.toFixed(2) ?? "--"}
+            {perf?.sharpe_ratio != null ? perf.sharpe_ratio.toFixed(2) : "--"}
           </div>
         </Card>
         <Card>
           <div className="text-xs text-gray-500">Max Drawdown</div>
           <div className="mt-1 text-xl font-bold text-red-400">
-            {perf ? formatPct(-perf.max_drawdown) : "--"}
+            {perf?.max_drawdown != null ? formatPct(-perf.max_drawdown) : "--"}
           </div>
         </Card>
       </div>
 
       {/* Win/Loss Stats */}
-      {perf && (
+      {perf && perf.total_trades > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Trade Stats</CardTitle>
@@ -84,8 +87,8 @@ export default function Performance() {
               <div className="text-gray-500">Win Rate</div>
             </div>
             <div>
-              <div className="text-lg font-bold text-gold">
-                {perf.profit_factor?.toFixed(2) ?? "--"}
+              <div className="text-lg font-bold">
+                {perf.profit_factor != null ? perf.profit_factor.toFixed(2) : "--"}
               </div>
               <div className="text-gray-500">Profit Factor</div>
             </div>
@@ -100,6 +103,15 @@ export default function Performance() {
             <CardTitle>Monthly Returns</CardTitle>
           </CardHeader>
           <MonthlyHeatmap data={history} />
+        </Card>
+      )}
+
+      {/* No data message */}
+      {!history && (!perf || perf.total_trades === 0) && (
+        <Card>
+          <div className="flex h-32 items-center justify-center text-sm text-gray-500">
+            📊 No performance data yet. The agent needs to make trades to generate stats.
+          </div>
         </Card>
       )}
     </div>
