@@ -229,19 +229,24 @@ class MultiStrategyTracker:
                 results[sid] = "rejected:already_holding"
                 continue
 
-            # Recalculate score with strategy-specific weights
-            weighted_score = 0
-            for pillar, weight in profile.pillar_weights.items():
-                weighted_score += pillar_scores.get(pillar, 0) * weight
-
+            # Use the agent's final score (already adjusted by reasoning engine,
+            # sector-regime, orchestrator, etc.) as the base
+            base_score = total_score
+            
             # Apply ML Gate if enabled
             if profile.use_ml_gate and ml_score is not None:
                 if ml_score < profile.ml_min_score:
                     state.signals_rejected += 1
                     results[sid] = f"rejected:ml_gate({ml_score:.0f}<{profile.ml_min_score})"
                     continue
+                # ML boost if strong ML signal
                 if ml_score > 60:
-                    weighted_score += profile.ml_boost
+                    base_score += profile.ml_boost
+            elif not profile.use_ml_gate:
+                # No ML Gate: no ML influence at all, use score as-is
+                pass
+
+            weighted_score = base_score
 
             # Check min score
             if weighted_score < profile.min_score:

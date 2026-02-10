@@ -1,0 +1,12 @@
+{
+  "current_params": {
+    "rsi_breakout_threshold": 50,
+    "heat_score_minimum": 0.5,
+    "volume_multiplier_min": 1.5,
+    "confidence_score_min": 55,
+    "max_position_count": 3,
+    "stop_loss_buffer_pct": 0.02
+  },
+  "adjustments": [],
+  "last_adjustment": null
+}
