@@ -1,0 +1,76 @@
+# Midas V8 - Production Docker Compose (Hetzner VPS)
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d        # Start all
+#   docker compose -f docker-compose.prod.yml logs -f agent # View agent logs
+#   docker compose -f docker-compose.prod.yml down          # Stop all
+#
+# Requirements: .env file with API keys (see .env.production)
+
+services:
+  # ==================== Agent Service (Live Loop V8) ====================
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: midas-agent
+    restart: unless-stopped
+    command: ["python", "run_agent.py", "--mode", "live", "--paper"]
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./models:/app/models:ro
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=Europe/Paris
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "run_agent.py"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - midas-net
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  # ==================== API Service (FastAPI) ====================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: midas-api
+    restart: unless-stopped
+    command: ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./data:/app/data:ro
+      - ./logs:/app/logs:ro
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=Europe/Paris
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - midas-net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+networks:
+  midas-net:
+    driver: bridge

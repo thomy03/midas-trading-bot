@@ -1,68 +1,91 @@
 #!/bin/bash
-# Deployment script for Midas BULL Optimization
-# Usage: ./deploy.sh [ssh-key-path]
+# Midas V8 - VPS Deployment Script
+# Run this ON the VPS (via SSH)
+#
+# Usage:
+#   curl -sL https://raw.githubusercontent.com/thomy03/midas-trading-bot/main/deploy.sh | bash
+#   OR: copy this file to VPS and run: bash deploy.sh
 
-VPS_HOST="root@46.225.58.233"
-VPS_PATH="/root/tradingbot-github"
-SSH_KEY="${1:-/home/node/.ssh/id_ed25519}"
+set -e
 
-echo "=== Midas BULL Optimization Deployment ==="
-echo "VPS: $VPS_HOST"
-echo "Path: $VPS_PATH"
-echo "SSH Key: $SSH_KEY"
-echo ""
+REPO_URL="https://github.com/thomy03/midas-trading-bot.git"
+INSTALL_DIR="/opt/midas"
+BRANCH="main"
 
-# Check SSH connection
-echo "Testing SSH connection..."
-if ! ssh -i "$SSH_KEY" -o ConnectTimeout=10 "$VPS_HOST" "echo 'Connected'" 2>/dev/null; then
-    echo "ERROR: SSH connection failed!"
-    echo ""
-    echo "Please ensure the SSH key is authorized on the VPS:"
-    echo "  1. Copy public key to VPS authorized_keys"
-    echo "  2. Or use: ssh-copy-id -i $SSH_KEY $VPS_HOST"
-    exit 1
+echo "=========================================="
+echo "  MIDAS V8 - VPS Deployment"
+echo "=========================================="
+
+# 1. System updates
+echo "[1/6] Updating system..."
+sudo apt-get update -qq
+sudo apt-get install -y -qq git curl
+
+# 2. Install Docker if not present
+if ! command -v docker &> /dev/null; then
+    echo "[2/6] Installing Docker..."
+    curl -fsSL https://get.docker.com | sh
+    sudo usermod -aG docker "$USER"
+    echo "  Docker installed. Log out and back in if 'docker' fails without sudo."
+else
+    echo "[2/6] Docker already installed ($(docker --version))"
 fi
 
-echo "SSH connection OK"
+# 3. Install Docker Compose plugin if not present
+if ! docker compose version &> /dev/null 2>&1; then
+    echo "[3/6] Installing Docker Compose plugin..."
+    sudo apt-get install -y -qq docker-compose-plugin
+else
+    echo "[3/6] Docker Compose already installed"
+fi
+
+# 4. Clone or update repo
+if [ -d "$INSTALL_DIR/.git" ]; then
+    echo "[4/6] Updating existing repo..."
+    cd "$INSTALL_DIR"
+    git fetch origin
+    git reset --hard "origin/$BRANCH"
+else
+    echo "[4/6] Cloning repo..."
+    sudo mkdir -p "$INSTALL_DIR"
+    sudo chown "$USER:$USER" "$INSTALL_DIR"
+    git clone "$REPO_URL" "$INSTALL_DIR"
+    cd "$INSTALL_DIR"
+fi
+
+# 5. Setup .env
+if [ ! -f "$INSTALL_DIR/.env" ]; then
+    echo "[5/6] Creating .env from template..."
+    cp "$INSTALL_DIR/.env.production" "$INSTALL_DIR/.env"
+    echo ""
+    echo "  ╔══════════════════════════════════════════╗"
+    echo "  ║  EDIT .env WITH YOUR REAL API KEYS NOW   ║"
+    echo "  ║  nano $INSTALL_DIR/.env                  ║"
+    echo "  ╚══════════════════════════════════════════╝"
+    echo ""
+    read -p "  Press Enter after editing .env (or Ctrl+C to abort)..."
+else
+    echo "[5/6] .env already exists (keeping current keys)"
+fi
+
+# Create data directories
+mkdir -p "$INSTALL_DIR"/{data,logs,models}
+mkdir -p "$INSTALL_DIR"/data/{cache,grok,tickers,signals,discovery,sectors,social}
+
+# 6. Build and start
+echo "[6/6] Building Docker image (this takes 3-5 min first time)..."
+cd "$INSTALL_DIR"
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d
+
 echo ""
-
-# Create directories
-echo "Creating directories..."
-ssh -i "$SSH_KEY" "$VPS_HOST" "mkdir -p $VPS_PATH/src/brokers $VPS_PATH/config"
-
-# Copy broker files
-echo "Copying broker module..."
-scp -i "$SSH_KEY" src/brokers/__init__.py "$VPS_HOST:$VPS_PATH/src/brokers/"
-scp -i "$SSH_KEY" src/brokers/ib_broker.py "$VPS_HOST:$VPS_PATH/src/brokers/"
-scp -i "$SSH_KEY" src/brokers/paper_trader.py "$VPS_HOST:$VPS_PATH/src/brokers/"
-
-# Copy scoring files
-echo "Copying scoring module..."
-scp -i "$SSH_KEY" src/scoring/bull_optimizer.py "$VPS_HOST:$VPS_PATH/src/scoring/"
-scp -i "$SSH_KEY" src/scoring/adaptive_scorer_patch.py "$VPS_HOST:$VPS_PATH/src/scoring/"
-
-# Copy agent files
-echo "Copying agent module..."
-scp -i "$SSH_KEY" src/agents/reasoning_engine_patch.py "$VPS_HOST:$VPS_PATH/src/agents/"
-
-# Copy config
-echo "Copying configuration..."
-scp -i "$SSH_KEY" config/pillar_weights.json "$VPS_HOST:$VPS_PATH/config/"
-
-# Copy documentation
-echo "Copying documentation..."
-scp -i "$SSH_KEY" SCORING_SYSTEM_UPDATE.md "$VPS_HOST:$VPS_PATH/"
-scp -i "$SSH_KEY" README.md "$VPS_HOST:$VPS_PATH/BULL_OPTIMIZATION_README.md"
-
-# Install dependencies
-echo "Installing ib_insync..."
-ssh -i "$SSH_KEY" "$VPS_HOST" "pip install ib_insync --quiet"
-
+echo "=========================================="
+echo "  Midas V8 deployed successfully!"
+echo "=========================================="
 echo ""
-echo "=== Deployment Complete ==="
+echo "  Status:      docker compose -f docker-compose.prod.yml ps"
+echo "  Agent logs:  docker compose -f docker-compose.prod.yml logs -f agent"
+echo "  API health:  curl http://localhost:8000/health"
+echo "  Stop:        docker compose -f docker-compose.prod.yml down"
+echo "  Restart:     docker compose -f docker-compose.prod.yml restart"
 echo ""
-echo "Next steps:"
-echo "1. SSH to VPS: ssh -i $SSH_KEY $VPS_HOST"
-echo "2. Navigate to project: cd $VPS_PATH"
-echo "3. Run backtest: python -m src.backtest.runner --start 2020-01-01 --end 2025-01-01"
-echo "4. Review SCORING_SYSTEM_UPDATE.md for integration details"
