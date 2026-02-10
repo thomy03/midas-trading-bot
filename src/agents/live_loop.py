@@ -216,8 +216,14 @@ class LiveLoop:
             self.position_monitor = get_position_manager()
             logger.info("V7 Risk management initialized")
 
-        # V8: Initialize Intelligence Orchestrator
-        try:
+        # V8: Initialize Intelligence Orchestrator (skip if DISABLE_LLM=1)
+        _llm_disabled = os.environ.get('DISABLE_LLM', '').strip() in ('1', 'true', 'yes')
+        if _llm_disabled:
+            logger.info("V8 Intelligence Orchestrator DISABLED (DISABLE_LLM=1)")
+            self._intelligence_orchestrator = None
+
+        if not _llm_disabled:
+          try:
             from src.intelligence.intelligence_orchestrator import IntelligenceOrchestrator
             from src.intelligence.gemini_client import GeminiClient
             from src.intelligence.market_context import get_market_context_analyzer
@@ -898,13 +904,16 @@ class LiveLoop:
 
     async def _collect_heat_data(self):
         """Collecte les données de chaleur de toutes les sources"""
+        # Skip LLM-based scanners if disabled
+        _llm_off = os.environ.get('DISABLE_LLM', '').strip() in ('1', 'true', 'yes')
+
         # Import des scanners
-        try:
+        try:  # noqa
             from ..intelligence.grok_scanner import get_grok_scanner
             from ..intelligence.social_scanner import get_social_scanner
 
-            # Grok (X/Twitter)
-            grok_scanner = await get_grok_scanner()
+            # Grok (X/Twitter) - skip if LLM disabled
+            grok_scanner = None if _llm_off else await get_grok_scanner()
             if grok_scanner:
                 trends = await grok_scanner.search_financial_trends()
                 if trends:

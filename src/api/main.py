@@ -1059,6 +1059,7 @@ async def get_agent_status(api_key: str = Depends(verify_api_key)):
     import json
     from pathlib import Path
 
+    _llm_disabled = os.environ.get('DISABLE_LLM', '').strip() in ('1', 'true', 'yes')
     result = {
         "running": False,
         "phase": "unknown",
@@ -1066,6 +1067,7 @@ async def get_agent_status(api_key: str = Depends(verify_api_key)):
         "metrics": {},
         "hot_symbols": [],
         "intelligence_brief": None,
+        "llm_enabled": not _llm_disabled,
     }
 
     # Read agent state

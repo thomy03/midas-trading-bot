@@ -23,6 +23,17 @@ export function TopBar() {
         </div>
 
         <div className="flex items-center gap-2">
+          {agent && (
+            <span
+              className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
+                agent.llm_enabled !== false
+                  ? "bg-purple-500/20 text-purple-300"
+                  : "bg-gray-500/20 text-gray-400"
+              }`}
+            >
+              {agent.llm_enabled !== false ? "LLM" : "NO LLM"}
+            </span>
+          )}
           {agent && <RegimeBadge regime={agent.market_regime} />}
           <button
             className="rounded-lg p-1.5 text-gray-400 hover:bg-surface-2 hover:text-gray-200"

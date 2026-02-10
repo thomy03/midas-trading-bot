@@ -40,6 +40,7 @@ export interface AgentStatus {
   running: boolean;
   phase: string;
   market_regime: string;
+  llm_enabled?: boolean;
   metrics: {
     started_at?: string;
     cycles?: number;
