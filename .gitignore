@@ -71,6 +71,8 @@ cleanup_*.sh
 # Chart exports (HTML visualizations)
 *.html
 !docs/**/*.html
+!dashboard/**/*.html
+!dashboard/index.html
 
 # Screenshots and images
 *.png
