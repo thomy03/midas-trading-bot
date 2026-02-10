@@ -27,7 +27,10 @@ except ImportError:
 
 from src.data.fmp_client import FMPClient, get_fmp_client
 from src.indicators.ema_analyzer import EMAAnalyzer
-from trendline_analysis.core.rsi_breakout_analyzer import RSIBreakoutAnalyzer
+try:
+    from trendline_analysis.core.rsi_breakout_analyzer import RSIBreakoutAnalyzer
+except ImportError:
+    RSIBreakoutAnalyzer = None
 
 logger = logging.getLogger(__name__)
 

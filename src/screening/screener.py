@@ -44,10 +44,15 @@ from src.indicators.ema_analyzer import ema_analyzer
 from src.database.db_manager import db_manager
 from src.utils.logger import logger
 
-# Import RSI Breakout Analyzer
-from trendline_analysis.core.rsi_breakout_analyzer import RSIBreakoutAnalyzer
-# Import Enhanced RSI Breakout Analyzer (Haute Précision)
-from trendline_analysis.core.enhanced_rsi_breakout_analyzer import EnhancedRSIBreakoutAnalyzer
+# Import RSI Breakout Analyzer (optional - removed in V6+)
+try:
+    from trendline_analysis.core.rsi_breakout_analyzer import RSIBreakoutAnalyzer
+    from trendline_analysis.core.enhanced_rsi_breakout_analyzer import EnhancedRSIBreakoutAnalyzer
+    TRENDLINE_AVAILABLE = True
+except ImportError:
+    RSIBreakoutAnalyzer = None
+    EnhancedRSIBreakoutAnalyzer = None
+    TRENDLINE_AVAILABLE = False
 
 # Import Confidence Scorer and Position Sizer
 from src.utils.confidence_scorer import confidence_scorer, ConfidenceScore

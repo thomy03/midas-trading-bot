@@ -16,9 +16,13 @@ from datetime import datetime, timedelta
 
 from .metrics import Trade, PerformanceMetrics, calculate_metrics, format_metrics_report
 
-# Import trading components
-from trendline_analysis.core.rsi_breakout_analyzer import RSIBreakoutAnalyzer
-from trendline_analysis.core.enhanced_rsi_breakout_analyzer import EnhancedRSIBreakoutAnalyzer
+# Import trading components (trendline_analysis removed in V6+)
+try:
+    from trendline_analysis.core.rsi_breakout_analyzer import RSIBreakoutAnalyzer
+    from trendline_analysis.core.enhanced_rsi_breakout_analyzer import EnhancedRSIBreakoutAnalyzer
+except ImportError:
+    RSIBreakoutAnalyzer = None
+    EnhancedRSIBreakoutAnalyzer = None
 from src.indicators.ema_analyzer import ema_analyzer
 from src.utils.confidence_scorer import confidence_scorer
 from src.utils.position_sizing import calculate_position_size

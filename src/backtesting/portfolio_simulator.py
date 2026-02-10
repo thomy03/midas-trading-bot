@@ -18,9 +18,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from .metrics import Trade, PerformanceMetrics, calculate_metrics, format_metrics_report
 from .backtester import BacktestConfig
 
-# Import trading components
-from trendline_analysis.core.rsi_breakout_analyzer import RSIBreakoutAnalyzer
-from trendline_analysis.core.enhanced_rsi_breakout_analyzer import EnhancedRSIBreakoutAnalyzer
+# Import trading components (trendline_analysis removed in V6+)
+try:
+    from trendline_analysis.core.rsi_breakout_analyzer import RSIBreakoutAnalyzer
+    from trendline_analysis.core.enhanced_rsi_breakout_analyzer import EnhancedRSIBreakoutAnalyzer
+except ImportError:
+    RSIBreakoutAnalyzer = None
+    EnhancedRSIBreakoutAnalyzer = None
 from src.indicators.ema_analyzer import ema_analyzer
 from src.utils.confidence_scorer import confidence_scorer
 from src.indicators.adaptive_exit import AdaptiveExitIndicator
