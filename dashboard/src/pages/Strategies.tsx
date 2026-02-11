@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/api/client";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -102,6 +103,7 @@ function EquityMiniChart({ strategies }: { strategies: StrategyData[] }) {
 }
 
 export default function Strategies() {
+  const navigate = useNavigate();
   const { data, isLoading } = useStrategyComparison();
 
   if (isLoading) return <LoadingSkeleton rows={6} />;
@@ -146,7 +148,8 @@ export default function Strategies() {
           {strategies.map((s, idx) => (
             <div
               key={s.id}
-              className="flex items-center justify-between rounded-lg border border-gray-800 p-3"
+              className="flex items-center justify-between rounded-lg border border-gray-800 p-3 cursor-pointer hover:border-gray-600 transition-colors"
+              onClick={() => navigate(`/strategies/${s.id}`)}
             >
               <div className="flex items-center gap-3">
                 <span className="text-lg font-bold text-gray-500">

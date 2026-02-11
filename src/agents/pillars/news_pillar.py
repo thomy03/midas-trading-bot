@@ -201,7 +201,7 @@ class NewsPillar(BasePillar):
             logger.info(f"[NEWS] {symbol}: Found {headlines_count} headlines to analyze")
 
             # V4.8: Analyze news with GeminiClient
-            if self._gemini_client:
+            if False:  # News pillar disabled - orchestrator handles news+LLM reasoning
                 analysis = await self._analyze_with_llm(symbol, news_data)
                 if analysis:
                     raw_scores = analysis.get('category_scores', {})

@@ -101,6 +101,7 @@ class ReasoningResult:
     sentiment_score: PillarScore
     news_score: PillarScore
 
+
     # Combined result
     total_score: float              # V4.8: 0 to 100 (display scale, unified)
     decision: DecisionType
@@ -113,6 +114,9 @@ class ReasoningResult:
 
     # Weights used
     weights_used: Dict[str, float]
+
+    # ML score for gate (0-100 display scale)
+    ml_score: Optional[float] = None
 
     # Market context
     market_context: Optional[MarketContext] = None
@@ -147,11 +151,11 @@ class ReasoningResult:
 class ReasoningConfig:
     """Configuration for the reasoning engine"""
     # Pillar weights (must sum to 1.0) - used as defaults if adaptive learning disabled
-    technical_weight: float = 0.30
-    fundamental_weight: float = 0.30
-    sentiment_weight: float = 0.15
-    news_weight: float = 0.10
-    ml_weight: float = 0.15  # V5.3 - ML Pillar
+    technical_weight: float = 0.55
+    fundamental_weight: float = 0.45
+    sentiment_weight: float = 0.00
+    news_weight: float = 0.00
+    ml_weight: float = 0.00  # V5.3 - ML Pillar
 
     # V5.4 - ML Confirmation Gate
     ml_confirmation_enabled: bool = True   # Require ML to confirm BUY signals
@@ -531,6 +535,7 @@ class ReasoningEngine:
             fundamental_score=fundamental_score,
             sentiment_score=sentiment_score,
             news_score=news_score,
+            ml_score=(ml_score.score + 100) / 2 if ml_score else None,
             total_score=total_score,
             decision=decision,
             confidence=confidence,

@@ -95,8 +95,8 @@ class AttentionConfig:
     hot_bypass_threshold: float = 0.8  # Bypass cooldown if heat > this
     
     # NEW: Discovery settings
-    discovery_batch_size: int = 10  # How many new symbols to discover per cycle
-    force_discovery_after_cycles: int = 3  # Force discovery if no new symbols after X cycles
+    discovery_batch_size: int = 0  # How many new symbols to discover per cycle
+    force_discovery_after_cycles: int = 999  # Force discovery if no new symbols after X cycles
 
 
 # =============================================================================

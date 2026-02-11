@@ -74,7 +74,7 @@ class MarketSession(Enum):
 class LiveLoopConfig:
     """Configuration de la boucle live"""
     # Polling intervals (secondes)
-    heat_poll_interval: int = 60      # Polling des sources de chaleur
+    heat_poll_interval: int = 300      # Polling des sources de chaleur
     screening_interval: int = 300     # Screening (5 min)
     health_check_interval: int = 600  # Health check (10 min)
 
@@ -82,15 +82,15 @@ class LiveLoopConfig:
     timezone: str = "Europe/Paris"
 
     # Heures de trading
-    pre_market_start: time = time(4, 0)
+    pre_market_start: time = time(8, 0)
     market_open: time = time(9, 0)
     market_close: time = time(17, 30)
-    after_hours_end: time = time(20, 0)
+    after_hours_end: time = time(22, 0)
 
     # Mode
     trade_pre_market: bool = False
     trade_after_hours: bool = False
-    analyze_when_closed: bool = True  # Analyse meme hors marche
+    analyze_when_closed: bool = False  # Analyse meme hors marche
     paper_trading: bool = True
 
     # V7: Risk management
@@ -229,12 +229,15 @@ class LiveLoop:
             grok_scanner = None
             news_fetcher = None
             trend_discovery = None
-            try:
-                from src.intelligence.grok_scanner import GrokScanner
-                grok_scanner = GrokScanner()
-                await grok_scanner.initialize()
-            except Exception:
-                logger.debug("Grok scanner not available for V8 orchestrator")
+            if os.environ.get("DISABLE_LLM", "false").lower() != "true":
+                try:
+                    from src.intelligence.grok_scanner import GrokScanner
+                    grok_scanner = GrokScanner()
+                    await grok_scanner.initialize()
+                except Exception:
+                    logger.debug("Grok scanner not available for V8 orchestrator")
+            else:
+                logger.info("LLM disabled - skipping Grok scanner for V8 orchestrator")
             try:
                 from src.intelligence.news_fetcher import NewsFetcher
                 news_fetcher = NewsFetcher()
@@ -497,6 +500,9 @@ class LiveLoop:
                                 'pillar_sentiment': result.sentiment_score,
                                 'pillar_news': result.news_score,
                                 'reasoning': result.reasoning_summary,
+                                'ml_score': result.ml_score,
+                                'regime': self.current_regime.value if hasattr(self.current_regime, 'value') else '',
+                                'key_factors': [str(f) for f in (result.key_factors or [])[:5]],
                                 'timestamp': result.timestamp
                             }
                             self._metrics.signals_found += 1
@@ -568,6 +574,9 @@ class LiveLoop:
                     pillar_scores=pillar_scores,
                     current_price=current_price,
                     atr=atr,
+                    reasoning=str(alert.get("reasoning", ""))[:500],
+                    regime=str(alert.get("regime", "")),
+                    key_factors=[str(f) for f in alert.get("key_factors", [])[:5]],
                 )
                 accepted = [k for k, v in multi_results.items() if v.startswith("accepted")]
                 if accepted:
@@ -587,7 +596,7 @@ class LiveLoop:
                 logger.info(f"   🏢 Piliers L2: Health={alert.get('l2_health_score',0)}/20, Context={alert.get('l2_context_score',0)}/10, Sentiment={alert.get('l2_sentiment_score',0)}/30 | ELITE={alert.get('l2_is_elite', False)}")
 
         # Filtrer par score minimum (BUY >= 55, STRONG_BUY >= 75)
-        min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 75
+        min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 55
         if confidence < min_score:
             logger.info(f"⏭️ Signal {symbol} skipped: score {confidence} < {min_score}")
             return
@@ -903,8 +912,10 @@ class LiveLoop:
             from ..intelligence.grok_scanner import get_grok_scanner
             from ..intelligence.social_scanner import get_social_scanner
 
-            # Grok (X/Twitter)
-            grok_scanner = await get_grok_scanner()
+            # Grok (X/Twitter) - skip if LLM disabled
+            grok_scanner = None
+            if os.environ.get("DISABLE_LLM", "false").lower() != "true":
+                grok_scanner = await get_grok_scanner()
             if grok_scanner:
                 trends = await grok_scanner.search_financial_trends()
                 if trends:

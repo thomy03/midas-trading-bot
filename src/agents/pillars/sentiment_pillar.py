@@ -122,7 +122,7 @@ class SentimentPillar(BasePillar):
 
         try:
             # 1. X/Twitter sentiment via Grok
-            if self.grok_api_key:
+            if False:  # Grok disabled in sentiment - only used by orchestrator
                 twitter_result = await self._analyze_twitter(symbol)
                 if twitter_result:
                     source_scores['twitter'] = twitter_result['score']
