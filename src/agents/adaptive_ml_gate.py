@@ -166,9 +166,9 @@ class AdaptiveMLGate:
             mode = 'ML_BOOST'
             self.stats['ml_boost_count'] += 1
         elif ml_confidence < 0.4:
-            # ML thinks this is a bad signal -> BLOCK
-            gated_score = 0
-            mode = 'ML_BLOCK'
+            # V8.1 Fix: ML penalty capped at -15 instead of blocking to 0
+            gated_score = max(0, base_score - 15)
+            mode = 'ML_PENALTY'
             self.stats['ml_block_count'] += 1
         else:
             # ML is neutral -> pass through

@@ -57,6 +57,20 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# V8.1 Sprint 1C: Signal tracker for feedback loop
+try:
+    from src.learning import signal_tracker as _signal_tracker
+    SIGNAL_TRACKER_AVAILABLE = True
+except ImportError:
+    SIGNAL_TRACKER_AVAILABLE = False
+
+# V8.1 Sprint 1C: Liquidity filter
+try:
+    from src.utils.liquidity_filter import check_liquidity as _check_liquidity
+    LIQUIDITY_FILTER_AVAILABLE = True
+except ImportError:
+    LIQUIDITY_FILTER_AVAILABLE = False
+
 
 # =============================================================================
 # CONFIGURATION
@@ -477,6 +491,16 @@ class LiveLoop:
                     try:
                         await self.attention_manager.mark_screened(symbol)
                         
+                        # V8.1: Liquidity filter - skip illiquid symbols
+                        if LIQUIDITY_FILTER_AVAILABLE:
+                            try:
+                                liq = _check_liquidity(symbol)
+                                if not liq['liquid']:
+                                    logger.debug(f"[LIQUIDITY] Skipping {symbol}: {liq.get('reason')}")
+                                    continue
+                            except Exception as e:
+                                logger.debug(f"[LIQUIDITY] Error for {symbol}: {e}")
+                        
                         # Analyse 4 piliers
                         result = await reasoning_engine.analyze(symbol)
                         
@@ -598,9 +622,33 @@ class LiveLoop:
         # Filtrer par score minimum (BUY >= 55, STRONG_BUY >= 75)
         min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 55
         if confidence < min_score:
-            logger.info(f"⏭️ Signal {symbol} skipped: score {confidence} < {min_score}")
+            logger.info(f"\u23ed\ufe0f Signal {symbol} skipped: score {confidence} < {min_score}")
+            # V8.1: Track rejected signal for feedback loop
+            if SIGNAL_TRACKER_AVAILABLE:
+                try:
+                    _signal_tracker.record({
+                        'symbol': symbol, 'score': confidence,
+                        'decision': 'REJECTED', 'regime': alert.get('regime', ''),
+                        'sector': alert.get('sector', ''),
+                        'rejection_reason': f'score {confidence} < {min_score}',
+                        'key_factors': alert.get('key_factors', []),
+                    })
+                except Exception:
+                    pass
             return
             
+        # V8.1: Track taken signal for feedback loop
+        if SIGNAL_TRACKER_AVAILABLE:
+            try:
+                _signal_tracker.record({
+                    'symbol': symbol, 'score': confidence,
+                    'decision': signal_type, 'regime': alert.get('regime', ''),
+                    'sector': alert.get('sector', ''),
+                    'key_factors': alert.get('key_factors', []),
+                })
+            except Exception:
+                pass
+
         # Callback externe
         if self._on_signal_callback:
             await self._on_signal_callback(alert)
