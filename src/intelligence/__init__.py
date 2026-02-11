@@ -30,15 +30,6 @@ from .trend_discovery import (
     get_trend_discovery,
 )
 
-from .heat_detector import (
-    HeatDetector,
-    HeatEvent,
-    SymbolHeat,
-    HeatSnapshot,
-    HeatConfig,
-    get_heat_detector,
-)
-
 from .attention_manager import (
     AttentionManager,
     FocusTopic,
@@ -77,13 +68,6 @@ __all__ = [
     'TrendStrength',
     'TrendType',
     'get_trend_discovery',
-    # Heat Detector
-    'HeatDetector',
-    'HeatEvent',
-    'SymbolHeat',
-    'HeatSnapshot',
-    'HeatConfig',
-    'get_heat_detector',
     # Attention Manager
     'AttentionManager',
     'FocusTopic',
