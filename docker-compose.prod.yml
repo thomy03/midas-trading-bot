@@ -26,6 +26,7 @@ services:
       - TZ=Europe/Paris
       - DISABLE_LLM=false
       - AGENT_ID=llm
+      - EXECUTION_MODE=paper
       - MULTI_STRATEGY_FILE=data/multi_strategy_llm.json
     healthcheck:
       test: ["CMD", "pgrep", "-f", "run_agent.py"]
@@ -61,6 +62,7 @@ services:
       - TZ=Europe/Paris
       - DISABLE_LLM=true
       - AGENT_ID=nollm
+      - EXECUTION_MODE=paper
       - MULTI_STRATEGY_FILE=data/multi_strategy_nollm.json
     healthcheck:
       test: ["CMD", "pgrep", "-f", "run_agent.py"]

@@ -108,3 +108,11 @@ defensive:
     cautious: {max_invested_pct: 70, min_score: 78, stop_loss_pct: 6, max_positions: 15}
     defensive: {max_invested_pct: 30, min_score: 85, stop_loss_pct: 4, max_positions: 8}
     maximum: {max_invested_pct: 15, min_score: 90, stop_loss_pct: 3, max_positions: 5}
+
+execution:
+  mode: paper  # paper | ibkr
+  ibkr:
+    host: 127.0.0.1
+    port: 4002
+    client_id: 1
+    readonly: false

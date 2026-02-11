@@ -22,7 +22,8 @@ from .strategy_evolver import StrategyEvolver, get_strategy_evolver, TradeResult
 from .decision_journal import DecisionJournal, get_decision_journal
 
 from ..intelligence.attention_manager import AttentionManager, get_attention_manager
-from ..execution.paper_trader import get_paper_trader, PaperTrader
+from ..execution.execution_bridge import get_execution_bridge
+from ..execution.paper_trader import get_paper_trader, PaperTrader  # kept for multi-strategy tracker compat
 # Portfolio tracking
 try:
     from ..utils.portfolio_tracker import record_snapshot
@@ -785,7 +786,7 @@ class LiveLoop:
             return
         
         # Get paper trader
-        paper_trader = get_paper_trader()
+        bridge = get_execution_bridge()
         
         # Extract pillar scores and reasoning from alert
         pillar_technical = alert.get('pillar_technical')
@@ -819,7 +820,7 @@ class LiveLoop:
             logger.warning(f"Could not fetch company info for {symbol}: {e}")
         
         # Open position with full analysis
-        position = paper_trader.open_position(
+        position = bridge.open_position(
             symbol=symbol,
             price=price,
             score=score,
@@ -852,7 +853,7 @@ class LiveLoop:
                         except:
                             sell_price = weakest.entry_price
                         
-                        sell_result = paper_trader.close_position(
+                        sell_result = bridge.close_position(
                             symbol=weakest.symbol,
                             price=sell_price,
                             reason=f"rotation_upgrade_to_{symbol}"
@@ -861,7 +862,7 @@ class LiveLoop:
                         if sell_result:
                             logger.info(f"🔻 SOLD {weakest.symbol} @ ${sell_price:.2f} for rotation")
                             
-                            position = paper_trader.open_position(
+                            position = bridge.open_position(
                                 symbol=symbol,
                                 price=price,
                                 score=score,
