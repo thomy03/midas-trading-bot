@@ -127,7 +127,7 @@ export default function StrategyDetailPage() {
             </div>
             {s.profile.pillar_weights && (
               <div className="flex flex-wrap gap-2 mt-1">
-                {Object.entries(s.profile.pillar_weights).map(([k, v]) => (
+                {Object.entries(s.profile.pillar_weights).filter(([_, v]) => (v as number) > 0).map(([k, v]) => (
                   <span key={k} className="rounded bg-gray-800 px-2 py-0.5">
                     {k}: <b className="text-white">{((v as number) * 100).toFixed(0)}%</b>
                   </span>
