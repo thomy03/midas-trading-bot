@@ -412,9 +412,11 @@ class LiveLoop:
                     if self.config.analyze_when_closed:
                         pass  # Continue to analysis
                     else:
+                        self._persist_state()  # Still update webapp
                         await asyncio.sleep(60)
                         continue
                 elif not self._should_trade():
+                    self._persist_state()  # Still update webapp
                     await asyncio.sleep(60)  # Attendre 1 minute
                     continue
 
