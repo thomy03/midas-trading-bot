@@ -222,6 +222,12 @@ async def lifespan(app: FastAPI):
 # ==================== App Configuration ====================
 
 app = FastAPI(
+# V8.1 signals endpoint
+try:
+    from src.api.signals_endpoint import register_signals_endpoint
+    register_signals_endpoint(app)
+except Exception:
+    pass
     title="TradingBot V3 API",
     description="REST API for market screening, alerts, and portfolio management",
     version="3.0.0",

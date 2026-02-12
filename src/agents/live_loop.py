@@ -10,6 +10,8 @@ import asyncio
 import logging
 import signal
 import os
+import json as _json
+from pathlib import Path as _Path
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, time
 from typing import Dict, List, Optional, Callable, Any
@@ -456,6 +458,7 @@ class LiveLoop:
                 # Métriques
                 self._metrics.cycles_completed += 1
                 self._metrics.last_cycle_time = datetime.now()
+                self._persist_state()
 
                 cycle_duration = (datetime.now() - cycle_start).total_seconds() * 1000
                 self._update_avg_cycle_duration(cycle_duration)
@@ -570,6 +573,7 @@ class LiveLoop:
         signal_type = alert.get('confidence_signal', 'UNKNOWN')
         
         logger.info(f"📊 Signal detected: {symbol} - {signal_type} (score: {confidence})")
+        self._persist_signal(alert)
         
         # V8.1: Evaluate signal against all 4 strategy profiles
         try:
@@ -1093,6 +1097,65 @@ class LiveLoop:
     # -------------------------------------------------------------------------
     # GETTERS
     # -------------------------------------------------------------------------
+
+    def _persist_state(self):
+        """Persist agent state for webapp API (called every cycle)"""
+        try:
+            state_path = _Path("data/agent_state.json")
+            existing = {}
+            if state_path.exists():
+                try:
+                    with open(state_path, "r") as f:
+                        existing = _json.load(f)
+                except Exception:
+                    pass
+            existing["running"] = self._running
+            existing["session"] = self._current_session.value if hasattr(self, '_current_session') else "scanning"
+            existing["phase"] = "scanning" if self._running else "stopped"
+            existing["market_regime"] = getattr(self, "_current_regime", "RANGE")
+            existing["last_updated"] = datetime.now().isoformat()
+            existing["metrics"] = {
+                "cycles": self._metrics.cycles_completed,
+                "signals_found": self._metrics.signals_found,
+                "trades_executed": self._metrics.trades_executed,
+                "screens_performed": self._metrics.screens_performed,
+                "errors": self._metrics.errors_count,
+                "uptime_seconds": int((datetime.now() - self._metrics.started_at).total_seconds()) if self._metrics.started_at else 0,
+            }
+            with open(state_path, "w") as f:
+                _json.dump(existing, f, indent=2, default=str)
+        except Exception as e:
+            logger.debug(f"State persist error: {e}")
+
+    def _persist_signal(self, alert: dict):
+        """Append signal to signals log for webapp"""
+        try:
+            signals_path = _Path("data/signals_log.json")
+            signals = []
+            if signals_path.exists():
+                try:
+                    with open(signals_path, "r") as f:
+                        signals = _json.load(f)
+                except Exception:
+                    signals = []
+            signals.append({
+                "symbol": alert.get("symbol", ""),
+                "score": alert.get("confidence_score", 0),
+                "signal": alert.get("confidence_signal", ""),
+                "regime": alert.get("regime", ""),
+                "timestamp": datetime.now().isoformat(),
+                "pillar_scores": {
+                    "technical": float(getattr(alert.get("pillar_technical", 0), "score", alert.get("pillar_technical", 0)) or 0),
+                    "fundamental": float(getattr(alert.get("pillar_fundamental", 0), "score", alert.get("pillar_fundamental", 0)) or 0),
+                },
+                "ml_score": float(alert.get("ml_score", 0) or 0),
+                "key_factors": [str(f) for f in alert.get("key_factors", [])[:3]],
+            })
+            signals = signals[-500:]
+            with open(signals_path, "w") as f:
+                _json.dump(signals, f, indent=2, default=str)
+        except Exception as e:
+            logger.debug(f"Signal persist error: {e}")
 
     def get_metrics(self) -> LoopMetrics:
         """Retourne les métriques"""
