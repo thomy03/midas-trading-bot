@@ -49,8 +49,8 @@ services:
     networks:
       - tradingbot-network
     # Note: Pour le trading reel, retirer --mock et configurer IBKR_HOST
-    # extra_hosts:
-    #   - "host.docker.internal:host-gateway"  # Pour acceder a TWS sur l'hote
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Pour acceder a TWS sur l'hote
 
   # ==================== Dashboard Service ====================
   dashboard:
