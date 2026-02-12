@@ -38,6 +38,13 @@ try:
 except ImportError:
     get_polygon_client = None
 
+# Free RSS News Scraper
+try:
+    from src.data.news_scraper import get_news_scraper
+    RSS_SCRAPER_AVAILABLE = True
+except ImportError:
+    RSS_SCRAPER_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 
@@ -69,11 +76,13 @@ class NewsPillar(BasePillar):
         self._gemini_client = None  # Will be GeminiClient
 
         # News type weights
+        # Updated weights (V4.10): includes Google Trends
         self.news_weights = {
-            'earnings': 0.30,
+            'earnings': 0.25,
             'analyst': 0.25,
-            'company': 0.25,
-            'sector': 0.20
+            'company': 0.20,
+            'sector': 0.15,
+            'trends': 0.15
         }
 
     def get_name(self) -> str:
@@ -214,6 +223,27 @@ class NewsPillar(BasePillar):
                             category_scores[k] = 0
                     factors = analysis.get('factors', [])
 
+            # V4.10: Get Google Trends score and integrate
+            try:
+                trends_result = await self.get_trends_score(symbol)
+                trends_score = trends_result.get('score', 50)
+                # Normalize from 0-100 to -100/+100
+                trends_normalized = (trends_score - 50) * 2
+                category_scores['trends'] = trends_normalized
+                trend_label = trends_result.get('trend', 'unknown')
+                change_pct = trends_result.get('change_pct', 0)
+                factors.append({
+                    'category': 'trends',
+                    'headline': f'Google Trends: {trend_label} ({change_pct:+.1f}% change)',
+                    'impact': 'positive' if trends_normalized > 20 else 'negative' if trends_normalized < -20 else 'neutral',
+                    'score': trends_normalized,
+                    'reason': f"Search interest {trend_label}, current={trends_result.get('current_interest', 0)}"
+                })
+                logger.info(f"[NEWS] {symbol}: Google Trends score={trends_normalized:.0f} ({trend_label})")
+            except Exception as e:
+                logger.warning(f"[NEWS] {symbol}: Google Trends failed: {e}")
+                category_scores['trends'] = 0
+
             # Calculate weighted total
             if category_scores:
                 total_score = sum(
@@ -324,6 +354,30 @@ class NewsPillar(BasePillar):
                                 logger.debug(f"Polygon added {added} news for {symbol}")
             except Exception as pe:
                 logger.debug(f"Polygon news skipped for {symbol}: {pe}")
+
+            # V4.10: Enrich with free RSS sources
+            try:
+                if RSS_SCRAPER_AVAILABLE:
+                    scraper = get_news_scraper()
+                    rss_headlines = await scraper.get_all_news(symbol)
+                    existing_titles = {h['title'].lower() for h in headlines}
+                    added = 0
+                    for rss_item in rss_headlines:
+                        if rss_item['title'].lower() not in existing_titles:
+                            headlines.append({
+                                'title': rss_item['title'],
+                                'publisher': rss_item.get('source', 'RSS'),
+                                'link': rss_item.get('link', ''),
+                                'published': rss_item.get('published', ''),
+                                'type': 'NEWS',
+                                'summary': rss_item.get('summary', '')
+                            })
+                            existing_titles.add(rss_item['title'].lower())
+                            added += 1
+                    if added > 0:
+                        logger.info(f'RSS scraper added {added} headlines for {symbol}')
+            except Exception as rss_err:
+                logger.debug(f'RSS scraper skipped for {symbol}: {rss_err}')
 
             return {
                 'headlines': headlines,
