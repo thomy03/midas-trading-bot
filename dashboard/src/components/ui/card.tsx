@@ -3,12 +3,14 @@ import type { HTMLAttributes } from "react";
 
 export function Card({
   className,
+  variant = "default",
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement> & { variant?: "default" | "accent" | "glass" }) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-surface p-4",
+        "rounded-2xl p-4 transition-all duration-200",
+        variant === "accent" ? "glass-accent" : "glass",
         className
       )}
       {...props}
@@ -34,7 +36,7 @@ export function CardTitle({
 }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={cn("text-sm font-medium text-gray-400", className)}
+      className={cn("text-sm font-semibold text-gray-300", className)}
       {...props}
     />
   );

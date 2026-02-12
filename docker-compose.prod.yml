@@ -19,6 +19,9 @@ services:
       - ./data:/app/data
       - ./logs:/app/logs
       - ./models:/app/models:ro
+      - ./src:/app/src:ro
+      - ./config:/app/config:ro
+      - ./dashboard/dist:/app/dashboard/dist:ro
     env_file:
       - .env
     environment:
@@ -55,6 +58,9 @@ services:
       - ./data-nollm:/app/data
       - ./logs-nollm:/app/logs
       - ./models:/app/models:ro
+      - ./src:/app/src:ro
+      - ./config:/app/config:ro
+      - ./dashboard/dist:/app/dashboard/dist:ro
     env_file:
       - .env
     environment:
@@ -93,6 +99,9 @@ services:
       - ./data:/app/data
       - ./data-nollm:/app/data-nollm:ro
       - ./logs:/app/logs
+      - ./src:/app/src:ro
+      - ./config:/app/config:ro
+      - ./dashboard/dist:/app/dashboard/dist:ro
     env_file:
       - .env
     environment:

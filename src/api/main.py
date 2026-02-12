@@ -222,17 +222,18 @@ async def lifespan(app: FastAPI):
 # ==================== App Configuration ====================
 
 app = FastAPI(
+    title="TradingBot V3 API",
+    description="REST API for market screening, alerts, and portfolio management",
+    version="3.0.0",
+    lifespan=lifespan
+)
+
 # V8.1 signals endpoint
 try:
     from src.api.signals_endpoint import register_signals_endpoint
     register_signals_endpoint(app)
 except Exception:
     pass
-    title="TradingBot V3 API",
-    description="REST API for market screening, alerts, and portfolio management",
-    version="3.0.0",
-    lifespan=lifespan
-)
 
 # CORS middleware
 app.add_middleware(
@@ -485,14 +486,44 @@ async def add_symbol_to_watchlist(
 # ==================== Portfolio & Trades ====================
 
 @app.get("/api/v1/portfolio/summary", response_model=PortfolioSummary, tags=["Portfolio"])
-async def get_portfolio_summary(api_key: str = Depends(verify_api_key)):
+async def get_portfolio_summary(agent: str = "llm", api_key: str = Depends(verify_api_key)):
     """Get portfolio summary (reads from portfolio.json for paper trading)."""
     import json
     from pathlib import Path
     
     try:
-        # Read directly from portfolio.json for paper trading
-        portfolio_path = Path("data/portfolio.json")
+        data_dir = "data" if agent == "llm" else "data-nollm"
+        suffix = "llm" if agent == "llm" else "nollm"
+        ms_path = Path(f"{data_dir}/multi_strategy_{suffix}.json")
+
+        # Try multi_strategy file first
+        if ms_path.exists():
+            with open(ms_path, "r") as f:
+                ms_data = json.load(f)
+            total_cash = 0
+            total_invested = 0
+            total_pnl = 0
+            total_positions = 0
+            for sid, sdata in ms_data.get("strategies", {}).items():
+                cash = sdata.get("cash", 15000)
+                total_cash += cash
+                for p in sdata.get("positions", []):
+                    cur = p.get("current_price", p.get("entry_price", 0))
+                    entry = p.get("entry_price", 0)
+                    shares = p.get("shares", 0)
+                    total_invested += cur * shares
+                    total_pnl += (cur - entry) * shares
+                    total_positions += 1
+            return PortfolioSummary(
+                total_capital=round(total_cash + total_invested, 2),
+                available_capital=round(total_cash, 2),
+                invested_capital=round(total_invested, 2),
+                open_positions=total_positions,
+                unrealized_pnl=round(total_pnl, 2)
+            )
+
+        # Fallback to portfolio.json
+        portfolio_path = Path(f"{data_dir}/portfolio.json")
         if portfolio_path.exists():
             with open(portfolio_path, 'r') as f:
                 data = json.load(f)
@@ -536,6 +567,7 @@ async def get_portfolio_summary(api_key: str = Depends(verify_api_key)):
 @app.get("/api/v1/trades", response_model=List[TradeResponse], tags=["Trades"])
 async def get_trades(
     status: Optional[str] = Query(None, pattern="^(open|closed)$"),
+    agent: str = "llm",
     api_key: str = Depends(verify_api_key)
 ):
     """Get all trades, optionally filtered by status (reads from portfolio.json for paper trading)."""
@@ -546,9 +578,39 @@ async def get_trades(
     try:
         trades = []
         
-        # Read open positions from portfolio.json
+        data_dir = "data" if agent == "llm" else "data-nollm"
+        suffix = "llm" if agent == "llm" else "nollm"
+
+        # Read open positions from multi_strategy file
         if status != "closed":
-            portfolio_path = Path("data/portfolio.json")
+            ms_path = Path(f"{data_dir}/multi_strategy_{suffix}.json")
+            if ms_path.exists():
+                with open(ms_path, "r") as f:
+                    ms_data = json.load(f)
+                for sid, sdata in ms_data.get("strategies", {}).items():
+                    for i, p in enumerate(sdata.get("positions", [])):
+                        entry = p.get("entry_price", 0)
+                        cur = p.get("current_price", entry)
+                        shares = p.get("shares", 0)
+                        trades.append(TradeResponse(
+                            trade_id=f"{agent}_{sid}_{p.get('symbol', '')}_{i}",
+                            symbol=p.get("symbol", ""),
+                            entry_date=p.get("entry_date", datetime.now().isoformat()),
+                            entry_price=entry,
+                            shares=shares,
+                            status="open",
+                            pnl=round((cur - entry) * shares, 2),
+                            pnl_pct=round(((cur - entry) / entry) * 100, 2) if entry > 0 else 0,
+                            stop_loss=p.get("stop_loss"),
+                            take_profit=p.get("take_profit"),
+                            score_at_entry=p.get("score_at_entry"),
+                            reasoning=p.get("reasoning"),
+                            position_value=round(cur * shares, 2),
+                            company_name=p.get("company_name"),
+                            sector=p.get("sector"),
+                        ))
+
+            portfolio_path = Path(f"{data_dir}/portfolio.json")
             if portfolio_path.exists():
                 with open(portfolio_path, 'r') as f:
                     data = json.load(f)
@@ -578,7 +640,7 @@ async def get_trades(
         
         # Read closed trades from trades_history.json
         if status != "open":
-            history_path = Path("data/trades_history.json")
+            history_path = Path(f"{data_dir}/trades_history.json")
             if history_path.exists():
                 with open(history_path, 'r') as f:
                     data = json.load(f)
@@ -663,11 +725,60 @@ async def close_trade(
 
 
 @app.get("/api/v1/trades/performance", response_model=PerformanceResponse, tags=["Trades"])
-async def get_performance(api_key: str = Depends(verify_api_key)):
+async def get_performance(agent: str = "llm", api_key: str = Depends(verify_api_key)):
     """Get trading performance metrics."""
+    import json as _json
+    from pathlib import Path as _Path
     try:
-        summary = trade_tracker.get_performance_summary()
+        data_dir = "data" if agent == "llm" else "data-nollm"
+        suffix = "llm" if agent == "llm" else "nollm"
+        ms_path = _Path(f"{data_dir}/multi_strategy_{suffix}.json")
 
+        if ms_path.exists():
+            with open(ms_path, "r") as f:
+                ms_data = _json.load(f)
+            total_trades = 0
+            winning = 0
+            losing = 0
+            total_pnl = 0.0
+            wins_sum = 0.0
+            losses_sum = 0.0
+            max_dd = 0.0
+            open_pos = 0
+            for sid, sdata in ms_data.get("strategies", {}).items():
+                total_trades += sdata.get("total_trades", 0)
+                winning += sdata.get("winning_trades", 0)
+                losing += sdata.get("losing_trades", 0)
+                total_pnl += sdata.get("total_pnl", 0)
+                open_pos += len(sdata.get("positions", []))
+                dd = abs(sdata.get("max_drawdown", 0))
+                if dd > max_dd:
+                    max_dd = dd
+                for t in sdata.get("closed_trades", []):
+                    pnl = t.get("pnl_amount", t.get("pnl", 0))
+                    if pnl > 0:
+                        wins_sum += pnl
+                    else:
+                        losses_sum += abs(pnl)
+            closed = total_trades
+            win_rate = (winning / closed * 100) if closed > 0 else 0
+            avg_win = (wins_sum / winning) if winning > 0 else 0
+            avg_loss = (losses_sum / losing) if losing > 0 else 0
+            pf = (wins_sum / losses_sum) if losses_sum > 0 else None
+            return PerformanceResponse(
+                total_trades=total_trades + open_pos,
+                open_trades=open_pos,
+                closed_trades=closed,
+                total_pnl=round(total_pnl, 2),
+                win_rate=round(win_rate, 1),
+                avg_win=round(avg_win, 2),
+                avg_loss=round(avg_loss, 2),
+                profit_factor=round(pf, 2) if pf else None,
+                sharpe_ratio=None,
+                max_drawdown=round(max_dd, 2)
+            )
+
+        summary = trade_tracker.get_performance_summary()
         return PerformanceResponse(
             total_trades=summary['total_trades'],
             open_trades=summary['open_trades'],
@@ -1060,7 +1171,7 @@ async def get_pillar_weights():
 # ==================== Agent Status Endpoint ====================
 
 @app.get("/api/v1/agent/status", tags=["Agent"])
-async def get_agent_status(api_key: str = Depends(verify_api_key)):
+async def get_agent_status(agent: str = "llm", api_key: str = Depends(verify_api_key)):
     """Get live agent status, regime, metrics, hot symbols, and intelligence brief."""
     import json
     from pathlib import Path
@@ -1074,8 +1185,10 @@ async def get_agent_status(api_key: str = Depends(verify_api_key)):
         "intelligence_brief": None,
     }
 
+    data_dir = "data" if agent == "llm" else "data-nollm"
+
     # Read agent state
-    state_path = Path("data/agent_state.json")
+    state_path = Path(f"{data_dir}/agent_state.json")
     if state_path.exists():
         try:
             with open(state_path, "r") as f:
@@ -1089,7 +1202,7 @@ async def get_agent_status(api_key: str = Depends(verify_api_key)):
             pass
 
     # Read intelligence brief
-    brief_path = Path("data/intelligence_brief.json")
+    brief_path = Path(f"{data_dir}/intelligence_brief.json")
     if brief_path.exists():
         try:
             with open(brief_path, "r") as f:
@@ -1103,7 +1216,7 @@ async def get_agent_status(api_key: str = Depends(verify_api_key)):
 # ==================== Portfolio History Endpoint ====================
 
 @app.get("/api/v1/portfolio/history", tags=["Portfolio"])
-async def get_portfolio_history(api_key: str = Depends(verify_api_key)):
+async def get_portfolio_history(agent: str = "llm", api_key: str = Depends(verify_api_key)):
     """Get portfolio equity curve (daily history vs SPY)."""
     try:
         from src.utils.portfolio_tracker import get_performance_stats
@@ -1116,12 +1229,51 @@ async def get_portfolio_history(api_key: str = Depends(verify_api_key)):
 # ==================== Portfolio Positions Endpoint ====================
 
 @app.get("/api/v1/portfolio/positions", tags=["Portfolio"])
-async def get_portfolio_positions(api_key: str = Depends(verify_api_key)):
+async def get_portfolio_positions(agent: str = "llm", api_key: str = Depends(verify_api_key)):
     """Get detailed positions with allocation percentages and pillar scores."""
     import json
     from pathlib import Path
 
-    portfolio_path = Path("data/portfolio.json")
+    data_dir = "data" if agent == "llm" else "data-nollm"
+    suffix = "llm" if agent == "llm" else "nollm"
+    ms_path = Path(f"{data_dir}/multi_strategy_{suffix}.json")
+
+    # Try multi_strategy file first
+    if ms_path.exists():
+        try:
+            with open(ms_path, "r") as f:
+                ms_data = json.load(f)
+            all_positions = []
+            total_cash = 0
+            for sid, sdata in ms_data.get("strategies", {}).items():
+                total_cash += sdata.get("cash", 15000)
+                for p in sdata.get("positions", []):
+                    p["strategy"] = sdata.get("name", sid)
+                    all_positions.append(p)
+            total_invested = sum(
+                p.get("current_price", p.get("entry_price", 0)) * p.get("shares", 0)
+                for p in all_positions
+            )
+            total_value = total_cash + total_invested
+            enriched = []
+            for p in all_positions:
+                pos_value = p.get("current_price", p.get("entry_price", 0)) * p.get("shares", 0)
+                enriched.append({
+                    **p,
+                    "position_value": pos_value,
+                    "allocation_pct": round((pos_value / total_value * 100), 2) if total_value > 0 else 0
+                })
+            return {
+                "positions": enriched,
+                "cash": round(total_cash, 2),
+                "total_value": round(total_value, 2),
+                "total_capital": round(total_value, 2),
+                "positions_count": len(enriched)
+            }
+        except Exception:
+            pass
+
+    portfolio_path = Path(f"{data_dir}/portfolio.json")
     if not portfolio_path.exists():
         return {"positions": [], "total_value": 0}
 

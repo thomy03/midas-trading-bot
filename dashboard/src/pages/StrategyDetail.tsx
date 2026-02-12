@@ -1,9 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiFetch } from "@/api/client";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { formatPct, formatCurrency } from "@/lib/utils";
+import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 
 interface Position {
   symbol: string;
@@ -34,6 +36,9 @@ interface ClosedTrade {
   exit_date: string;
   reason: string;
   hold_days?: number;
+  score_at_entry?: number;
+  reasoning?: string;
+  pillar_scores?: Record<string, number>;
 }
 
 interface StrategyDetail {
@@ -68,9 +73,142 @@ interface StrategyDetail {
   error?: string;
 }
 
+/* ---------- Ask AI Modal ---------- */
+function AskAIModal({
+  trade,
+  onClose,
+}: {
+  trade: ClosedTrade | Position;
+  onClose: () => void;
+}) {
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: async (q: string) => {
+      const res = await apiFetch<{ answer: string }>("/api/v1/strategies/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: q,
+          context: {
+            symbol: trade.symbol,
+            entry_price: trade.entry_price,
+            exit_price: "exit_price" in trade ? trade.exit_price : undefined,
+            current_price: "current_price" in trade ? trade.current_price : undefined,
+            pnl_pct: "pnl_pct" in trade ? trade.pnl_pct : undefined,
+            pnl: "pnl" in trade ? trade.pnl : undefined,
+            score_at_entry: "score_at_entry" in trade ? trade.score_at_entry : undefined,
+            reasoning: "reasoning" in trade ? trade.reasoning : undefined,
+            reason: "reason" in trade ? trade.reason : undefined,
+            entry_date: trade.entry_date,
+            exit_date: "exit_date" in trade ? trade.exit_date : undefined,
+            pillar_scores: "pillar_scores" in trade ? trade.pillar_scores : undefined,
+            pillar_technical: "pillar_technical" in trade ? trade.pillar_technical : undefined,
+            pillar_fundamental: "pillar_fundamental" in trade ? trade.pillar_fundamental : undefined,
+          },
+        }),
+      });
+      return res.answer;
+    },
+    onSuccess: (data) => setAnswer(data),
+  });
+
+  const handleAsk = () => {
+    if (!question.trim()) return;
+    setAnswer("");
+    mutation.mutate(question);
+  };
+
+  const quickQuestions = [
+    "Why was this trade taken?",
+    "What could have been done better?",
+    "Analyze the risk/reward of this trade",
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="w-full max-w-lg rounded-t-2xl sm:rounded-2xl bg-gray-900 border border-gray-700 p-4 max-h-[80vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <MessageCircle size={16} className="text-purple-400" />
+            <span className="text-sm font-bold text-white">Ask AI about {trade.symbol}</span>
+          </div>
+          <button onClick={onClose} className="text-gray-500 hover:text-white">
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Trade context summary */}
+        <div className="rounded-lg bg-white/[0.03] border border-white/[0.06] p-3 mb-3 text-xs text-gray-400">
+          <div className="flex justify-between">
+            <span>{trade.symbol}</span>
+            <span className={(("pnl" in trade ? trade.pnl : 0) >= 0) ? "text-green-400" : "text-red-400"}>
+              {"pnl_pct" in trade ? formatPct(trade.pnl_pct ?? 0) : ""}
+            </span>
+          </div>
+          <div className="mt-1">
+            Entry: ${(trade.entry_price ?? 0).toFixed(2)}
+            {"exit_price" in trade && trade.exit_price ? ` → Exit: $${trade.exit_price.toFixed(2)}` : ""}
+          </div>
+        </div>
+
+        {/* Quick questions */}
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {quickQuestions.map((q) => (
+            <button
+              key={q}
+              className="text-[10px] px-2.5 py-1.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 transition-colors"
+              onClick={() => { setQuestion(q); setAnswer(""); mutation.mutate(q); }}
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+
+        {/* Input */}
+        <div className="flex gap-2 mb-3">
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAsk()}
+            placeholder="Ask anything about this trade..."
+            className="flex-1 rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+          />
+          <button
+            onClick={handleAsk}
+            disabled={mutation.isPending || !question.trim()}
+            className="rounded-lg bg-purple-600 px-3 py-2 text-white hover:bg-purple-500 disabled:opacity-40 transition-colors"
+          >
+            {mutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+          </button>
+        </div>
+
+        {/* Answer */}
+        {mutation.isError && (
+          <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-400">
+            Error: {(mutation.error as Error)?.message || "Failed to get response"}
+          </div>
+        )}
+        {answer && (
+          <div className="rounded-lg bg-white/[0.03] border border-white/[0.06] p-3">
+            <pre className="whitespace-pre-wrap text-xs text-gray-300 leading-relaxed">{answer}</pre>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function StrategyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [askTrade, setAskTrade] = useState<ClosedTrade | Position | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["strategy", id],
@@ -94,6 +232,9 @@ export default function StrategyDetailPage() {
 
   return (
     <div className="space-y-3 pb-20">
+      {/* Ask AI Modal */}
+      {askTrade && <AskAIModal trade={askTrade} onClose={() => setAskTrade(null)} />}
+
       {/* Header */}
       <div className="flex items-center gap-3">
         <button
@@ -110,7 +251,7 @@ export default function StrategyDetailPage() {
           <h1 className="text-lg font-bold text-white">{s.name}</h1>
         </div>
         <span className="rounded bg-gray-800 px-2 py-0.5 text-xs text-gray-400">
-          {s.agent === "llm" ? "🤖 LLM" : "📊 No-LLM"}
+          {s.agent === "llm" ? "🧠 LLM" : "📊 No-LLM"}
         </span>
       </div>
 
@@ -123,7 +264,6 @@ export default function StrategyDetailPage() {
               <span>Min Score: <b className="text-white">{s.profile.min_score}</b></span>
               <span>Max Pos: <b className="text-white">{s.profile.max_positions}</b></span>
               <span>Size: <b className="text-white">{((s.profile.position_size_pct || 0) <= 1 ? ((s.profile.position_size_pct || 0) * 100).toFixed(0) : (s.profile.position_size_pct || 0).toFixed(0))}%</b></span>
-              <span>ML Gate: <b className="text-white">{s.profile.use_ml_gate ? "✅" : "❌"}</b></span>
             </div>
             {s.profile.pillar_weights && (
               <div className="flex flex-wrap gap-2 mt-1">
@@ -217,7 +357,7 @@ export default function StrategyDetailPage() {
         ) : (
           <div className="space-y-2">
             {s.positions.map((p, i) => (
-              <PositionCard key={i} position={p} />
+              <PositionCard key={i} position={p} onAskAI={() => setAskTrade(p)} />
             ))}
           </div>
         )}
@@ -250,13 +390,22 @@ export default function StrategyDetailPage() {
                   <div>${(t.entry_price ?? 0).toFixed(2)} → ${(t.exit_price ?? 0).toFixed(2)}</div>
                   <div>{t.reason || ""}</div>
                 </div>
-                <div className="text-right">
-                  <div className={`font-bold ${(t.pnl ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
-                    {formatCurrency(t.pnl ?? 0)}
+                <div className="flex items-center gap-2">
+                  <div className="text-right">
+                    <div className={`font-bold ${(t.pnl ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
+                      {formatCurrency(t.pnl ?? 0)}
+                    </div>
+                    <div className={(t.pnl_pct ?? 0) >= 0 ? "text-green-400" : "text-red-400"}>
+                      {formatPct(t.pnl_pct ?? 0)}
+                    </div>
                   </div>
-                  <div className={(t.pnl_pct ?? 0) >= 0 ? "text-green-400" : "text-red-400"}>
-                    {formatPct(t.pnl_pct ?? 0)}
-                  </div>
+                  <button
+                    onClick={() => setAskTrade(t)}
+                    className="rounded-lg p-1.5 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors"
+                    title="Ask AI about this trade"
+                  >
+                    <MessageCircle size={14} />
+                  </button>
                 </div>
               </div>
             ))}
@@ -267,7 +416,7 @@ export default function StrategyDetailPage() {
   );
 }
 
-function PositionCard({ position: p }: { position: Position }) {
+function PositionCard({ position: p, onAskAI }: { position: Position; onAskAI: () => void }) {
   const [expanded, setExpanded] = React.useState(false);
 
   return (
@@ -288,19 +437,27 @@ function PositionCard({ position: p }: { position: Position }) {
             {p.sector && <span className="ml-2">• {p.sector}</span>}
           </div>
         </div>
-        <div className="text-right">
-          <div className={`text-sm font-bold ${(p.pnl_pct ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
-            {formatPct(p.pnl_pct ?? 0)}
+        <div className="flex items-center gap-2">
+          <div className="text-right">
+            <div className={`text-sm font-bold ${(p.pnl_pct ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
+              {formatPct(p.pnl_pct ?? 0)}
+            </div>
+            <div className={`text-xs ${(p.pnl_amount ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
+              {formatCurrency(p.pnl_amount ?? 0)}
+            </div>
           </div>
-          <div className={`text-xs ${(p.pnl_amount ?? 0) >= 0 ? "text-green-400" : "text-red-400"}`}>
-            {formatCurrency(p.pnl_amount ?? 0)}
-          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onAskAI(); }}
+            className="rounded-lg p-1.5 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors"
+            title="Ask AI about this position"
+          >
+            <MessageCircle size={14} />
+          </button>
         </div>
       </div>
 
       {expanded && (
         <div className="mt-3 space-y-2 border-t border-gray-800 pt-3">
-          {/* Entry details */}
           <div className="grid grid-cols-3 gap-2 text-xs">
             <div>
               <span className="text-gray-500">Entry</span>
@@ -317,7 +474,6 @@ function PositionCard({ position: p }: { position: Position }) {
             </div>
           </div>
 
-          {/* Score & Pillars */}
           <div className="text-xs">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-gray-500">Score:</span>
@@ -335,7 +491,6 @@ function PositionCard({ position: p }: { position: Position }) {
             )}
           </div>
 
-          {/* Reasoning */}
           {p.reasoning && (
             <div className="text-xs">
               <div className="text-gray-500 mb-1">Reasoning:</div>
@@ -372,5 +527,3 @@ function EquityCurve({ data, color }: { data: { date: string; equity: number }[]
     </svg>
   );
 }
-
-import React from "react";

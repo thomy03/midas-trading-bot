@@ -216,7 +216,8 @@ class MultiStrategyTracker:
         key_factors: List[str] = None,
     ) -> Dict[str, str]:
         """
-        Evaluate a signal against all 4 strategies.
+        Evaluate a signal against all strategies (aggressive + moderate).
+        Each agent (LLM / No-LLM) runs this independently.
         Returns {strategy_id: 'accepted'|'rejected'} with reasons.
         """
         from config.strategies import get_all_profiles
@@ -242,11 +243,9 @@ class MultiStrategyTracker:
                 results[sid] = "rejected:already_holding"
                 continue
 
-            # Use the agent's final score (already adjusted by reasoning engine,
-            # sector-regime, orchestrator, etc.) as the base
             base_score = total_score
             
-            # Apply ML Gate if enabled
+            # Apply ML Gate (always active)
             if profile.use_ml_gate and ml_score is not None:
                 if ml_score < profile.ml_min_score:
                     state.signals_rejected += 1
@@ -255,9 +254,6 @@ class MultiStrategyTracker:
                 # ML boost if strong ML signal
                 if ml_score > 60:
                     base_score += profile.ml_boost
-            elif not profile.use_ml_gate:
-                # No ML Gate: no ML influence at all, use score as-is
-                pass
 
             weighted_score = base_score
 

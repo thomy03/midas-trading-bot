@@ -1,8 +1,8 @@
 {
   "strategies": {
-    "aggressive_ml": {
-      "strategy_id": "aggressive_ml",
-      "name": "\ud83d\udd34 Aggressive + ML",
+    "aggressive": {
+      "strategy_id": "aggressive",
+      "name": "Aggressive",
       "color": "#ef4444",
       "initial_capital": 15000.0,
       "cash": 15000.0,
@@ -13,36 +13,15 @@
       "losing_trades": 0,
       "total_pnl": 0.0,
       "equity_curve": [],
-      "signals_evaluated": 371,
-      "signals_accepted": 10,
-      "signals_rejected": 361,
+      "signals_evaluated": 0,
+      "signals_accepted": 0,
+      "signals_rejected": 0,
       "max_drawdown": 0.0,
-      "peak_equity": 15000.0,
-      "total_value": 15000.0
+      "peak_equity": 15000.0
     },
-    "aggressive_no_ml": {
-      "strategy_id": "aggressive_no_ml",
-      "name": "\ud83d\udfe0 Aggressive (No ML)",
-      "color": "#f97316",
-      "initial_capital": 15000.0,
-      "cash": 15000.0,
-      "positions": [],
-      "closed_trades": [],
-      "total_trades": 0,
-      "winning_trades": 0,
-      "losing_trades": 0,
-      "total_pnl": 0.0,
-      "equity_curve": [],
-      "signals_evaluated": 371,
-      "signals_accepted": 10,
-      "signals_rejected": 361,
-      "max_drawdown": 0.0,
-      "peak_equity": 15000.0,
-      "total_value": 15000.0
-    },
-    "moderate_ml": {
-      "strategy_id": "moderate_ml",
-      "name": "\ud83d\udfe2 Moderate + ML",
+    "moderate": {
+      "strategy_id": "moderate",
+      "name": "Moderate",
       "color": "#22c55e",
       "initial_capital": 15000.0,
       "cash": 15000.0,
@@ -53,33 +32,12 @@
       "losing_trades": 0,
       "total_pnl": 0.0,
       "equity_curve": [],
-      "signals_evaluated": 371,
-      "signals_accepted": 6,
-      "signals_rejected": 365,
+      "signals_evaluated": 0,
+      "signals_accepted": 0,
+      "signals_rejected": 0,
       "max_drawdown": 0.0,
-      "peak_equity": 15000.0,
-      "total_value": 15000.0
-    },
-    "moderate_no_ml": {
-      "strategy_id": "moderate_no_ml",
-      "name": "\ud83d\udd35 Moderate (No ML)",
-      "color": "#3b82f6",
-      "initial_capital": 15000.0,
-      "cash": 15000.0,
-      "positions": [],
-      "closed_trades": [],
-      "total_trades": 0,
-      "winning_trades": 0,
-      "losing_trades": 0,
-      "total_pnl": 0.0,
-      "equity_curve": [],
-      "signals_evaluated": 371,
-      "signals_accepted": 1,
-      "signals_rejected": 370,
-      "max_drawdown": 0.0,
-      "peak_equity": 15000.0,
-      "total_value": 15000.0
+      "peak_equity": 15000.0
     }
   },
-  "updated_at": "2026-02-11T17:29:41.922528"
+  "updated_at": "2026-02-12T23:58:03.096119"
 }

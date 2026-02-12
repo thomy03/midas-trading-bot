@@ -1,56 +1,48 @@
 import { useAgentStatus } from "@/api/hooks";
+import { useAgent } from "@/contexts/AgentContext";
 import { RegimeBadge } from "../shared/RegimeBadge";
-import { Menu } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
 
 export function TopBar() {
   const { data: agent } = useAgentStatus();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { agent: activeAgent, setAgent } = useAgent();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-[#0a0a0f]/90 backdrop-blur-sm">
-      <div className="flex h-12 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#0a0a0f]/80 backdrop-blur-xl">
+      <div className="flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <Link to="/" className="text-lg font-bold text-gold">
+          <span className="text-lg font-bold bg-gradient-to-r from-gold to-yellow-300 bg-clip-text text-transparent">
             MIDAS
-          </Link>
-          <div
-            className={`h-2 w-2 rounded-full ${
-              agent?.running ? "bg-green-500 animate-pulse" : "bg-gray-600"
-            }`}
-          />
+          </span>
+          <div className={`h-2 w-2 rounded-full ${agent?.running ? "bg-green-500 pulse-glow" : "bg-gray-600"}`} />
+          {/* Agent Toggle Pill */}
+          <div className="flex items-center bg-white/[0.04] rounded-full border border-white/[0.08] p-0.5">
+            <button
+              onClick={() => setAgent("llm")}
+              className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-all ${
+                activeAgent === "llm"
+                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                  : "text-gray-500 hover:text-gray-400"
+              }`}
+            >
+              🧠 LLM
+            </button>
+            <button
+              onClick={() => setAgent("nollm")}
+              className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-all ${
+                activeAgent === "nollm"
+                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                  : "text-gray-500 hover:text-gray-400"
+              }`}
+            >
+              📊 NoLLM
+            </button>
+          </div>
         </div>
-
         <div className="flex items-center gap-2">
           {agent && <RegimeBadge regime={agent.market_regime} />}
-          <button
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-surface-2 hover:text-gray-200"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <Menu size={18} />
-          </button>
+          <span className="text-[10px] text-gray-600">v8.1</span>
         </div>
       </div>
-
-      {menuOpen && (
-        <nav className="border-t border-border bg-surface px-4 py-2">
-          <Link
-            to="/journal"
-            className="block rounded-lg px-3 py-2 text-sm text-gray-300 hover:bg-surface-2"
-            onClick={() => setMenuOpen(false)}
-          >
-            Trade Journal
-          </Link>
-          <Link
-            to="/settings"
-            className="block rounded-lg px-3 py-2 text-sm text-gray-300 hover:bg-surface-2"
-            onClick={() => setMenuOpen(false)}
-          >
-            Settings
-          </Link>
-        </nav>
-      )}
     </header>
   );
 }
