@@ -122,7 +122,7 @@ class TradeRecord:
 
     # Pillar weights at entry (for attribution)
     pillar_weights: Dict[str, float] = field(default_factory=lambda: {
-        'technical': 0.25, 'fundamental': 0.25, 'sentiment': 0.25, 'news': 0.25
+        'technical': 0.55, 'fundamental': 0.45, 'sentiment': 0.00, 'news': 0.00
     })
 
     # Exit (filled when trade closes)
@@ -152,10 +152,10 @@ class TradeRecord:
 @dataclass
 class PillarWeights:
     """Learnable weights for each pillar"""
-    technical: float = 0.25
-    fundamental: float = 0.25
-    sentiment: float = 0.25
-    news: float = 0.25
+    technical: float = 0.55
+    fundamental: float = 0.45
+    sentiment: float = 0.00
+    news: float = 0.00
 
     # Learning metadata
     last_updated: str = ""

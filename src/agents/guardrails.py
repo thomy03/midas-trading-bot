@@ -88,6 +88,9 @@ class TradingGuardrails:
     # Drawdown maximal avant pause (% du capital initial)
     MAX_DRAWDOWN_PCT = 0.15  # 15% → Pause 24h
 
+    # Drawdown absolu max avant arrêt TOTAL du trading
+    EMERGENCY_STOP_DRAWDOWN_PCT = 0.25  # 25% → Arrêt COMPLET
+
     # Nombre max de positions ouvertes simultanément
     MAX_OPEN_POSITIONS = 5
 
@@ -216,7 +219,18 @@ class TradingGuardrails:
 
     async def check_drawdown(self, drawdown: float):
         """Vérifie le drawdown"""
-        if drawdown > self.MAX_DRAWDOWN_PCT * 100:  # Convert to percentage
+        # Emergency stop at 25%
+        if drawdown > self.EMERGENCY_STOP_DRAWDOWN_PCT * 100:
+            reason = f"EMERGENCY STOP: Drawdown {drawdown:.2f}% > {self.EMERGENCY_STOP_DRAWDOWN_PCT*100}%"
+            logger.critical(reason)
+            self._trigger_kill_switch(reason)
+            self._send_emergency_telegram(reason)
+            raise GuardrailViolation(
+                rule='EMERGENCY_STOP',
+                message=reason,
+                severity='CRITICAL'
+            )
+        if drawdown > self.MAX_DRAWDOWN_PCT * 100:
             raise GuardrailViolation(
                 rule='DRAWDOWN',
                 message=f'Max drawdown exceeded: {drawdown:.2f}%',
@@ -309,6 +323,15 @@ class TradingGuardrails:
                 violated_rules=violations
             )
 
+        # 3b. Emergency stop: drawdown > 25% = arrêt TOTAL
+        if not self._check_emergency_drawdown(trade):
+            return ValidationResult(
+                status=TradeValidation.REJECTED,
+                trade=trade,
+                reason="EMERGENCY STOP: Drawdown > 25% - Arrêt TOTAL du trading",
+                violated_rules=["EMERGENCY_STOP_DRAWDOWN"]
+            )
+
         # 4. Vérifier la taille de position
         if not self._check_position_size(trade, violations):
             return ValidationResult(
@@ -363,6 +386,37 @@ class TradingGuardrails:
     # =========================================================================
     # CHECKS INDIVIDUELS
     # =========================================================================
+
+    def _check_emergency_drawdown(self, trade: TradeRequest) -> bool:
+        """Vérifie le drawdown d'urgence (25%) - arrêt TOTAL"""
+        if trade.current_drawdown >= self.EMERGENCY_STOP_DRAWDOWN_PCT:
+            reason = (
+                f"EMERGENCY STOP: Drawdown {trade.current_drawdown*100:.1f}% >= "
+                f"{self.EMERGENCY_STOP_DRAWDOWN_PCT*100}% - ARRET TOTAL DU TRADING"
+            )
+            logger.critical(reason)
+            self._trigger_kill_switch(reason)
+            self._send_emergency_telegram(reason)
+            return False
+        return True
+
+    def _send_emergency_telegram(self, message: str):
+        """Envoie une notification Telegram d'urgence"""
+        bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
+        chat_id = os.getenv('TELEGRAM_CHAT_ID')
+        if not bot_token or not chat_id:
+            return
+        try:
+            import requests
+            text = f"\U0001f6a8\U0001f6a8 EMERGENCY STOP \U0001f6a8\U0001f6a8\n\n{message}\n\nTout trading est ARRETE.\nReset manuel requis."
+            requests.post(
+                f"https://api.telegram.org/bot{bot_token}/sendMessage",
+                json={'chat_id': chat_id, 'text': text},
+                timeout=10
+            )
+            logger.info("Emergency Telegram notification sent")
+        except Exception as e:
+            logger.error(f"Failed to send emergency Telegram: {e}")
 
     def _check_daily_loss(self, trade: TradeRequest, violations: List[str]) -> bool:
         """Vérifie la perte quotidienne max"""

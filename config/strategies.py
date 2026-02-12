@@ -4,6 +4,10 @@ V8.1 Strategy Profiles - 4 parallel strategies for A/B testing.
 2x Aggressiveness (aggressive / moderate)
 2x ML modes (with ML Gate / without ML Gate)
 = 4 strategies total
+
+Scoring: Technical + Fundamental only (pillar weights)
+ML acts as a GATE (pass/block), not a scoring pillar
+Orchestrator (Grok+Gemini) is an overlay on LLM agent (+/- 15 pts)
 """
 
 from dataclasses import dataclass, field
@@ -54,11 +58,11 @@ class StrategyProfile:
 
 STRATEGY_PROFILES: Dict[str, StrategyProfile] = {
     
-    # 1. AGGRESSIVE + ML
+    # 1. AGGRESSIVE + ML GATE
     "aggressive_ml": StrategyProfile(
         id="aggressive_ml",
-        name="🔴 Aggressive + ML",
-        description="High conviction entries with ML confirmation. Larger positions, tighter selection.",
+        name="🔴 Aggressive + ML Gate",
+        description="High conviction entries with ML safety gate. Larger positions, tighter selection.",
         color="#ef4444",
         min_score=70,
         max_positions=10,
@@ -70,19 +74,19 @@ STRATEGY_PROFILES: Dict[str, StrategyProfile] = {
         ml_min_score=40,
         ml_boost=5.0,
         pillar_weights={
-            "technical": 0.30,
-            "fundamental": 0.15,
-            "sentiment": 0.20,
-            "news": 0.10,
-            "ml": 0.25,
+            "technical": 0.55,
+            "fundamental": 0.45,
+            "sentiment": 0.0,
+            "news": 0.0,
+            "ml": 0.0,
         },
     ),
     
-    # 2. AGGRESSIVE + NO ML
+    # 2. AGGRESSIVE + NO ML GATE
     "aggressive_no_ml": StrategyProfile(
         id="aggressive_no_ml",
-        name="🟠 Aggressive (No ML)",
-        description="High conviction entries without ML. Pure fundamental + technical analysis.",
+        name="🟠 Aggressive (No ML Gate)",
+        description="High conviction entries without ML gate. Pure fundamental + technical analysis.",
         color="#f97316",
         min_score=70,
         max_positions=10,
@@ -94,19 +98,19 @@ STRATEGY_PROFILES: Dict[str, StrategyProfile] = {
         ml_min_score=0,
         ml_boost=0,
         pillar_weights={
-            "technical": 0.35,
-            "fundamental": 0.25,
-            "sentiment": 0.20,
-            "news": 0.20,
+            "technical": 0.55,
+            "fundamental": 0.45,
+            "sentiment": 0.0,
+            "news": 0.0,
             "ml": 0.0,
         },
     ),
     
-    # 3. MODERATE + ML
+    # 3. MODERATE + ML GATE
     "moderate_ml": StrategyProfile(
         id="moderate_ml",
-        name="🟢 Moderate + ML",
-        description="Selective entries with ML confirmation. Smaller positions, higher threshold.",
+        name="🟢 Moderate + ML Gate",
+        description="Selective entries with ML safety gate. Smaller positions, higher threshold.",
         color="#22c55e",
         min_score=78,
         max_positions=6,
@@ -118,19 +122,19 @@ STRATEGY_PROFILES: Dict[str, StrategyProfile] = {
         ml_min_score=50,
         ml_boost=3.0,
         pillar_weights={
-            "technical": 0.25,
-            "fundamental": 0.20,
-            "sentiment": 0.15,
-            "news": 0.15,
-            "ml": 0.25,
+            "technical": 0.55,
+            "fundamental": 0.45,
+            "sentiment": 0.0,
+            "news": 0.0,
+            "ml": 0.0,
         },
     ),
     
-    # 4. MODERATE + NO ML
+    # 4. MODERATE + NO ML GATE
     "moderate_no_ml": StrategyProfile(
         id="moderate_no_ml",
-        name="🔵 Moderate (No ML)",
-        description="Selective entries without ML. Conservative approach, pure analysis.",
+        name="🔵 Moderate (No ML Gate)",
+        description="Selective entries without ML gate. Conservative approach, pure analysis.",
         color="#3b82f6",
         min_score=78,
         max_positions=6,
@@ -142,10 +146,10 @@ STRATEGY_PROFILES: Dict[str, StrategyProfile] = {
         ml_min_score=0,
         ml_boost=0,
         pillar_weights={
-            "technical": 0.30,
-            "fundamental": 0.30,
-            "sentiment": 0.20,
-            "news": 0.20,
+            "technical": 0.55,
+            "fundamental": 0.45,
+            "sentiment": 0.0,
+            "news": 0.0,
             "ml": 0.0,
         },
     ),

@@ -29,6 +29,12 @@ class VirtualPosition:
     take_profit: float
     score_at_entry: float
     strategy_id: str
+    # Reasoning data
+    reasoning: str = ""
+    pillar_scores: Dict[str, float] = field(default_factory=dict)
+    ml_score: float = 0.0
+    regime: str = ""
+    key_factors: List[str] = field(default_factory=list)
     current_price: float = 0.0
     pnl_pct: float = 0.0
 
@@ -47,8 +53,12 @@ class VirtualPosition:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'VirtualPosition':
-        return cls(**data)
+    def from_dict(cls, data: dict) -> "VirtualPosition":
+        # Filter to only known fields
+        import inspect
+        valid = {k for k in inspect.signature(cls).parameters}
+        filtered = {k: v for k, v in data.items() if k in valid}
+        return cls(**filtered)
 
 
 @dataclass
@@ -201,6 +211,9 @@ class MultiStrategyTracker:
         pillar_scores: Dict[str, float],
         current_price: float,
         atr: float,
+        reasoning: str = "",
+        regime: str = "",
+        key_factors: List[str] = None,
     ) -> Dict[str, str]:
         """
         Evaluate a signal against all 4 strategies.
@@ -280,6 +293,11 @@ class MultiStrategyTracker:
                 stop_loss=sl,
                 take_profit=tp,
                 score_at_entry=weighted_score,
+                reasoning=reasoning,
+                pillar_scores=dict(pillar_scores),
+                ml_score=float(ml_score or 0),
+                regime=regime,
+                key_factors=key_factors or [],
                 strategy_id=sid,
                 current_price=current_price,
             )

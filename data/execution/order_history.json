@@ -1,0 +1,29 @@
+[
+  {
+    "timestamp": "2026-02-12T11:33:24.604028",
+    "request": {
+      "symbol": "AAPL",
+      "action": "BUY",
+      "quantity": 1,
+      "order_type": "MKT",
+      "limit_price": null,
+      "stop_loss": null,
+      "take_profit": null,
+      "signal_source": "",
+      "confidence_score": 0.0
+    },
+    "result": {
+      "order_id": 4,
+      "symbol": "AAPL",
+      "action": "BUY",
+      "quantity": 1,
+      "status": "submitted",
+      "fill_price": null,
+      "fill_quantity": 0,
+      "commission": 0.0,
+      "message": "Order submitted",
+      "submitted_at": "2026-02-12T11:33:24.604008",
+      "filled_at": null
+    }
+  }
+]

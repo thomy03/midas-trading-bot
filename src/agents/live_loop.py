@@ -21,9 +21,9 @@ from .state import AgentState, StateManager, get_state_manager
 from .strategy_evolver import StrategyEvolver, get_strategy_evolver, TradeResult
 from .decision_journal import DecisionJournal, get_decision_journal
 
-from ..intelligence.heat_detector import HeatDetector, get_heat_detector
 from ..intelligence.attention_manager import AttentionManager, get_attention_manager
-from ..execution.paper_trader import get_paper_trader, PaperTrader
+from ..execution.execution_bridge import get_execution_bridge
+from ..execution.paper_trader import get_paper_trader, PaperTrader  # kept for multi-strategy tracker compat
 # Portfolio tracking
 try:
     from ..utils.portfolio_tracker import record_snapshot
@@ -57,6 +57,20 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# V8.1 Sprint 1C: Signal tracker for feedback loop
+try:
+    from src.learning import signal_tracker as _signal_tracker
+    SIGNAL_TRACKER_AVAILABLE = True
+except ImportError:
+    SIGNAL_TRACKER_AVAILABLE = False
+
+# V8.1 Sprint 1C: Liquidity filter
+try:
+    from src.utils.liquidity_filter import check_liquidity as _check_liquidity
+    LIQUIDITY_FILTER_AVAILABLE = True
+except ImportError:
+    LIQUIDITY_FILTER_AVAILABLE = False
+
 
 # =============================================================================
 # CONFIGURATION
@@ -74,7 +88,7 @@ class MarketSession(Enum):
 class LiveLoopConfig:
     """Configuration de la boucle live"""
     # Polling intervals (secondes)
-    heat_poll_interval: int = 60      # Polling des sources de chaleur
+    heat_poll_interval: int = 300      # Polling des sources de chaleur
     screening_interval: int = 300     # Screening (5 min)
     health_check_interval: int = 600  # Health check (10 min)
 
@@ -82,15 +96,15 @@ class LiveLoopConfig:
     timezone: str = "Europe/Paris"
 
     # Heures de trading
-    pre_market_start: time = time(4, 0)
+    pre_market_start: time = time(8, 0)
     market_open: time = time(9, 0)
     market_close: time = time(17, 30)
-    after_hours_end: time = time(20, 0)
+    after_hours_end: time = time(22, 0)
 
     # Mode
     trade_pre_market: bool = False
     trade_after_hours: bool = False
-    analyze_when_closed: bool = True  # Analyse meme hors marche
+    analyze_when_closed: bool = False  # Analyse meme hors marche
     paper_trading: bool = True
 
     # V7: Risk management
@@ -156,9 +170,8 @@ class LiveLoop:
         self._intelligence_orchestrator = None
 
         # Components (initialisés dans initialize())
-        self.guardrails: Optional[Guardrails] = None
+        self.guardrails: object = None
         self.state: Optional[AgentState] = None
-        self.heat_detector: Optional[HeatDetector] = None
         self.attention_manager: Optional[AttentionManager] = None
         self.strategy_evolver: Optional[StrategyEvolver] = None
         self.decision_journal: Optional[DecisionJournal] = None
@@ -171,7 +184,6 @@ class LiveLoop:
 
         # Tasks
         self._main_task: Optional[asyncio.Task] = None
-        self._heat_task: Optional[asyncio.Task] = None
         self._health_task: Optional[asyncio.Task] = None
 
         # Metrics
@@ -196,8 +208,7 @@ class LiveLoop:
         self.state = self.state_manager.state
 
         # Intelligence components
-        self.heat_detector = await get_heat_detector()
-        self.attention_manager = await get_attention_manager(self.heat_detector)
+        self.attention_manager = await get_attention_manager()
 
         # Learning components
         self.strategy_evolver = await get_strategy_evolver()
@@ -229,12 +240,15 @@ class LiveLoop:
             grok_scanner = None
             news_fetcher = None
             trend_discovery = None
-            try:
-                from src.intelligence.grok_scanner import GrokScanner
-                grok_scanner = GrokScanner()
-                await grok_scanner.initialize()
-            except Exception:
-                logger.debug("Grok scanner not available for V8 orchestrator")
+            if os.environ.get("DISABLE_LLM", "false").lower() != "true":
+                try:
+                    from src.intelligence.grok_scanner import GrokScanner
+                    grok_scanner = GrokScanner()
+                    await grok_scanner.initialize()
+                except Exception:
+                    logger.debug("Grok scanner not available for V8 orchestrator")
+            else:
+                logger.info("LLM disabled - skipping Grok scanner for V8 orchestrator")
             try:
                 from src.intelligence.news_fetcher import NewsFetcher
                 news_fetcher = NewsFetcher()
@@ -301,14 +315,13 @@ class LiveLoop:
 
         # Démarrer les tâches parallèles
         self._main_task = asyncio.create_task(self._main_loop())
-        self._heat_task = asyncio.create_task(self._heat_loop())
         self._health_task = asyncio.create_task(self._health_loop())
 
         # V7: Position monitor loop
         if self.config.enable_position_monitor and self.position_monitor:
             self._position_monitor_task = asyncio.create_task(self._position_monitor_loop())
 
-        tasks = [self._main_task, self._heat_task, self._health_task]
+        tasks = [self._main_task, self._health_task]
         if self._position_monitor_task:
             tasks.append(self._position_monitor_task)
 
@@ -327,7 +340,7 @@ class LiveLoop:
         self._shutdown_event.set()
 
         # Annuler les tâches
-        for task in [self._main_task, self._heat_task, self._health_task, self._position_monitor_task]:
+        for task in [self._main_task, self._health_task, self._position_monitor_task]:
             if task and not task.done():
                 task.cancel()
 
@@ -474,6 +487,16 @@ class LiveLoop:
                     try:
                         await self.attention_manager.mark_screened(symbol)
                         
+                        # V8.1: Liquidity filter - skip illiquid symbols
+                        if LIQUIDITY_FILTER_AVAILABLE:
+                            try:
+                                liq = _check_liquidity(symbol)
+                                if not liq['liquid']:
+                                    logger.debug(f"[LIQUIDITY] Skipping {symbol}: {liq.get('reason')}")
+                                    continue
+                            except Exception as e:
+                                logger.debug(f"[LIQUIDITY] Error for {symbol}: {e}")
+                        
                         # Analyse 4 piliers
                         result = await reasoning_engine.analyze(symbol)
                         
@@ -497,6 +520,9 @@ class LiveLoop:
                                 'pillar_sentiment': result.sentiment_score,
                                 'pillar_news': result.news_score,
                                 'reasoning': result.reasoning_summary,
+                                'ml_score': result.ml_score,
+                                'regime': self.current_regime.value if hasattr(self.current_regime, 'value') else '',
+                                'key_factors': [str(f) for f in (result.key_factors or [])[:5]],
                                 'timestamp': result.timestamp
                             }
                             self._metrics.signals_found += 1
@@ -568,6 +594,9 @@ class LiveLoop:
                     pillar_scores=pillar_scores,
                     current_price=current_price,
                     atr=atr,
+                    reasoning=str(alert.get("reasoning", ""))[:500],
+                    regime=str(alert.get("regime", "")),
+                    key_factors=[str(f) for f in alert.get("key_factors", [])[:5]],
                 )
                 accepted = [k for k, v in multi_results.items() if v.startswith("accepted")]
                 if accepted:
@@ -587,11 +616,35 @@ class LiveLoop:
                 logger.info(f"   🏢 Piliers L2: Health={alert.get('l2_health_score',0)}/20, Context={alert.get('l2_context_score',0)}/10, Sentiment={alert.get('l2_sentiment_score',0)}/30 | ELITE={alert.get('l2_is_elite', False)}")
 
         # Filtrer par score minimum (BUY >= 55, STRONG_BUY >= 75)
-        min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 75
+        min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 55
         if confidence < min_score:
-            logger.info(f"⏭️ Signal {symbol} skipped: score {confidence} < {min_score}")
+            logger.info(f"\u23ed\ufe0f Signal {symbol} skipped: score {confidence} < {min_score}")
+            # V8.1: Track rejected signal for feedback loop
+            if SIGNAL_TRACKER_AVAILABLE:
+                try:
+                    _signal_tracker.record({
+                        'symbol': symbol, 'score': confidence,
+                        'decision': 'REJECTED', 'regime': alert.get('regime', ''),
+                        'sector': alert.get('sector', ''),
+                        'rejection_reason': f'score {confidence} < {min_score}',
+                        'key_factors': alert.get('key_factors', []),
+                    })
+                except Exception:
+                    pass
             return
             
+        # V8.1: Track taken signal for feedback loop
+        if SIGNAL_TRACKER_AVAILABLE:
+            try:
+                _signal_tracker.record({
+                    'symbol': symbol, 'score': confidence,
+                    'decision': signal_type, 'regime': alert.get('regime', ''),
+                    'sector': alert.get('sector', ''),
+                    'key_factors': alert.get('key_factors', []),
+                })
+            except Exception:
+                pass
+
         # Callback externe
         if self._on_signal_callback:
             await self._on_signal_callback(alert)
@@ -733,7 +786,7 @@ class LiveLoop:
             return
         
         # Get paper trader
-        paper_trader = get_paper_trader()
+        bridge = get_execution_bridge()
         
         # Extract pillar scores and reasoning from alert
         pillar_technical = alert.get('pillar_technical')
@@ -767,7 +820,7 @@ class LiveLoop:
             logger.warning(f"Could not fetch company info for {symbol}: {e}")
         
         # Open position with full analysis
-        position = paper_trader.open_position(
+        position = bridge.open_position(
             symbol=symbol,
             price=price,
             score=score,
@@ -800,7 +853,7 @@ class LiveLoop:
                         except:
                             sell_price = weakest.entry_price
                         
-                        sell_result = paper_trader.close_position(
+                        sell_result = bridge.close_position(
                             symbol=weakest.symbol,
                             price=sell_price,
                             reason=f"rotation_upgrade_to_{symbol}"
@@ -809,7 +862,7 @@ class LiveLoop:
                         if sell_result:
                             logger.info(f"🔻 SOLD {weakest.symbol} @ ${sell_price:.2f} for rotation")
                             
-                            position = paper_trader.open_position(
+                            position = bridge.open_position(
                                 symbol=symbol,
                                 price=price,
                                 score=score,
@@ -869,128 +922,6 @@ class LiveLoop:
                 logger.error(f"Position monitor error: {e}")
             await asyncio.sleep(60)
         logger.info("V7 Position monitor loop ended")
-
-    # -------------------------------------------------------------------------
-    # HEAT DETECTION LOOP
-    # -------------------------------------------------------------------------
-
-    async def _heat_loop(self):
-        """Boucle de détection de chaleur"""
-        logger.info("Heat detection loop started")
-
-        while self._running and not self._shutdown_event.is_set():
-            try:
-                # Seulement pendant les heures de marché étendue
-                session = self._get_market_session()
-                if session == MarketSession.CLOSED:
-                    await asyncio.sleep(60)
-                    continue
-
-                # Collecter les données de différentes sources
-                await self._collect_heat_data()
-
-            except Exception as e:
-                logger.error(f"Error in heat loop: {e}", exc_info=True)
-
-            await asyncio.sleep(self.config.heat_poll_interval)
-
-        logger.info("Heat detection loop ended")
-
-    async def _collect_heat_data(self):
-        """Collecte les données de chaleur de toutes les sources"""
-        # Import des scanners
-        try:
-            from ..intelligence.grok_scanner import get_grok_scanner
-            from ..intelligence.social_scanner import get_social_scanner
-
-            # Grok (X/Twitter)
-            grok_scanner = await get_grok_scanner()
-            if grok_scanner:
-                trends = await grok_scanner.search_financial_trends()
-                if trends:
-                    # Convert List[GrokInsight] to Dict[str, Dict] for ingest_grok_data
-                    grok_data = {}
-                    logger.info(f"🐦 Grok returned {len(trends)} insights")
-                    for insight in trends:
-                        logger.debug(f"🐦 Insight: {insight.topic} | Symbols: {insight.mentioned_symbols}")
-                        for symbol in insight.mentioned_symbols:
-                            if symbol not in grok_data:
-                                grok_data[symbol] = {
-                                    'sentiment_score': insight.sentiment_score,
-                                    'summary': insight.summary,
-                                    'confidence': insight.confidence
-                                }
-                    if grok_data:
-                        await self.heat_detector.ingest_grok_data(grok_data)
-                        
-                        # V5.6 - Set Grok symbols as PRIORITY for screening
-                        grok_symbols = list(grok_data.keys())
-                        if grok_symbols and self.attention_manager:
-                            self.attention_manager.set_grok_priority_symbols(grok_symbols)
-
-            # Social (Reddit, StockTwits)
-            social_scanner = await get_social_scanner()
-            if social_scanner:
-                result = await social_scanner.full_scan()
-                if result and result.trending_symbols:
-                    # Convert trending_symbols to dict for ingest_social_data
-                    social_data = {}
-                    for ts in result.trending_symbols:
-                        social_data[ts.symbol] = {
-                            'count': ts.mention_count,
-                            'sentiment': ts.avg_sentiment,
-                            'posts': []
-                        }
-                    if social_data:
-                        await self.heat_detector.ingest_social_data(social_data)
-
-        except ImportError:
-            logger.debug("Social scanners not available")
-        except Exception as e:
-            logger.warning(f"Error collecting heat data: {e}")
-
-        # Données de prix/volume (toujours disponibles)
-        try:
-            price_data = await self._get_price_movements()
-            if price_data:
-                await self.heat_detector.ingest_price_data(price_data)
-        except Exception as e:
-            logger.warning(f"Error getting price data: {e}")
-
-    async def _get_price_movements(self) -> Dict[str, Dict]:
-        """Obtient les mouvements de prix récents"""
-        # Symboles en focus
-        focus_symbols = self.attention_manager.get_symbols_for_screening(limit=20)
-
-        if not focus_symbols:
-            return {}
-
-        from ..data.market_data import MarketDataFetcher
-
-        market_data = MarketDataFetcher()
-        price_data = {}
-
-        for symbol in focus_symbols:
-            try:
-                df = market_data.get_stock_data(symbol, period="5d", interval="1h")
-                if df is not None and len(df) >= 2:
-                    current_price = df['Close'].iloc[-1]
-                    prev_price = df['Close'].iloc[-2]
-                    change_pct = ((current_price - prev_price) / prev_price) * 100
-
-                    avg_volume = df['Volume'].mean()
-                    current_volume = df['Volume'].iloc[-1]
-                    volume_ratio = current_volume / avg_volume if avg_volume > 0 else 1.0
-
-                    price_data[symbol] = {
-                        'change_pct': change_pct,
-                        'volume_ratio': volume_ratio,
-                        'price': current_price
-                    }
-            except Exception as e:
-                logger.debug(f"Error getting price for {symbol}: {e}")
-
-        return price_data
 
     # -------------------------------------------------------------------------
     # HEALTH CHECK LOOP
@@ -1145,9 +1076,6 @@ class LiveLoop:
         """Nettoie les ressources"""
         logger.info("Cleaning up LiveLoop...")
 
-        if self.heat_detector:
-            await self.heat_detector.close()
-
         if self.attention_manager:
             await self.attention_manager.close()
 
@@ -1187,10 +1115,7 @@ class LiveLoop:
             },
             'focus_topics': [
                 t.symbol for t in self.attention_manager.get_focus_topics(5)
-            ] if self.attention_manager else [],
-            'hot_symbols': [
-                h.symbol for h in self.heat_detector.get_hot_symbols(5)
-            ] if self.heat_detector else []
+            ] if self.attention_manager else []
         }
 
     def is_running(self) -> bool:

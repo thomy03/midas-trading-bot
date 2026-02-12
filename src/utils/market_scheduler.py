@@ -44,8 +44,8 @@ class MarketScheduler:
     US_CLOSE = time(22, 0)     # 22h Paris (16h NY)
     
     # Ticker files by region
-    EU_TICKER_FILES = ["europe_full.json"]
-    US_TICKER_FILES = ["nasdaq.json", "sp500.json", "nyse_full.json"]
+    EU_TICKER_FILES = ["cac40.json", "europe.json"]
+    US_TICKER_FILES = ["nasdaq.json", "sp500.json"]
     
     @classmethod
     def get_paris_time(cls) -> datetime:

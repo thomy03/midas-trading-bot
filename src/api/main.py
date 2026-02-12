@@ -1217,6 +1217,8 @@ async def get_strategy_comparison():
         total = s.get("total_trades", 0)
         wins = s.get("winning_trades", 0)
         s["win_rate"] = round((wins / total) * 100, 1) if total > 0 else 0
+        if "recent_trades" not in s:
+            s["recent_trades"] = s.get("closed_trades_list", [])[-10:] if isinstance(s.get("closed_trades_list"), list) else []
     
     return {
         "strategies": all_strategies,
@@ -1258,6 +1260,97 @@ async def get_strategy_profiles():
         }
     except Exception as e:
         return {"error": str(e)}
+
+
+
+@app.get("/api/v1/strategies/{strategy_id}", tags=["Strategies"])
+async def get_strategy_detail(strategy_id: str):
+    """Get detailed info for a single strategy (positions, trades, reasoning)."""
+    import json, os
+    
+    # Parse agent and strategy from id (e.g. llm_aggressive_ml or nollm_moderate_no_ml)
+    if strategy_id.startswith('llm_'):
+        agent = 'llm'
+        sid = strategy_id[4:]
+        data_file = 'data/multi_strategy_llm.json'
+    elif strategy_id.startswith('nollm_'):
+        agent = 'nollm'
+        sid = strategy_id[6:]
+        data_file = 'data-nollm/multi_strategy_nollm.json'
+    else:
+        return {"error": "Invalid strategy_id. Use llm_ or nollm_ prefix."}
+    
+    if not os.path.exists(data_file):
+        return {"error": f"Data file not found: {data_file}"}
+    
+    try:
+        with open(data_file, 'r') as f:
+            data = json.load(f)
+        
+        sdata = data.get('strategies', {}).get(sid)
+        if not sdata:
+            return {"error": f"Strategy {sid} not found in {agent} agent"}
+        
+        # Enrich positions with P&L
+        positions = sdata.get('positions', [])
+        for p in positions:
+            entry = p.get('entry_price', 0)
+            current = p.get('current_price', entry)
+            if entry > 0:
+                p['pnl_pct'] = round(((current - entry) / entry) * 100, 2)
+                p['pnl_amount'] = round((current - entry) * p.get('shares', 0), 2)
+            else:
+                p['pnl_pct'] = 0
+                p['pnl_amount'] = 0
+        
+        # Compute equity
+        equity = sdata.get('cash', 15000)
+        for p in positions:
+            equity += p.get('current_price', 0) * p.get('shares', 0)
+        
+        initial = sdata.get('initial_capital', 15000)
+        
+        # Get strategy profile info
+        try:
+            from config.strategies import get_all_profiles
+            profile = get_all_profiles().get(sid)
+            profile_info = {
+                'description': profile.description if profile else '',
+                'min_score': profile.min_score if profile else 0,
+                'max_positions': profile.max_positions if profile else 0,
+                'position_size_pct': profile.position_size_pct if profile else 0,
+                'use_ml_gate': profile.use_ml_gate if profile else False,
+                'pillar_weights': profile.pillar_weights if profile else {},
+            } if profile else {}
+        except:
+            profile_info = {}
+        
+        return {
+            'id': strategy_id,
+            'strategy_id': sid,
+            'agent': agent,
+            'name': sdata.get('name', sid),
+            'color': sdata.get('color', '#888'),
+            'equity': round(equity, 2),
+            'cash': round(sdata.get('cash', 15000), 2),
+            'initial_capital': initial,
+            'return_pct': round(((equity - initial) / initial) * 100, 2) if initial > 0 else 0,
+            'total_trades': sdata.get('total_trades', 0),
+            'winning_trades': sdata.get('winning_trades', 0),
+            'losing_trades': sdata.get('losing_trades', 0),
+            'total_pnl': sdata.get('total_pnl', 0),
+            'max_drawdown': sdata.get('max_drawdown', 0),
+            'signals_evaluated': sdata.get('signals_evaluated', 0),
+            'signals_accepted': sdata.get('signals_accepted', 0),
+            'signals_rejected': sdata.get('signals_rejected', 0),
+            'positions': positions,
+            'closed_trades': sdata.get('closed_trades', []),
+            'equity_curve': sdata.get('equity_curve', []),
+            'profile': profile_info,
+        }
+    except Exception as e:
+        import traceback
+        return {"error": str(e), "traceback": traceback.format_exc()}
 
 
 @app.get("/{path:path}", include_in_schema=False)
