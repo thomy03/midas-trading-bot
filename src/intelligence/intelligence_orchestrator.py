@@ -283,7 +283,9 @@ class IntelligenceOrchestrator:
         task_names = []
 
         if self.grok is not None:
-            tasks.append(self._safe_call(self.grok.full_scan_with_analysis))
+            async def _grok_with_timeout():
+                return await asyncio.wait_for(self.grok.full_scan_with_analysis(), timeout=120)
+            tasks.append(self._safe_call(_grok_with_timeout))
             task_names.append('grok')
 
         if self.news is not None:
