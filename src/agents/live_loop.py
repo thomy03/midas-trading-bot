@@ -186,6 +186,7 @@ class LiveLoop:
 
         # V8: Intelligence Orchestrator
         self._intelligence_orchestrator = None
+        self._current_brief = None
 
         # Components (initialisés dans initialize())
         self.guardrails: object = None
@@ -483,6 +484,26 @@ class LiveLoop:
                     limit=self.config.max_concurrent_screens
                 )
 
+                # V8.2: Generate intelligence brief BEFORE screening (LLM only)
+                if self._intelligence_orchestrator is not None and symbols_to_screen and os.environ.get("DISABLE_LLM", "false").lower() != "true":
+                    try:
+                        self._current_brief = await self._intelligence_orchestrator.get_brief()
+                        if self._current_brief and hasattr(self._current_brief, 'reasoning_summary') and self._current_brief.reasoning_summary:
+                            logger.info(f"🧠 INTEL BRIEF: {self._current_brief.reasoning_summary[:120]}...")
+                            try:
+                                import json as _json
+                                with open(os.path.join("data", "intelligence_brief.json"), "w") as _bf:
+                                    _json.dump({"reasoning_summary": self._current_brief.reasoning_summary,
+                                               "portfolio_alerts": getattr(self._current_brief, 'portfolio_alerts', [])[:5],
+                                               "timestamp": datetime.now().isoformat()}, _bf, indent=2, default=str)
+                            except Exception:
+                                pass
+                        else:
+                            self._current_brief = None
+                    except Exception as e:
+                        logger.warning(f"Intelligence brief failed: {e}")
+                        self._current_brief = None
+
                 if symbols_to_screen:
                     await self._screen_symbols(symbols_to_screen)
 
@@ -511,6 +532,34 @@ class LiveLoop:
             await asyncio.sleep(self.config.screening_interval)
 
         logger.info("Main trading loop ended")
+
+
+    def _get_symbol_intel_summary(self, symbol: str):
+        """Get symbol-specific intel summary from current brief."""
+        if not self._current_brief:
+            return None
+        parts = []
+        try:
+            adj = self._intelligence_orchestrator.get_symbol_adjustment(symbol, self._current_brief)
+            if adj != 0:
+                parts.append(f"{'📈' if adj > 0 else '📉'} Impact: {adj:+.1f} pts")
+        except Exception:
+            pass
+        if hasattr(self._current_brief, 'megatrends'):
+            for trend in (self._current_brief.megatrends or []):
+                syms = getattr(trend, 'symbols', {}) if not isinstance(trend, str) else {}
+                if isinstance(syms, dict) and symbol in syms:
+                    parts.append(f"Trend: {getattr(trend, 'theme', '')[:50]}")
+        if hasattr(self._current_brief, 'portfolio_alerts'):
+            ticker_base = symbol.split('.')[0]
+            for alert in (self._current_brief.portfolio_alerts or [])[:3]:
+                if ticker_base in str(alert) or symbol in str(alert):
+                    parts.append(str(alert)[:100])
+        if parts:
+            return " | ".join(parts)
+        if self._current_brief.reasoning_summary:
+            return f"Contexte: {self._current_brief.reasoning_summary[:150]}"
+        return None
 
     async def _screen_symbols(self, symbols: List[str]):
         """Screene une liste de symboles avec les 4 piliers"""
@@ -600,6 +649,28 @@ class LiveLoop:
                             else:
                                 await self._process_signal(alert)
                         
+                        # V8.2+V9: Apply intel adjustment from orchestrator brief + per-symbol intelligence
+                        intel_adj = 0.0
+                        symbol_intel_result = None
+                        if hasattr(self, '_current_brief') and self._current_brief is not None and self._intelligence_orchestrator is not None:
+                            try:
+                                # Global brief adjustment
+                                global_adj = self._intelligence_orchestrator.get_symbol_adjustment(symbol, self._current_brief)
+                                # Per-symbol intelligence (uses cached news + Gemini)
+                                symbol_adj = 0.0
+                                try:
+                                    symbol_intel_result = await self._intelligence_orchestrator.get_symbol_intelligence(symbol)
+                                    symbol_adj = symbol_intel_result.get('adjustment', 0.0)
+                                except Exception as e:
+                                    logger.debug(f"Symbol intel failed for {symbol}: {e}")
+                                intel_adj = max(-15.0, min(15.0, global_adj + symbol_adj))
+                                if intel_adj != 0:
+                                    old_score = result.total_score
+                                    result.total_score = max(0, min(100, result.total_score + intel_adj))
+                                    logger.info(f"🧠 INTEL: {symbol} global={global_adj:+.1f} symbol={symbol_adj:+.1f} total={intel_adj:+.1f} pts ({old_score:.1f} → {result.total_score:.1f})")
+                            except Exception as e:
+                                logger.debug(f"Intel adjustment failed for {symbol}: {e}")
+                        
                         self._metrics.screens_performed += 1
                         
                         # Log scan result
@@ -614,6 +685,10 @@ class LiveLoop:
                                     "fundamental": round((float(getattr(result.fundamental_score, 'score', result.fundamental_score) or 0) + 100) / 2, 1) if result else 0,
                                     "ml_gate": "confirmed" if result and hasattr(result, 'ml_gate_applied') and result.ml_gate_applied else "none",
                                     "total": result.total_score if result else 0,
+                                    "intel_adj": intel_adj if 'intel_adj' in dir() else 0,
+                                    "intel_summary": self._get_symbol_intel_summary(symbol) if hasattr(self, '_current_brief') and self._current_brief else None,
+                                    "intel_reasoning": symbol_intel_result.get('reasoning', '') if symbol_intel_result else None,
+                                    "intel_news": symbol_intel_result.get('news', [])[:5] if symbol_intel_result else [],
                                 } if result else {},
                                 reasoning=str(result.reasoning_summary or "")[:1000] if result else "",
                             )

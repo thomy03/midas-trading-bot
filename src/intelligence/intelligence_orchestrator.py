@@ -22,6 +22,7 @@ Usage:
 """
 
 import json
+import time
 import asyncio
 import logging
 import numpy as np
@@ -199,6 +200,32 @@ Reponds en JSON strict :
 
 # ── Intelligence Orchestrator ────────────────────────────────────────────
 
+SYMBOL_INTEL_PROMPT = """
+Tu es un analyste financier. On te donne des articles de news recents concernant
+un symbole boursier specifique. Analyse l'impact potentiel sur le cours.
+
+Symbole: {symbol}
+Company: {company_name}
+
+Articles:
+{articles}
+
+Brief macro actuel: {macro_bias}
+
+Reponds en JSON strict:
+{{
+  "adjustment": 0.0,
+  "reasoning": "explication courte",
+  "sentiment": "positive|negative|neutral|mixed"
+}}
+
+Regles:
+- adjustment entre -10 et +10 (conservateur)
+- 0 si pas d'impact clair
+- Ne specule pas, base-toi uniquement sur les faits des articles
+"""
+
+
 class IntelligenceOrchestrator:
     """
     LLM conductor. Collects data from ALL existing sources, then asks
@@ -220,6 +247,7 @@ class IntelligenceOrchestrator:
         self.market = market_context
         self.symbols = portfolio_symbols or []
         self._cache = None  # type: Optional[IntelligenceBrief]
+        self._symbol_intel_cache = {}  # type: Dict[str, dict]  # symbol -> {result, time}
         self._cache_time = None  # type: Optional[datetime]
 
     async def get_brief(self, force=False):
@@ -269,6 +297,27 @@ class IntelligenceOrchestrator:
         if self.market is not None:
             tasks.append(self._safe_call(self.market.get_context))
             task_names.append('market_context')
+
+        # Gemini autonomous research (with Google Search grounding)
+        if self.gemini is not None and self.gemini.is_available() and hasattr(self.gemini, 'research'):
+            research_context = {
+                'regime': 'UNKNOWN',
+                'symbols': self.symbols[:20],  # Batch, not per-symbol
+                'vix': None,
+                'events': []
+            }
+            # Try to get regime/vix from market context if available
+            if self.market is not None:
+                try:
+                    mkt = self.market
+                    if hasattr(mkt, 'regime'):
+                        research_context['regime'] = str(mkt.regime)
+                    if hasattr(mkt, 'vix'):
+                        research_context['vix'] = mkt.vix
+                except Exception:
+                    pass
+            tasks.append(self._safe_call(lambda: self.gemini.research(research_context)))
+            task_names.append('gemini_research')
 
         if tasks:
             gathered = await asyncio.gather(*tasks)
@@ -368,6 +417,27 @@ class IntelligenceOrchestrator:
             except Exception:
                 pass
 
+        # Gemini autonomous research results
+        gemini_research = raw_data.get('gemini_research')
+        if gemini_research is not None:
+            try:
+                if isinstance(gemini_research, dict):
+                    discoveries = gemini_research.get('discoveries', [])
+                    if discoveries:
+                        disc_text = '\n'.join(
+                            "- [%s] %s (impact: %s, confidence: %s)" % (
+                                d.get('symbol', '?'), d.get('summary', ''),
+                                d.get('impact_score', 0), d.get('confidence', 0)
+                            )
+                            for d in discoveries[:10]
+                        )
+                        sections.append("=== GEMINI AUTONOMOUS RESEARCH (Google Search) ===\n%s" % disc_text)
+                    macro = gemini_research.get('macro_insight')
+                    if macro:
+                        sections.append("Macro insight: %s" % macro)
+            except Exception:
+                pass
+
         if not sections:
             sections.append("No intelligence data available at this time.")
 
@@ -453,6 +523,76 @@ class IntelligenceOrchestrator:
             portfolio_alerts=alerts[:10],
             reasoning_summary=str(data.get('reasoning_summary', ''))
         )
+
+    async def get_symbol_intelligence(self, symbol: str, company_name: str = None) -> dict:
+        """Get intelligence specific to a symbol during screening.
+        Returns: {'adjustment': float, 'reasoning': str, 'news': list, 'sentiment': str}
+        """
+        now = time.time()
+        # Check cache (30 min TTL)
+        cached = self._symbol_intel_cache.get(symbol)
+        if cached and (now - cached['time']) < 1800:
+            return cached['result']
+
+        result = {'adjustment': 0.0, 'reasoning': '', 'news': [], 'sentiment': 'neutral'}
+
+        # Fetch symbol-specific news
+        if self.news is None:
+            self._symbol_intel_cache[symbol] = {'result': result, 'time': now}
+            return result
+
+        try:
+            articles = await self.news.fetch_symbol_news(symbol, company_name)
+        except Exception as e:
+            logger.debug(f"Symbol news fetch failed for {symbol}: {e}")
+            self._symbol_intel_cache[symbol] = {'result': result, 'time': now}
+            return result
+
+        if not articles:
+            self._symbol_intel_cache[symbol] = {'result': result, 'time': now}
+            return result
+
+        result['news'] = [a.title for a in articles[:10]]
+
+        # If Gemini available, ask for analysis
+        if self.gemini is not None and self.gemini.is_available():
+            try:
+                articles_text = "\n".join(
+                    f"- [{a.source}] {a.title}" + (f": {a.summary[:150]}" if a.summary else "")
+                    for a in articles[:10]
+                )
+                macro_bias = 'neutral'
+                if self._cache:
+                    macro_bias = self._cache.macro_regime_bias
+
+                prompt = SYMBOL_INTEL_PROMPT.format(
+                    symbol=symbol,
+                    company_name=company_name or symbol,
+                    articles=articles_text,
+                    macro_bias=macro_bias,
+                )
+
+                response = await asyncio.wait_for(
+                    self.gemini.chat_json(prompt, max_tokens=500),
+                    timeout=30
+                )
+
+                if isinstance(response, dict):
+                    adj = float(response.get('adjustment', 0))
+                    result['adjustment'] = max(-10.0, min(10.0, adj))
+                    result['reasoning'] = str(response.get('reasoning', ''))
+                    result['sentiment'] = str(response.get('sentiment', 'neutral'))
+                    logger.info(f"🔍 SYMBOL INTEL {symbol}: adj={result['adjustment']:+.1f} sentiment={result['sentiment']} ({len(articles)} articles)")
+            except asyncio.TimeoutError:
+                logger.warning(f"Gemini timeout for symbol intel {symbol}")
+            except Exception as e:
+                logger.debug(f"Gemini symbol intel failed for {symbol}: {e}")
+        else:
+            # No Gemini - just note we found news
+            result['reasoning'] = f"Found {len(articles)} relevant articles (no LLM analysis)"
+
+        self._symbol_intel_cache[symbol] = {'result': result, 'time': now}
+        return result
 
     def get_symbol_adjustment(self, symbol, brief):
         # type: (str, IntelligenceBrief) -> float

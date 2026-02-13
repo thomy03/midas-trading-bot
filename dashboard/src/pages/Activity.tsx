@@ -163,12 +163,18 @@ export default function Activity() {
                         }
                       </p>
                     )}
-                    {a.scores.intel_adj != null && a.scores.intel_adj !== 0 && (
+                    {a.scores.intel_adj != null && a.scores.intel_adj != 0 && (
                       <p className="text-[10px] mt-1">
                         <span className={a.scores.intel_adj > 0 ? "text-cyan-400" : "text-orange-400"}>
-                          🧠 Orchestrator: {a.scores.intel_adj > 0 ? "+" : ""}{a.scores.intel_adj.toFixed(1)} pts
+                          🧠 Orchestrator: {a.scores.intel_adj > 0 ? "+" : ""}{Number(a.scores.intel_adj).toFixed(1)} pts
                         </span>
                       </p>
+                    )}
+                    {a.scores.intel_summary && (
+                      <div className="mt-1 p-2 rounded bg-cyan-500/5 border border-cyan-500/10">
+                        <p className="text-[10px] text-cyan-400/80">🧠 Intelligence Brief:</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">{a.scores.intel_summary}</p>
+                      </div>
                     )}
                   </div>
                 )}

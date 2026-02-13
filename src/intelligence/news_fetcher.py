@@ -17,6 +17,10 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 from enum import Enum
 import aiohttp
+import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class NewsSource(Enum):
@@ -62,11 +66,32 @@ class NewsFetcher:
 
     # RSS Feeds pour les news financières
     RSS_FEEDS = {
+        # Original
         'reuters_markets': 'https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best',
         'bloomberg': 'https://feeds.bloomberg.com/markets/news.rss',
         'cnbc': 'https://www.cnbc.com/id/10000664/device/rss/rss.html',
         'yahoo_finance': 'https://finance.yahoo.com/rss/topstories',
         'seeking_alpha': 'https://seekingalpha.com/market_currents.xml',
+        # Tech
+        'techcrunch': 'https://techcrunch.com/feed/',
+        'the_verge': 'https://www.theverge.com/rss/index.xml',
+        'ars_technica': 'https://feeds.arstechnica.com/arstechnica/index',
+        'wired': 'https://www.wired.com/feed/rss',
+        'hacker_news': 'https://hnrss.org/frontpage',
+        # Science
+        'science_daily': 'https://www.sciencedaily.com/rss/all.xml',
+        'nature_news': 'https://www.nature.com/nature.rss',
+        # Business/Finance
+        'marketwatch': 'https://feeds.content.dowjones.io/public/rss/mw_topstories',
+        'les_echos': 'https://syndication.lesechos.fr/rss/rss_une.xml',
+        'bfm_bourse': 'https://www.tradingsat.com/rss/actualites-bourse.xml',
+        # General
+        'ap_news': 'https://rsshub.app/apnews/topics/business',
+        'bbc_business': 'https://feeds.bbci.co.uk/news/business/rss.xml',
+        # EU Specific
+        'boursorama': 'https://www.boursorama.com/rss/actualites/dernieres.xml',
+        'investing_com': 'https://www.investing.com/rss/news.rss',
+        'zonebourse': 'https://www.zonebourse.com/rss/',
     }
 
     # Subsocials pertinents
@@ -93,6 +118,9 @@ class NewsFetcher:
         self.newsapi_key = newsapi_key or os.getenv('NEWSAPI_KEY')
         self.alphavantage_key = alphavantage_key or os.getenv('ALPHAVANTAGE_KEY')
         self.session: Optional[aiohttp.ClientSession] = None
+        self._rss_cache: List[NewsArticle] = []
+        self._rss_cache_time: float = 0.0
+        self._rss_cache_ttl: float = 900.0  # 15 minutes
 
     async def _ensure_session(self):
         """Crée la session HTTP si nécessaire"""
@@ -103,6 +131,143 @@ class NewsFetcher:
         """Ferme la session HTTP"""
         if self.session and not self.session.closed:
             await self.session.close()
+
+    async def fetch_all_rss(self) -> List[NewsArticle]:
+        """Fetch ALL RSS feeds in parallel. Cache for 15 min."""
+        now = time.time()
+        if self._rss_cache and (now - self._rss_cache_time) < self._rss_cache_ttl:
+            return self._rss_cache
+
+        await self._ensure_session()
+        import xml.etree.ElementTree as ET
+
+        async def _fetch_one(name: str, url: str) -> List[NewsArticle]:
+            articles = []
+            try:
+                async with self.session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    if resp.status != 200:
+                        return []
+                    text = await resp.text()
+                    root = ET.fromstring(text)
+                    # Try RSS 2.0
+                    items = root.findall('.//item')
+                    if not items:
+                        # Try Atom
+                        ns = {'atom': 'http://www.w3.org/2005/Atom'}
+                        items = root.findall('atom:entry', ns)
+                    for item in items[:20]:
+                        title = link = pub_date = desc = None
+                        # RSS 2.0
+                        t = item.find('title')
+                        if t is not None and t.text:
+                            title = t.text.strip()
+                        l = item.find('link')
+                        if l is not None:
+                            link = l.text.strip() if l.text else (l.get('href') or '')
+                        d = item.find('description')
+                        if d is not None and d.text:
+                            desc = d.text[:500]
+                        p = item.find('pubDate')
+                        if p is not None and p.text:
+                            try:
+                                from email.utils import parsedate_to_datetime
+                                pub_date = parsedate_to_datetime(p.text)
+                            except Exception:
+                                pub_date = datetime.now()
+                        # Atom fallback
+                        if title is None:
+                            ns2 = {'atom': 'http://www.w3.org/2005/Atom'}
+                            t2 = item.find('atom:title', ns2)
+                            if t2 is not None and t2.text:
+                                title = t2.text.strip()
+                        if not link:
+                            ns2 = {'atom': 'http://www.w3.org/2005/Atom'}
+                            l2 = item.find('atom:link', ns2)
+                            if l2 is not None:
+                                link = l2.get('href', '')
+                        if pub_date is None:
+                            ns2 = {'atom': 'http://www.w3.org/2005/Atom'}
+                            u = item.find('atom:updated', ns2) or item.find('atom:published', ns2)
+                            if u is not None and u.text:
+                                try:
+                                    pub_date = datetime.fromisoformat(u.text.replace('Z', '+00:00'))
+                                except Exception:
+                                    pub_date = datetime.now()
+                        if not title:
+                            continue
+                        articles.append(NewsArticle(
+                            title=title,
+                            source=name,
+                            url=link or '',
+                            published_at=pub_date or datetime.now(),
+                            content=desc or '',
+                            summary=desc or title,
+                        ))
+            except Exception as e:
+                logger.debug(f'[NEWS] RSS {name} failed: {e}')
+            return articles
+
+        tasks = [_fetch_one(name, url) for name, url in self.RSS_FEEDS.items()]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        all_articles = []
+        for r in results:
+            if isinstance(r, list):
+                all_articles.extend(r)
+        all_articles.sort(key=lambda a: a.published_at, reverse=True)
+        self._rss_cache = all_articles
+        self._rss_cache_time = now
+        logger.info(f'[NEWS] RSS cache refreshed: {len(all_articles)} articles from {len(self.RSS_FEEDS)} feeds')
+        return all_articles
+
+    async def fetch_symbol_news(self, symbol: str, company_name: str = None) -> List[NewsArticle]:
+        """Search cached RSS + NewsAPI for symbol-specific news."""
+        await self.fetch_all_rss()
+
+        search_terms = [symbol.upper()]
+        if company_name:
+            search_terms.append(company_name.upper())
+        TICKER_NAMES = {
+            'AAPL': 'APPLE', 'MSFT': 'MICROSOFT', 'GOOGL': 'GOOGLE', 'GOOG': 'GOOGLE',
+            'AMZN': 'AMAZON', 'NVDA': 'NVIDIA', 'META': 'META', 'TSLA': 'TESLA',
+            'AMD': 'AMD', 'NFLX': 'NETFLIX', 'CRM': 'SALESFORCE', 'ADBE': 'ADOBE',
+            'INTC': 'INTEL', 'AVGO': 'BROADCOM', 'QCOM': 'QUALCOMM',
+            'JPM': 'JPMORGAN', 'GS': 'GOLDMAN', 'BAC': 'BANK OF AMERICA',
+            'V': 'VISA', 'MA': 'MASTERCARD', 'DIS': 'DISNEY', 'COST': 'COSTCO',
+            'PFE': 'PFIZER', 'JNJ': 'JOHNSON', 'UNH': 'UNITEDHEALTH',
+            'XOM': 'EXXON', 'CVX': 'CHEVRON', 'WMT': 'WALMART',
+        }
+        mapped = TICKER_NAMES.get(symbol.upper())
+        if mapped and mapped not in [t.upper() for t in search_terms]:
+            search_terms.append(mapped)
+
+        relevant = []
+        for article in self._rss_cache:
+            text = (article.title + ' ' + (article.content or '')).upper()
+            for term in search_terms:
+                if term in text:
+                    relevant.append(article)
+                    break
+
+        if self.newsapi_key and len(relevant) < 3:
+            try:
+                api_results = await self.fetch_newsapi(
+                    query=company_name or symbol,
+                    from_date=datetime.now() - timedelta(days=3),
+                    page_size=5
+                )
+                relevant.extend(api_results)
+            except Exception as e:
+                logger.debug(f'[NEWS] NewsAPI symbol search failed for {symbol}: {e}')
+
+        seen = set()
+        unique = []
+        for a in relevant:
+            key = a.title.lower()[:80]
+            if key not in seen:
+                seen.add(key)
+                unique.append(a)
+        unique.sort(key=lambda a: a.published_at, reverse=True)
+        return unique[:20]
 
     async def fetch_latest(self) -> dict:
         """
