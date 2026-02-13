@@ -1,0 +1,63 @@
+# Prometheus alerting rules for Midas Trading Bot
+groups:
+  - name: midas_alerts
+    rules:
+      # ---------------------------------------------------------------
+      # HighDrawdown - fires when any agent's drawdown exceeds 10%
+      # ---------------------------------------------------------------
+      - alert: HighDrawdown
+        expr: midas_drawdown_pct > 10
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High drawdown detected for agent {{ $labels.agent_id }}"
+          description: "Drawdown is {{ $value }}% (threshold: 10%)."
+
+      # ---------------------------------------------------------------
+      # AgentDown - no successful scrape for 5 minutes
+      # ---------------------------------------------------------------
+      - alert: AgentDown
+        expr: up{job="midas-api"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Midas API scrape target is down"
+          description: "Prometheus has been unable to scrape midas-api for 5 minutes."
+
+      # ---------------------------------------------------------------
+      # LowWinRate - win rate below 45% for 1 hour
+      # ---------------------------------------------------------------
+      - alert: LowWinRate
+        expr: midas_win_rate < 45
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low win rate for agent {{ $labels.agent_id }} / {{ $labels.strategy }}"
+          description: "Win rate is {{ $value }}% (threshold: 45%) for over 1 hour."
+
+      # ---------------------------------------------------------------
+      # APIDown - API endpoint unreachable for 2 minutes
+      # ---------------------------------------------------------------
+      - alert: APIDown
+        expr: up{job="midas-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Midas API is unreachable"
+          description: "The midas-api target has been down for 2 minutes."
+
+      # ---------------------------------------------------------------
+      # NoTradesInHours - no trades for 8 hours (during market hours)
+      # ---------------------------------------------------------------
+      - alert: NoTradesInHours
+        expr: increase(midas_trades_total[8h]) == 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No trades recorded in the last 8 hours"
+          description: "The bot has not executed any trades in 8 hours. Verify market hours and connectivity."

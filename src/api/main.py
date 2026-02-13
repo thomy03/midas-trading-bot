@@ -235,6 +235,13 @@ try:
 except Exception:
     pass
 
+# V8.3 Prometheus metrics
+try:
+    from src.api.metrics import setup_metrics
+    setup_metrics(app)
+except Exception:
+    pass
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,

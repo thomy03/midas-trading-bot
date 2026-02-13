@@ -128,8 +128,22 @@ class MLPillar(BasePillar):
         self.last_regime: Optional[MarketRegime] = None
         self._using_v7_model = False
 
+        # V8.2: Regime-specific models cache
+        self._regime_models: Dict[str, Any] = {}  # regime -> (model, scaler)
+        self._active_regime_model: Optional[str] = None
+
+        # V8.2 Sprint 3: Feature importance tracking
+        self._importance_history: Dict[str, List[float]] = {}  # feature -> list of importances
+        self._importance_count: int = 0
+        self._importance_file = os.path.join(
+            os.path.dirname(self.model_path) or 'models', 'feature_importance_log.json'
+        )
+        self._load_importance_history()
+
         # Load existing model if available
         self._load_model()
+        # Pre-load regime-specific models
+        self._load_regime_models()
 
     @staticmethod
     def _find_model_path() -> str:
@@ -156,7 +170,7 @@ class MLPillar(BasePillar):
         if not ML_AVAILABLE:
             logger.warning("[ML] sklearn not available - ML pillar will use heuristics")
             return
-            
+
         if os.path.exists(self.model_path):
             try:
                 self.model = joblib.load(self.model_path)
@@ -165,6 +179,120 @@ class MLPillar(BasePillar):
                 logger.info(f"[ML] Loaded model from {self.model_path}")
             except Exception as e:
                 logger.warning(f"[ML] Failed to load model: {e}")
+
+    def _load_regime_models(self):
+        """V8.2: Pre-load regime-specific models (BULL/BEAR/RANGE/VOLATILE)."""
+        if not ML_AVAILABLE:
+            return
+
+        base_dir = os.path.dirname(self.model_path) or 'models'
+        docker_dirs = [base_dir, '/app/models', 'models']
+
+        for regime in ['BULL', 'BEAR', 'RANGE', 'VOLATILE']:
+            model_loaded = False
+            for d in docker_dirs:
+                model_file = os.path.join(d, f'ml_model_{regime}.joblib')
+                scaler_file = os.path.join(d, f'ml_scaler_{regime}.joblib')
+                if os.path.exists(model_file):
+                    try:
+                        model = joblib.load(model_file)
+                        scaler = joblib.load(scaler_file) if os.path.exists(scaler_file) else None
+                        self._regime_models[regime] = (model, scaler)
+                        logger.info(f"[ML] Loaded regime model: {regime} from {model_file}")
+                        model_loaded = True
+                        break
+                    except Exception as e:
+                        logger.warning(f"[ML] Failed to load {regime} model: {e}")
+            if not model_loaded:
+                logger.debug(f"[ML] No regime model found for {regime}, will use global model")
+
+        logger.info(f"[ML] Regime models loaded: {list(self._regime_models.keys())} "
+                    f"({len(self._regime_models)}/4)")
+
+    # ── V8.2 Sprint 3: Feature Importance Tracking ────────────────────────
+
+    def _load_importance_history(self):
+        """Load cumulative feature importance history from disk."""
+        if os.path.exists(self._importance_file):
+            try:
+                with open(self._importance_file, 'r') as f:
+                    data = json.load(f)
+                    self._importance_history = data.get('importances', {})
+                    self._importance_count = data.get('count', 0)
+                logger.info(f"[ML] Loaded feature importance history ({self._importance_count} samples)")
+            except Exception as e:
+                logger.debug(f"[ML] Could not load importance history: {e}")
+
+    def _save_importance_history(self):
+        """Save cumulative feature importance to disk."""
+        try:
+            avg_importances = {}
+            for feat, values in self._importance_history.items():
+                recent = values[-200:]
+                avg_importances[feat] = sum(recent) / len(recent)
+
+            sorted_features = sorted(avg_importances.items(), key=lambda x: x[1], reverse=True)
+            top_importance = sorted_features[0][1] if sorted_features else 1.0
+            redundant = [f for f, imp in sorted_features if imp < top_importance * 0.01]
+
+            with open(self._importance_file, 'w') as f:
+                json.dump({
+                    'count': self._importance_count,
+                    'last_updated': datetime.now().isoformat(),
+                    'importances': {k: v[-200:] for k, v in self._importance_history.items()},
+                    'avg_importances': dict(sorted_features),
+                    'top_10': [f for f, _ in sorted_features[:10]],
+                    'bottom_10': [f for f, _ in sorted_features[-10:]],
+                    'redundant_candidates': redundant,
+                    'feature_groups': {
+                        group: {f: avg_importances.get(f, 0) for f in features}
+                        for group, features in self.FEATURE_GROUPS.items()
+                    }
+                }, f, indent=2)
+        except Exception as e:
+            logger.debug(f"[ML] Could not save importance history: {e}")
+
+    def _track_importances(self, importances: Dict[str, float]):
+        """Record feature importances from a prediction."""
+        for feat, imp in importances.items():
+            if feat not in self._importance_history:
+                self._importance_history[feat] = []
+            self._importance_history[feat].append(imp)
+        self._importance_count += 1
+        if self._importance_count % 50 == 0:
+            self._save_importance_history()
+            avg = {f: sum(v[-100:]) / len(v[-100:]) for f, v in self._importance_history.items() if v}
+            top5 = sorted(avg.items(), key=lambda x: x[1], reverse=True)[:5]
+            bottom5 = sorted(avg.items(), key=lambda x: x[1])[:5]
+            logger.info(f"[ML] Feature importance (n={self._importance_count}): "
+                        f"TOP={[(f, f'{v:.4f}') for f, v in top5]} "
+                        f"BOTTOM={[(f, f'{v:.4f}') for f, v in bottom5]}")
+
+    def get_feature_importance_summary(self) -> Dict:
+        """Get feature importance summary for dashboard/optimizer."""
+        if not self._importance_history:
+            return {}
+        avg = {f: sum(v[-200:]) / len(v[-200:]) for f, v in self._importance_history.items() if v}
+        sorted_feats = sorted(avg.items(), key=lambda x: x[1], reverse=True)
+        top_imp = sorted_feats[0][1] if sorted_feats else 1.0
+        return {
+            'count': self._importance_count,
+            'ranked_features': sorted_feats,
+            'top_10': [f for f, _ in sorted_feats[:10]],
+            'redundant_candidates': [f for f, v in sorted_feats if v < top_imp * 0.01],
+            'group_importance': {
+                group: sum(avg.get(f, 0) for f in features) / len(features)
+                for group, features in self.FEATURE_GROUPS.items()
+            }
+        }
+
+    def _get_regime_model(self, regime: str):
+        """Get the best model for the current regime. Falls back to global model."""
+        if regime in self._regime_models:
+            self._active_regime_model = regime
+            return self._regime_models[regime]
+        self._active_regime_model = None
+        return (self.model, self.scaler)
     
     def get_name(self) -> str:
         return "ML_Adaptive"
@@ -215,10 +343,11 @@ class MLPillar(BasePillar):
         # 5. Calculate confidence
         confidence = self._calculate_confidence(features, regime)
         
-        # V4.4: Verbose logging
+        # V8.2: Log which model was used
+        model_info = self._active_regime_model or 'global_v7'
         logger.info(
             f"[ML] {symbol}: Score={score:.1f}/100 | "
-            f"Regime={regime.regime} | "
+            f"Regime={regime.regime} | Model={model_info} | "
             f"Confidence={confidence:.0%}"
         )
         
@@ -490,40 +619,54 @@ class MLPillar(BasePillar):
             )
     
     def _ml_predict(self, features: Dict[str, float]) -> Tuple[float, Dict]:
-        """Make prediction using trained model"""
+        """Make prediction using trained model (regime-specific if available)."""
         try:
+            # V8.2: Select regime-specific model if available
+            regime = self.last_regime.regime if self.last_regime else 'RANGE'
+            model, scaler = self._get_regime_model(regime)
+
+            if model is None:
+                logger.warning("[ML] No model available, falling back to heuristics")
+                return self._heuristic_score(features, {})
+
             # Prepare feature vector
             X = np.array([[features.get(f, 0) for f in self.feature_names]])
-            
+
             # Scale features
-            if self.scaler:
-                X = self.scaler.transform(X)
-            
+            if scaler:
+                X = scaler.transform(X)
+
             # Predict probability
-            proba = self.model.predict_proba(X)[0]
-            
+            proba = model.predict_proba(X)[0]
+
             # Convert to score (0-100)
             # Assuming class 1 = successful trade
             success_proba = proba[1] if len(proba) > 1 else proba[0]
             score = success_proba * 100
-            
+
             # Get feature importances
             importances = dict(zip(
                 self.feature_names,
-                self.model.feature_importances_
+                model.feature_importances_
             ))
             top_features = sorted(
                 importances.items(),
                 key=lambda x: x[1],
                 reverse=True
             )[:5]
-            
+
+            # V8.2 Sprint 3: Track feature importances for analysis
+            self._track_importances(importances)
+
+            model_type = f'regime_{regime}' if self._active_regime_model else 'global_v7'
+
             return score, {
                 'method': 'ml_model',
+                'model_type': model_type,
                 'success_probability': success_proba,
                 'top_features': top_features
             }
-            
+
         except Exception as e:
             logger.warning(f"[ML] Prediction error: {e}, falling back to heuristics")
             return self._heuristic_score(features, {})

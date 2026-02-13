@@ -197,8 +197,15 @@ class TradingGuardrails:
         # Historique des violations
         self._violations: List[Dict] = []
 
+        # Monthly P&L tracking
+        self._monthly_pnl_file = os.path.join(self.data_dir, "monthly_pnl.json")
+        self._monthly_trades: List[Dict] = []
+
         # Charger l'état précédent
         self._load_state()
+
+        # Charger le P&L mensuel
+        self._load_monthly_pnl()
 
         logger.info(f"TradingGuardrails initialized: capital={capital}€, "
                    f"max_daily_loss={self.MAX_DAILY_LOSS_PCT*100}%, "
@@ -579,11 +586,88 @@ class TradingGuardrails:
             "take_profit_target": self.DEFAULT_TAKE_PROFIT_PCT * 100
         }
 
+    def _load_monthly_pnl(self):
+        """Load monthly P&L from JSON file, reset if month changed."""
+        current_month = date.today().strftime("%Y-%m")
+
+        if os.path.exists(self._monthly_pnl_file):
+            try:
+                with open(self._monthly_pnl_file, 'r') as f:
+                    data = json.load(f)
+
+                if data.get("month") == current_month:
+                    self._monthly_trades = data.get("trades", [])
+                    logger.info(
+                        f"Monthly P&L loaded: {len(self._monthly_trades)} trades, "
+                        f"total={data.get('total_pnl', 0.0):.2f}€"
+                    )
+                else:
+                    # Month changed, reset
+                    logger.info(
+                        f"New month detected ({current_month}), resetting monthly P&L "
+                        f"(was {data.get('month', 'unknown')})"
+                    )
+                    self._monthly_trades = []
+                    self._save_monthly_pnl()
+            except Exception as e:
+                logger.error(f"Error loading monthly P&L: {e}")
+                self._monthly_trades = []
+        else:
+            self._monthly_trades = []
+
+    def _save_monthly_pnl(self):
+        """Save monthly P&L to JSON file."""
+        current_month = date.today().strftime("%Y-%m")
+        total_pnl = sum(t.get("pnl", 0.0) for t in self._monthly_trades)
+
+        data = {
+            "month": current_month,
+            "trades": self._monthly_trades,
+            "total_pnl": total_pnl
+        }
+
+        os.makedirs(self.data_dir, exist_ok=True)
+        try:
+            with open(self._monthly_pnl_file, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            logger.error(f"Error saving monthly P&L: {e}")
+
+    def record_monthly_trade(self, symbol: str, pnl_value: float, pnl_pct: float):
+        """
+        Record a trade's P&L for monthly tracking.
+
+        Args:
+            symbol: Stock symbol (e.g. 'AAPL')
+            pnl_value: Absolute P&L in € for this trade
+            pnl_pct: P&L percentage for this trade
+        """
+        # Ensure monthly data is current (handles month rollover)
+        current_month = date.today().strftime("%Y-%m")
+        if self._monthly_trades and len(self._monthly_trades) > 0:
+            # Check if we need to reset (e.g., first trade of new month)
+            existing_dates = [t.get("date", "") for t in self._monthly_trades]
+            if existing_dates and not any(d.startswith(current_month) for d in existing_dates if d):
+                self._monthly_trades = []
+
+        trade_record = {
+            "symbol": symbol,
+            "pnl": pnl_value,
+            "pnl_pct": pnl_pct,
+            "date": date.today().isoformat()
+        }
+
+        self._monthly_trades.append(trade_record)
+        self._save_monthly_pnl()
+
+        logger.info(
+            f"Monthly trade recorded: {symbol} P&L={pnl_value:+.2f}€ ({pnl_pct:+.2f}%), "
+            f"month total={self._get_monthly_pnl():+.2f}€"
+        )
+
     def _get_monthly_pnl(self) -> float:
-        """Get P&L for current month (from state file)"""
-        # For now, return daily PnL as approximation
-        # TODO: Implement full monthly tracking
-        return self._daily_pnl
+        """Get P&L for current month from tracked monthly trades."""
+        return sum(t.get("pnl", 0.0) for t in self._monthly_trades)
 
     def _days_into_month(self) -> int:
         """Get number of days into current month"""

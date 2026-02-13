@@ -84,11 +84,7 @@ class AgentRunner:
         logger.info(f"Mode: {'MOCK' if self.use_mock else 'LIVE'}")
         logger.info("")
 
-        # 1. Social Scanner
-        logger.info("Initializing Social Scanner...")
-        from src.intelligence.social_scanner import SocialScanner
-        self.social_scanner = SocialScanner()
-        await self.social_scanner.initialize()
+        # 1. Social Scanner - REMOVED (V8.2: replaced by Intelligence Orchestrator)
 
         # 2. Grok Scanner (si API key disponible)
         grok_key = os.getenv('GROK_API_KEY', '')

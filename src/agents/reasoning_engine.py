@@ -834,6 +834,125 @@ class ReasoningEngine:
         return risks
 
 
+# =============================================================================
+# BULL OPTIMIZATION (merged from reasoning_engine_patch.py)
+# =============================================================================
+
+try:
+    from src.scoring.bull_optimizer import (
+        MarketRegime as BullMarketRegime,
+        ATRTrailingStop,
+        TrailingStopConfig,
+        PullbackFilter,
+        BullOptimizedScorer,
+        calculate_trend_strength,
+        calculate_atr,
+    )
+    BULL_OPTIMIZER_AVAILABLE = True
+except ImportError:
+    BULL_OPTIMIZER_AVAILABLE = False
+
+
+@dataclass
+class PositionState:
+    """Track state for active positions with BULL optimization"""
+    symbol: str
+    entry_price: float
+    entry_date: str
+    trailing_stop: Any  # ATRTrailingStop
+    pullback_filter: Any  # PullbackFilter
+    peak_price: float
+    days_held: int = 0
+
+
+class ReasoningEngineBullPatch:
+    """
+    BULL regime optimization helper for ReasoningEngine.
+    Provides ATR trailing stops, pullback filtering, and extended hold logic.
+    """
+
+    def __init__(self):
+        if not BULL_OPTIMIZER_AVAILABLE:
+            logger.warning("[BULL] bull_optimizer not available")
+            return
+        self.bull_scorer = BullOptimizedScorer()
+        self.position_states: Dict[str, PositionState] = {}
+        self.trailing_stop_config = TrailingStopConfig()
+
+    def initialize_position_tracking(
+        self, symbol: str, entry_price: float, entry_date: str, current_atr: float
+    ):
+        if not BULL_OPTIMIZER_AVAILABLE:
+            return
+        trailing_stop = ATRTrailingStop(self.trailing_stop_config)
+        trailing_stop.initialize(entry_price, current_atr)
+        self.position_states[symbol] = PositionState(
+            symbol=symbol, entry_price=entry_price, entry_date=entry_date,
+            trailing_stop=trailing_stop,
+            pullback_filter=PullbackFilter(tolerance=0.03, confirmation_bars=2),
+            peak_price=entry_price,
+        )
+
+    def update_position_tracking(
+        self, symbol: str, current_price: float, current_atr: float
+    ) -> Tuple[float, bool]:
+        if symbol not in self.position_states:
+            return 0.0, False
+        state = self.position_states[symbol]
+        state.days_held += 1
+        if current_price > state.peak_price:
+            state.peak_price = current_price
+        return state.trailing_stop.update(current_price, current_atr)
+
+    def should_exit_position_enhanced(
+        self, symbol: str, current_price: float, current_atr: float,
+        regime: str, trend_strength: float, momentum_score: float,
+        original_exit_signal: bool
+    ) -> Tuple[bool, str]:
+        if not BULL_OPTIMIZER_AVAILABLE or symbol not in self.position_states:
+            return original_exit_signal, "No position tracking"
+        state = self.position_states[symbol]
+        market_regime = BullMarketRegime(regime) if regime in [r.value for r in BullMarketRegime] else BullMarketRegime.SIDEWAYS
+        stop_price, stop_hit = self.update_position_tracking(symbol, current_price, current_atr)
+        if stop_hit:
+            self._cleanup_position(symbol)
+            return True, f"Trailing stop hit at {stop_price:.2f}"
+        should_exit_pullback = state.pullback_filter.should_exit(
+            current_price=current_price, peak_price=state.peak_price,
+            trend_strength=trend_strength, regime=market_regime,
+        )
+        if should_exit_pullback and original_exit_signal:
+            self._cleanup_position(symbol)
+            return True, "Pullback confirmed, exiting"
+        current_pnl_pct = (current_price - state.entry_price) / state.entry_price
+        should_hold, hold_reason = self.bull_scorer.should_hold(
+            current_pnl_pct=current_pnl_pct, days_held=state.days_held,
+            regime=market_regime, trend_strength=trend_strength,
+            momentum_score=momentum_score,
+        )
+        if should_hold and not stop_hit:
+            return False, hold_reason
+        if original_exit_signal:
+            self._cleanup_position(symbol)
+            return True, "Original exit signal"
+        return False, "Holding position"
+
+    def _cleanup_position(self, symbol: str):
+        self.position_states.pop(symbol, None)
+
+    def get_adjusted_target(self, base_target: float, regime: str, trend_strength: float) -> float:
+        if not BULL_OPTIMIZER_AVAILABLE:
+            return base_target
+        market_regime = BullMarketRegime(regime) if regime in [r.value for r in BullMarketRegime] else BullMarketRegime.SIDEWAYS
+        return self.bull_scorer.calculate_target(base_target, market_regime, trend_strength)
+
+    def get_regime_weights(self, regime: str) -> Dict[str, float]:
+        if not BULL_OPTIMIZER_AVAILABLE:
+            return {}
+        market_regime = BullMarketRegime(regime) if regime in [r.value for r in BullMarketRegime] else BullMarketRegime.SIDEWAYS
+        return self.bull_scorer.get_regime_weights(market_regime)
+
+
 # Singleton
 _engine_instance: Optional[ReasoningEngine] = None
 

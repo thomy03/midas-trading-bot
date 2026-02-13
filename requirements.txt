@@ -56,3 +56,13 @@ google-genai>=1.60.0
 
 # V4.10 - RSS News Scraping
 feedparser>=6.0.0
+
+# V8.2 - Article Content Scraping
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# V8.3 - Prometheus Monitoring
+prometheus_client>=0.20.0
+
+# V8.4 - Optuna Hyperparameter Optimization
+optuna>=3.0.0

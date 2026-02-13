@@ -84,6 +84,74 @@ DEFAULT_REGIME_WEIGHTS = {
     },
 }
 
+# V8.2 Sprint 3: Sector-specific weight ADJUSTMENTS (additive to regime weights)
+# Rationale: Tech stocks → growth matters more, Energy → cash flow, Healthcare → quality/news
+SECTOR_WEIGHT_ADJUSTMENTS = {
+    "technology": {
+        "growth": +0.08, "quality": +0.04,
+        "valuation": -0.06, "health": -0.06,
+    },
+    "communication_services": {
+        "growth": +0.06, "profitability": +0.04,
+        "valuation": -0.05, "health": -0.05,
+    },
+    "healthcare": {
+        "quality": +0.08, "cash_flow": +0.04,
+        "growth": -0.04, "valuation": -0.08,
+    },
+    "energy": {
+        "cash_flow": +0.10, "valuation": +0.04,
+        "growth": -0.08, "quality": -0.06,
+    },
+    "financials": {
+        "health": +0.08, "valuation": +0.06,
+        "growth": -0.06, "cash_flow": -0.08,
+    },
+    "consumer_discretionary": {
+        "growth": +0.06, "profitability": +0.04,
+        "health": -0.04, "cash_flow": -0.06,
+    },
+    "consumer_staples": {
+        "profitability": +0.06, "quality": +0.06,
+        "growth": -0.08, "valuation": -0.04,
+    },
+    "industrials": {
+        "cash_flow": +0.06, "profitability": +0.04,
+        "quality": -0.04, "growth": -0.06,
+    },
+    "materials": {
+        "cash_flow": +0.08, "valuation": +0.04,
+        "growth": -0.06, "quality": -0.06,
+    },
+    "utilities": {
+        "health": +0.08, "cash_flow": +0.06,
+        "growth": -0.10, "quality": -0.04,
+    },
+    "real_estate": {
+        "cash_flow": +0.10, "health": +0.06,
+        "growth": -0.08, "quality": -0.08,
+    },
+}
+
+# Map yfinance sector names to our keys
+SECTOR_NAME_MAP = {
+    "technology": "technology",
+    "communication services": "communication_services",
+    "healthcare": "healthcare",
+    "energy": "energy",
+    "financials": "financials",
+    "financial services": "financials",
+    "consumer cyclical": "consumer_discretionary",
+    "consumer discretionary": "consumer_discretionary",
+    "consumer defensive": "consumer_staples",
+    "consumer staples": "consumer_staples",
+    "industrials": "industrials",
+    "basic materials": "materials",
+    "materials": "materials",
+    "utilities": "utilities",
+    "real estate": "real_estate",
+}
+
 
 class AdaptiveFundamentalPillar(BasePillar):
     """
@@ -114,8 +182,9 @@ class AdaptiveFundamentalPillar(BasePillar):
             logger.warning(f"[FUNDAMENTAL] Failed to load weights: {e}")
         return DEFAULT_REGIME_WEIGHTS
 
-    def _get_regime_weights(self, regime: str = "neutral") -> Dict[str, float]:
-        """Get category weights for current market regime."""
+    def _get_regime_weights(self, regime: str = "neutral", sector: str = "") -> Dict[str, float]:
+        """Get category weights for current market regime + sector.
+        V8.2 Sprint 3: Applies sector-specific adjustments on top of regime weights."""
         regime_lower = regime.lower() if regime else "neutral"
         # Map MarketRegime enum values
         regime_map = {
@@ -126,7 +195,22 @@ class AdaptiveFundamentalPillar(BasePillar):
             "ranging": "neutral", "recovery": "bull",
         }
         key = regime_map.get(regime_lower, "neutral")
-        return self._weights.get(key, self._weights.get("neutral", DEFAULT_REGIME_WEIGHTS["neutral"]))
+        base_weights = dict(self._weights.get(key, self._weights.get("neutral", DEFAULT_REGIME_WEIGHTS["neutral"])))
+
+        # V8.2: Apply sector-specific adjustments
+        sector_key = SECTOR_NAME_MAP.get(sector.lower(), "") if sector else ""
+        if sector_key and sector_key in SECTOR_WEIGHT_ADJUSTMENTS:
+            adjustments = SECTOR_WEIGHT_ADJUSTMENTS[sector_key]
+            for cat, adj in adjustments.items():
+                if cat in base_weights:
+                    base_weights[cat] = max(0.05, base_weights[cat] + adj)
+            # Re-normalize to sum to 1.0
+            total = sum(base_weights.values())
+            if total > 0:
+                base_weights = {k: v / total for k, v in base_weights.items()}
+            logger.debug(f"[FUNDAMENTAL] Sector-adjusted weights ({sector_key}): {base_weights}")
+
+        return base_weights
 
     async def analyze(self, symbol: str, data: Dict[str, Any]) -> PillarScore:
         """Perform adaptive fundamental analysis."""
@@ -202,8 +286,8 @@ class AdaptiveFundamentalPillar(BasePillar):
                         'message': self._format_metric_message(metric_name, value, percentile, trend_label, sector),
                     })
 
-            # Weighted category combination
-            cat_weights = self._get_regime_weights(regime)
+            # Weighted category combination (V8.2: sector-aware)
+            cat_weights = self._get_regime_weights(regime, sector)
             total_score = 0.0
             cat_summaries = {}
 

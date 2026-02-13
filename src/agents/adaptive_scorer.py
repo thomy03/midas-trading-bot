@@ -727,3 +727,145 @@ def get_adaptive_scorer() -> AdaptiveScorer:
     if _adaptive_scorer is None:
         _adaptive_scorer = AdaptiveScorer()
     return _adaptive_scorer
+
+
+# =============================================================================
+# BULL OPTIMIZATION (merged from scoring/adaptive_scorer_patch.py)
+# =============================================================================
+
+try:
+    from src.scoring.bull_optimizer import (
+        MarketRegime as BullMarketRegime,
+        BullOptimizedScorer,
+        BullRegimeConfig,
+        calculate_trend_strength,
+    )
+    _BULL_OPTIMIZER_AVAILABLE = True
+except ImportError:
+    _BULL_OPTIMIZER_AVAILABLE = False
+
+
+@dataclass
+class BullScoringResult:
+    """Result of BULL-optimized scoring calculation"""
+    total_score: float
+    pillar_scores: Dict[str, float]
+    weights_used: Dict[str, float]
+    regime: str
+    trend_strength: float
+    recommendation: str
+    confidence: float
+
+
+class AdaptiveScorerBullPatch:
+    """
+    BULL regime optimization for AdaptiveScorer.
+    Dynamic weight adjustment, trend strength integration, momentum boosting.
+    """
+
+    def __init__(self, config_path: str = "config/pillar_weights.json"):
+        self.config = self._load_config(config_path)
+        self.bull_scorer = BullOptimizedScorer() if _BULL_OPTIMIZER_AVAILABLE else None
+
+    def _load_config(self, config_path: str) -> Dict:
+        path = Path(config_path)
+        if path.exists():
+            with open(path) as f:
+                return json.load(f)
+        return {
+            "base_weights": {
+                "technical": 0.25, "fundamental": 0.20, "sentiment": 0.15,
+                "momentum": 0.20, "trend": 0.20,
+            },
+            "scoring_thresholds": {
+                "strong_buy": 0.75, "buy": 0.60, "hold": 0.40,
+                "sell": 0.30, "strong_sell": 0.20,
+            },
+        }
+
+    def get_regime_weights(self, regime: str) -> Dict[str, float]:
+        regime_config = self.config.get("regime_adjustments", {}).get(regime, {})
+        if regime_config:
+            weights = {
+                "technical": regime_config.get("technical", 0.25),
+                "fundamental": regime_config.get("fundamental", 0.20),
+                "sentiment": regime_config.get("sentiment", 0.15),
+                "momentum": regime_config.get("momentum", 0.20),
+                "trend": regime_config.get("trend", 0.20),
+            }
+        elif _BULL_OPTIMIZER_AVAILABLE:
+            market_regime = BullMarketRegime(regime) if regime in [r.value for r in BullMarketRegime] else BullMarketRegime.SIDEWAYS
+            weights = self.bull_scorer.get_regime_weights(market_regime)
+        else:
+            weights = self.config.get("base_weights", {"technical": 0.25, "fundamental": 0.20, "sentiment": 0.15, "momentum": 0.20, "trend": 0.20})
+        total = sum(weights.values())
+        return {k: v / total for k, v in weights.items()}
+
+    def calculate_enhanced_score(
+        self, pillar_scores: Dict[str, float], regime: str,
+        trend_strength: float = 0.5, momentum_score: float = 0.5,
+    ) -> BullScoringResult:
+        weights = self.get_regime_weights(regime)
+        scores = pillar_scores.copy()
+        if regime == "BULL" and trend_strength > 0.6:
+            momentum_boost = 1.0 + (trend_strength - 0.6) * 0.5
+            if "momentum" in scores:
+                scores["momentum"] = min(1.0, scores["momentum"] * momentum_boost)
+            if "trend" in scores:
+                scores["trend"] = min(1.0, scores["trend"] * (1 + (trend_strength - 0.6) * 0.3))
+        total_score = sum(scores.get(p, 0) * weights.get(p, 0) for p in scores)
+        confidence = 1.0 - np.std(list(scores.values())) if scores else 0.5
+        recommendation = self._get_recommendation(total_score, regime, trend_strength)
+        return BullScoringResult(
+            total_score=total_score, pillar_scores=scores, weights_used=weights,
+            regime=regime, trend_strength=trend_strength,
+            recommendation=recommendation, confidence=confidence,
+        )
+
+    def _get_recommendation(self, score: float, regime: str, trend_strength: float) -> str:
+        thresholds = self.config.get("scoring_thresholds", {})
+        if regime == "BULL" and trend_strength > 0.65:
+            buy_threshold = thresholds.get("buy", 0.60) - 0.05
+            strong_buy_threshold = thresholds.get("strong_buy", 0.75) - 0.05
+        else:
+            buy_threshold = thresholds.get("buy", 0.60)
+            strong_buy_threshold = thresholds.get("strong_buy", 0.75)
+        if score >= strong_buy_threshold:
+            return "STRONG_BUY"
+        elif score >= buy_threshold:
+            return "BUY"
+        elif score >= thresholds.get("hold", 0.40):
+            return "HOLD"
+        elif score >= thresholds.get("sell", 0.30):
+            return "SELL"
+        return "STRONG_SELL"
+
+    def get_regime_parameters(self, regime: str) -> Dict[str, Any]:
+        regime_config = self.config.get("regime_adjustments", {}).get(regime, {})
+        params = regime_config.get("parameters", {})
+        defaults = {
+            "target_multiplier": 1.0, "trailing_stop_atr": 2.0,
+            "max_hold_days": 10, "pullback_tolerance": 0.02,
+            "min_trend_strength": 0.5,
+        }
+        return {**defaults, **params}
+
+    def should_enter_trade(
+        self, score: float, regime: str, trend_strength: float,
+        current_positions: int, max_positions: int = 10,
+    ) -> Tuple[bool, str]:
+        if current_positions >= max_positions:
+            return False, "Max positions reached"
+        params = self.get_regime_parameters(regime)
+        min_trend = params.get("min_trend_strength", 0.5)
+        thresholds = self.config.get("scoring_thresholds", {})
+        buy_threshold = thresholds.get("buy", 0.60)
+        if regime == "BULL":
+            if trend_strength >= 0.7 and score >= buy_threshold - 0.08:
+                return True, "BULL: Strong trend, moderate score"
+            if score >= buy_threshold:
+                return True, "BULL: Score above threshold"
+        else:
+            if score >= buy_threshold and trend_strength >= min_trend:
+                return True, "Score and trend criteria met"
+        return False, f"Score {score:.2f} below threshold"

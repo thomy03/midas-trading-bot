@@ -1,10 +1,32 @@
 # Midas V8.1 - Production Docker Compose (Hetzner VPS)
 # A/B Testing: 2 agents (LLM vs No-LLM) × 4 strategies = 8 results
+# Nginx reverse proxy with TLS termination via Let's Encrypt
+#
+# Prerequisites:
+#   1. Set DOMAIN in .env (e.g., DOMAIN=midas.yourdomain.com)
+#   2. Point DNS A record to your Hetzner VPS IP
+#   3. First-time SSL setup:
+#      docker compose -f docker-compose.prod.yml run --rm certbot certonly \
+#        --webroot --webroot-path=/var/www/certbot \
+#        --email your@email.com --agree-tos --no-eff-email \
+#        -d your-domain.com
 #
 # Usage:
 #   docker compose -f docker-compose.prod.yml up -d
 #   docker compose -f docker-compose.prod.yml logs -f agent
 #   docker compose -f docker-compose.prod.yml down
+#
+# Nightly ML Model Auto-Retrain:
+#   Schedule via host crontab (recommended) -- runs at 2:00 AM UTC:
+#     0 2 * * * cd /path/to/midas && docker compose -f docker-compose.prod.yml run --rm --no-deps agent python -m src.ml.auto_retrain >> logs/cron_retrain.log 2>&1
+#
+#   Or as a dry-run first to verify:
+#     docker compose -f docker-compose.prod.yml run --rm --no-deps agent python -m src.ml.auto_retrain --dry-run
+#
+#   The retrain script reads data/trade_analysis_db.json and data/signals/tracked/
+#   from the mounted volumes, trains a new model on the last 180+30 days, and only
+#   replaces models/ml_model_v7.joblib if the validation gate passes (AUC improvement,
+#   accuracy >= 52%). Old models are backed up to models/backup/<timestamp>/.
 
 services:
   # ==================== Agent WITH LLMs (Grok/Gemini/V8 Intelligence) ====================
@@ -93,8 +115,8 @@ services:
     container_name: midas-api
     restart: unless-stopped
     command: ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     volumes:
       - ./data:/app/data
       - ./data-nollm:/app/data-nollm:ro
@@ -119,6 +141,119 @@ services:
       resources:
         limits:
           memory: 512M
+
+  # ==================== Nginx Reverse Proxy (TLS Termination) ====================
+  nginx:
+    image: nginx:alpine
+    container_name: midas-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/templates/default.conf.template:ro
+      - certbot-webroot:/var/www/certbot:ro
+      - certbot-certs:/etc/letsencrypt:ro
+    environment:
+      - DOMAIN=${DOMAIN:-midas.example.com}
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - midas-net
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # ==================== Certbot (Let's Encrypt SSL Certificates) ====================
+  certbot:
+    image: certbot/certbot:latest
+    container_name: midas-certbot
+    volumes:
+      - certbot-webroot:/var/www/certbot
+      - certbot-certs:/etc/letsencrypt
+    environment:
+      - DOMAIN=${DOMAIN:-midas.example.com}
+    # Certbot runs on-demand (via ssl-renew.sh or manual invocation), not as a daemon
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot --webroot-path=/var/www/certbot --quiet; sleep 12h & wait $${!}; done'"
+    networks:
+      - midas-net
+
+  # ==================== Prometheus (Metrics) ====================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: midas-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+    networks:
+      - midas-net
+
+  # ==================== Grafana (Dashboards) ====================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: midas-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    depends_on:
+      - prometheus
+    networks:
+      - midas-net
+
+  # ==================== Backup (Daily at 3:00 AM via crond) ====================
+  backup:
+    image: alpine:latest
+    container_name: midas-backup
+    restart: unless-stopped
+    volumes:
+      - ./data:/data:ro
+      - ./models:/models:ro
+      - ./scripts:/scripts:ro
+      - /backups/midas:/backups
+    environment:
+      - TZ=Europe/Paris
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        apk add --no-cache bash docker-cli findutils coreutils tar gzip > /dev/null 2>&1
+        mkdir -p /var/log
+        echo '0 3 * * * /bin/bash /scripts/backup.sh --destination /backups --retention-days 30 >> /var/log/midas-backup.log 2>&1' > /etc/crontabs/root
+        crond -f -l 2
+    networks:
+      - midas-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+volumes:
+  certbot-webroot:
+    driver: local
+  certbot-certs:
+    driver: local
+  prometheus-data:
+  grafana-data:
 
 networks:
   midas-net:

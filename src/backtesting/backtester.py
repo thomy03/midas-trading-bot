@@ -69,6 +69,11 @@ class BacktestConfig:
     narrative_boost_scores: bool = True  # Add narrative boost to confidence scores
     require_narrative_alignment: bool = False  # Only take signals aligned with current narrative
 
+    # V8.2: Transaction costs for realistic backtesting
+    transaction_fee_pct: float = 0.001   # 0.1% per trade (entry + exit)
+    slippage_pct: float = 0.0005         # 0.05% slippage per trade
+    use_realistic_costs: bool = True     # Enable fees + slippage
+
 
 @dataclass
 class BacktestResult:
@@ -153,6 +158,9 @@ class Backtester:
         print(f"Symbols: {len(symbols)}")
         print(f"Config: {self.config.precision_mode} precision, "
               f"min score={self.config.min_confidence_score}")
+        if self.config.use_realistic_costs:
+            print(f"Costs: fee={self.config.transaction_fee_pct*100:.2f}%/trade, "
+                  f"slippage={self.config.slippage_pct*100:.3f}%/trade")
 
         # Process each symbol
         for symbol in symbols:
@@ -487,6 +495,10 @@ class Backtester:
         capital: float
     ) -> Dict:
         """Open a new position"""
+        # V8.2: Apply slippage to entry price (buy higher than quoted)
+        if self.config.use_realistic_costs:
+            entry_price = entry_price * (1 + self.config.slippage_pct)
+
         # Calculate position size
         position_value = capital * self.config.position_size_pct
         shares = int(position_value / entry_price)
@@ -576,8 +588,19 @@ class Backtester:
         entry_price = position['entry_price']
         shares = position['shares']
 
-        profit_loss = (exit_price - entry_price) * shares
-        profit_loss_pct = (exit_price - entry_price) / entry_price * 100
+        # V8.2: Apply slippage on exit (sell lower than quoted)
+        if self.config.use_realistic_costs:
+            exit_price = exit_price * (1 - self.config.slippage_pct)
+
+        # V8.2: Calculate transaction fees (entry + exit)
+        total_fees = 0.0
+        if self.config.use_realistic_costs:
+            entry_fee = entry_price * shares * self.config.transaction_fee_pct
+            exit_fee = exit_price * shares * self.config.transaction_fee_pct
+            total_fees = entry_fee + exit_fee
+
+        profit_loss = (exit_price - entry_price) * shares - total_fees
+        profit_loss_pct = ((exit_price - entry_price) / entry_price * 100) - (self.config.transaction_fee_pct * 200 if self.config.use_realistic_costs else 0)
 
         return Trade(
             symbol=position['symbol'],

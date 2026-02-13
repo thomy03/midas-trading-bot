@@ -32,6 +32,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
+from src.intelligence.source_tracker import get_source_tracker
+
 logger = logging.getLogger(__name__)
 
 
@@ -97,14 +99,45 @@ for _etf, _syms in THEME_ETF_PROXIES.items():
         _SYMBOL_TO_ETF[_s] = _etf
 
 
+def _calc_relative_outperf(etf_df, spy_df, etf_loc, spy_loc, lookback):
+    # type: (pd.DataFrame, pd.DataFrame, int, int, int) -> float
+    """Calculate ETF vs SPY relative outperformance over lookback days."""
+    if etf_loc < lookback or spy_loc < lookback:
+        return 0.0
+
+    etf_now = float(etf_df['Close'].iloc[etf_loc])
+    etf_past = float(etf_df['Close'].iloc[etf_loc - lookback])
+    spy_now = float(spy_df['Close'].iloc[spy_loc])
+    spy_past = float(spy_df['Close'].iloc[spy_loc - lookback])
+
+    if etf_past <= 0 or spy_past <= 0:
+        return 0.0
+
+    etf_ret = (etf_now - etf_past) / etf_past
+    spy_ret = (spy_now - spy_past) / spy_past
+    return etf_ret - spy_ret
+
+
+def _outperf_to_bonus(outperf):
+    # type: (float) -> float
+    """Convert outperformance % to bonus points (0 to 8)."""
+    if outperf > 0.15:
+        return 8.0
+    elif outperf > 0.10:
+        return 5.0
+    elif outperf > 0.05:
+        return 3.0
+    return 0.0
+
+
 def calculate_etf_momentum_bonus(symbol, date, data_mgr):
     # type: (str, pd.Timestamp, object) -> float
     """Backtestable signal: bonus if the sector/theme ETF outperforms SPY.
 
-    ETF vs SPY 60-day relative performance:
-    - Outperformance > 5% -> +3 pts
-    - Outperformance > 10% -> +5 pts
-    - Outperformance > 15% -> +8 pts
+    V8.2: Multi-timeframe momentum (20d/60d/120d) with weighted average.
+    Detects short-term rotations AND long-term trends.
+
+    Weights: 20d = 0.40, 60d = 0.35, 120d = 0.25
 
     Bonus only (never negative), cap at +8.
 
@@ -138,28 +171,25 @@ def calculate_etf_momentum_bonus(symbol, date, data_mgr):
     etf_loc = etf_df.index.get_loc(date)
     spy_loc = spy_df.index.get_loc(date)
 
-    if etf_loc < 60 or spy_loc < 60:
-        return 0.0
+    # Need at least 120 days of data for the longest horizon
+    if etf_loc < 120 or spy_loc < 120:
+        # Fallback: try 60d only
+        outperf = _calc_relative_outperf(etf_df, spy_df, etf_loc, spy_loc, 60)
+        return _outperf_to_bonus(outperf)
 
-    etf_now = float(etf_df['Close'].iloc[etf_loc])
-    etf_past = float(etf_df['Close'].iloc[etf_loc - 60])
-    spy_now = float(spy_df['Close'].iloc[spy_loc])
-    spy_past = float(spy_df['Close'].iloc[spy_loc - 60])
+    # Multi-timeframe: 20d (short), 60d (medium), 120d (long)
+    outperf_20d = _calc_relative_outperf(etf_df, spy_df, etf_loc, spy_loc, 20)
+    outperf_60d = _calc_relative_outperf(etf_df, spy_df, etf_loc, spy_loc, 60)
+    outperf_120d = _calc_relative_outperf(etf_df, spy_df, etf_loc, spy_loc, 120)
 
-    if etf_past <= 0 or spy_past <= 0:
-        return 0.0
+    # Weighted average: short-term has most weight to catch rotations early
+    bonus_20d = _outperf_to_bonus(outperf_20d)
+    bonus_60d = _outperf_to_bonus(outperf_60d)
+    bonus_120d = _outperf_to_bonus(outperf_120d)
 
-    etf_ret = (etf_now - etf_past) / etf_past
-    spy_ret = (spy_now - spy_past) / spy_past
-    outperf = etf_ret - spy_ret
+    weighted_bonus = bonus_20d * 0.40 + bonus_60d * 0.35 + bonus_120d * 0.25
 
-    if outperf > 0.15:
-        return 8.0
-    elif outperf > 0.10:
-        return 5.0
-    elif outperf > 0.05:
-        return 3.0
-    return 0.0
+    return min(8.0, round(weighted_bonus, 1))
 
 
 # ── LLM System Prompt ────────────────────────────────────────────────────
@@ -231,11 +261,18 @@ class IntelligenceOrchestrator:
     LLM conductor. Collects data from ALL existing sources, then asks
     Gemini to REASON about portfolio implications.
 
-    Cycle: every 15 minutes (cached).
+    V8.2: Dynamic cache TTL based on market volatility.
     Cost: 2-4 Gemini Flash calls/cycle = ~10/hour = within free tier.
     """
 
-    CACHE_TTL_SECONDS = 900  # 15 minutes
+    # V8.2: Dynamic cache TTL thresholds
+    CACHE_TTL_NORMAL = 900      # 15 min - calm markets
+    CACHE_TTL_ELEVATED = 600    # 10 min - moderate volatility
+    CACHE_TTL_HIGH = 300        # 5 min  - VIX > 25 or breaking news
+    CACHE_TTL_CRITICAL = 180    # 3 min  - VIX > 35 or portfolio alert
+
+    SYMBOL_INTEL_TTL_NORMAL = 1800   # 30 min
+    SYMBOL_INTEL_TTL_HIGH = 600      # 10 min
 
     def __init__(self, gemini_client, grok_scanner=None, news_fetcher=None,
                  trend_discovery=None, market_context=None,
@@ -249,13 +286,82 @@ class IntelligenceOrchestrator:
         self._cache = None  # type: Optional[IntelligenceBrief]
         self._symbol_intel_cache = {}  # type: Dict[str, dict]  # symbol -> {result, time}
         self._cache_time = None  # type: Optional[datetime]
+        # V8.2: Dynamic TTL state
+        self._current_vix = None  # type: Optional[float]
+        self._breaking_news_detected = False
+        self._last_vix_check = 0.0  # timestamp
+
+    def _get_dynamic_ttl(self) -> int:
+        """V8.2: Calculate cache TTL based on market conditions."""
+        # Check VIX level
+        vix = self._current_vix
+        if vix is not None:
+            if vix > 35:
+                logger.info(f"[INTEL] CRITICAL volatility (VIX={vix:.1f}) -> cache TTL={self.CACHE_TTL_CRITICAL}s")
+                return self.CACHE_TTL_CRITICAL
+            elif vix > 25:
+                logger.info(f"[INTEL] HIGH volatility (VIX={vix:.1f}) -> cache TTL={self.CACHE_TTL_HIGH}s")
+                return self.CACHE_TTL_HIGH
+            elif vix > 20:
+                return self.CACHE_TTL_ELEVATED
+
+        # Check if breaking news was detected
+        if self._breaking_news_detected:
+            self._breaking_news_detected = False  # reset after one use
+            logger.info("[INTEL] Breaking news detected -> cache TTL=%ds", self.CACHE_TTL_HIGH)
+            return self.CACHE_TTL_HIGH
+
+        return self.CACHE_TTL_NORMAL
+
+    def _get_symbol_intel_ttl(self) -> int:
+        """V8.2: Dynamic TTL for per-symbol intelligence cache."""
+        vix = self._current_vix
+        if vix is not None and vix > 25:
+            return self.SYMBOL_INTEL_TTL_HIGH
+        return self.SYMBOL_INTEL_TTL_NORMAL
+
+    async def _update_vix(self):
+        """V8.2: Update VIX from market context (cached 5 min)."""
+        now = time.time()
+        if now - self._last_vix_check < 300:  # check every 5 min max
+            return
+        self._last_vix_check = now
+
+        if self.market is not None:
+            try:
+                if hasattr(self.market, 'vix'):
+                    self._current_vix = float(self.market.vix)
+                elif hasattr(self.market, 'get_context'):
+                    ctx = self.market
+                    if hasattr(ctx, 'get_vix'):
+                        self._current_vix = float(ctx.get_vix())
+            except Exception:
+                pass
+
+        # Fallback: try quick yfinance fetch
+        if self._current_vix is None:
+            try:
+                import yfinance as yf
+                vix_data = yf.Ticker('^VIX').fast_info
+                if hasattr(vix_data, 'last_price'):
+                    self._current_vix = float(vix_data.last_price)
+            except Exception:
+                pass
+
+    def flag_breaking_news(self):
+        """V8.2: Called externally to signal breaking news → force short TTL."""
+        self._breaking_news_detected = True
+        logger.info("[INTEL] Breaking news flagged - next cache refresh will use short TTL")
 
     async def get_brief(self, force=False):
         # type: (bool) -> IntelligenceBrief
-        """Main entry point. Returns cached brief (15 min TTL)."""
+        """Main entry point. Returns cached brief with dynamic TTL."""
         now = datetime.now()
+        await self._update_vix()
+        ttl = self._get_dynamic_ttl()
+
         if (not force and self._cache is not None and self._cache_time is not None
-                and (now - self._cache_time).total_seconds() < self.CACHE_TTL_SECONDS):
+                and (now - self._cache_time).total_seconds() < ttl):
             return self._cache
 
         try:
@@ -266,6 +372,14 @@ class IntelligenceOrchestrator:
 
         self._cache = brief
         self._cache_time = now
+
+        # V8.2: Log predictions for source reliability tracking
+        try:
+            tracker = get_source_tracker()
+            tracker.log_brief_predictions(brief)
+        except Exception as e:
+            logger.debug(f"Source tracking log failed: {e}")
+
         return brief
 
     async def _generate_brief(self):
@@ -468,6 +582,42 @@ class IntelligenceOrchestrator:
                 )
                 sections.append("=== RSS NEWS FEEDS ===\n%s" % rss_text)
 
+            # V8.2: SCRAPED ARTICLE CONTENT (full text from top impactful articles)
+            scraped = rss.get('scraped_articles', [])
+            if scraped:
+                scraped_parts = []
+                for a in scraped[:5]:  # Max 5 full articles to keep prompt manageable
+                    content = getattr(a, 'full_content', None)
+                    if content:
+                        title = getattr(a, 'title', 'Unknown')
+                        source = getattr(a, 'source', '?')
+                        score = getattr(a, 'relevance_score', 0)
+                        scraped_parts.append(
+                            "--- [%s] %s (relevance: %.1f) ---\n%s" % (
+                                source, title, score, content[:2000]
+                            )
+                        )
+                if scraped_parts:
+                    sections.append(
+                        "=== FULL ARTICLE CONTENT (scraped from top RSS) ===\n"
+                        "These are the most impactful articles with full text. "
+                        "Use these for deeper reasoning.\n\n%s" % '\n\n'.join(scraped_parts)
+                    )
+
+        # V8.2 Sprint 3: Inject Gemini Memory feedback into reasoning
+        if self.gemini is not None and hasattr(self.gemini, '_get_memory'):
+            try:
+                memory = self.gemini._get_memory()
+                feedback = memory.get_feedback_context()
+                if feedback:
+                    sections.append("=== DISCOVERY PERFORMANCE FEEDBACK ===\n%s" % feedback)
+                # Also inject recent memory for continuity
+                memory_summary = memory.get_context_summary(max_chars=800)
+                if memory_summary and memory_summary != "No prior research memory.":
+                    sections.append("=== GEMINI RESEARCH MEMORY ===\n%s" % memory_summary)
+            except Exception:
+                pass
+
         if not sections:
             sections.append("No intelligence data available at this time.")
 
@@ -559,9 +709,10 @@ class IntelligenceOrchestrator:
         Returns: {'adjustment': float, 'reasoning': str, 'news': list, 'sentiment': str}
         """
         now = time.time()
-        # Check cache (30 min TTL)
+        # V8.2: Dynamic cache TTL (30 min normal, 10 min high vol)
+        symbol_ttl = self._get_symbol_intel_ttl()
         cached = self._symbol_intel_cache.get(symbol)
-        if cached and (now - cached['time']) < 1800:
+        if cached and (now - cached['time']) < symbol_ttl:
             return cached['result']
 
         result = {'adjustment': 0.0, 'reasoning': '', 'news': [], 'sentiment': 'neutral'}
@@ -587,10 +738,17 @@ class IntelligenceOrchestrator:
         # If Gemini available, ask for analysis
         if self.gemini is not None and self.gemini.is_available():
             try:
-                articles_text = "\n".join(
-                    f"- [{a.source}] {a.title}" + (f": {a.summary[:150]}" if a.summary else "")
-                    for a in articles[:10]
-                )
+                # V8.2: Include full article content for scraped articles
+                articles_text_parts = []
+                for a in articles[:10]:
+                    line = f"- [{a.source}] {a.title}"
+                    if getattr(a, 'full_content', None):
+                        # Scraped article - include full content (truncated)
+                        line += f"\n  FULL CONTENT: {a.full_content[:800]}"
+                    elif a.summary:
+                        line += f": {a.summary[:150]}"
+                    articles_text_parts.append(line)
+                articles_text = "\n".join(articles_text_parts)
                 macro_bias = 'neutral'
                 if self._cache:
                     macro_bias = self._cache.macro_regime_bias
@@ -626,10 +784,22 @@ class IntelligenceOrchestrator:
 
     def get_symbol_adjustment(self, symbol, brief):
         # type: (str, IntelligenceBrief) -> float
-        """Return total score adjustment for a symbol (capped +/- 15)."""
+        """Return total score adjustment for a symbol (capped +/- 15).
+        V8.2: Applies source reliability weights."""
+        # Get source weights (cached in tracker)
+        try:
+            tracker = get_source_tracker()
+            source_weights = tracker.get_source_weights()
+        except Exception:
+            source_weights = {}
+
         adj = 0.0
         for event in brief.events:
-            adj += event.affected_symbols.get(symbol, 0.0)
+            raw_adj = event.affected_symbols.get(symbol, 0.0)
+            if raw_adj != 0.0 and source_weights:
+                weight = source_weights.get(event.source, 1.0)
+                raw_adj *= weight
+            adj += raw_adj
         for trend in brief.megatrends:
             adj += trend.symbols.get(symbol, 0.0)
         return max(-15.0, min(15.0, adj))

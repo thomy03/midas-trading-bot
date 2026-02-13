@@ -72,7 +72,7 @@ class AttentionManager:
     """
 
     def __init__(self, heat_detector=None, config: Optional[AttentionConfig] = None):
-        # heat_detector param kept for API compat but ignored
+        # heat_detector param deprecated (V8.2) - ignored
         self.config = config or AttentionConfig()
         self._focus_topics: Dict[str, FocusTopic] = {}
         self._grok_priority_symbols: List[str] = []

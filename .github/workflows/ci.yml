@@ -28,11 +28,11 @@ jobs:
       
       - name: Run Ruff linter
         run: |
-          ruff check . --output-format=github || true
-      
+          ruff check . --output-format=github
+
       - name: Run Ruff formatter check
         run: |
-          ruff format --check . || true
+          ruff format --check .
 
   test:
     name: Tests
@@ -80,11 +80,115 @@ jobs:
           TICKERS_JSON_DIR = 'data/tickers'
           EOF
       
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
-          pytest tests/ -v --tb=short --ignore=tests/integration/ || true
+          pytest tests/ -v --tb=short --ignore=tests/integration/ \
+            --cov=src --cov-report=xml --cov-report=term --cov-fail-under=40
         env:
           PYTHONPATH: ${{ github.workspace }}
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: test
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio
+
+      - name: Create required directories
+        run: |
+          mkdir -p data/cache logs config
+
+      - name: Create minimal config for tests
+        run: |
+          cat > config/settings.py << 'EOF'
+          # Minimal settings for CI tests
+          MIN_MARKET_CAP = 1000
+          MIN_DAILY_VOLUME = 100000
+          MAX_STOCKS = 100
+          MARKETS = {'NASDAQ': True, 'SP500': True}
+          MIN_MARKET_CAP_NASDAQ = 1000
+          MIN_MARKET_CAP_SP500 = 5000
+          MIN_MARKET_CAP_EUROPE = 1000
+          MIN_MARKET_CAP_ASIA_ADR = 1000
+          US_INDICES = ['^GSPC', '^IXIC']
+          EUROPEAN_INDICES = ['^STOXX50E']
+          LOOKBACK_DAYS_WEEKLY = 260
+          LOOKBACK_DAYS_DAILY = 60
+          MAX_WORKERS = 4
+          MAX_RETRIES = 3
+          RETRY_DELAY = 1
+          CUSTOM_SYMBOLS = []
+          TICKERS_JSON_DIR = 'data/tickers'
+          EOF
+
+      - name: Run integration tests
+        run: |
+          pytest tests/integration/ -v --tb=short || true
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+  security:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install security tools
+        run: |
+          pip install bandit safety
+
+      - name: Run Bandit security linter
+        run: |
+          bandit -r src/ -ll -ii --format json --output bandit-report.json || true
+          echo "=== Bandit Summary ==="
+          bandit -r src/ -ll -ii --format txt || true
+
+      - name: Run Safety dependency check
+        run: |
+          safety check --full-report || true
+
+      - name: Upload Bandit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-report.json
+
+  dashboard:
+    name: Dashboard Build Check
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install and build dashboard
+        run: |
+          cd dashboard && npm ci && npm run build
 
   docker:
     name: Docker Build

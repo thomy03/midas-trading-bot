@@ -113,6 +113,78 @@ class GeminiMemory:
             ]
         self._save()
 
+    # ── V8.2 Sprint 3: Discovery Feedback Loop ───────────────────────────
+
+    def record_trade_outcome(self, symbol: str, profitable: bool, pnl_pct: float):
+        """Record whether a discovery-driven trade was profitable.
+        This enables the memory to learn which discovery patterns work."""
+        # Find recent discoveries for this symbol
+        for d in self.data.get('discoveries', []):
+            if d.get('symbol', '').upper() == symbol.upper():
+                d.setdefault('trade_outcomes', []).append({
+                    'profitable': profitable,
+                    'pnl_pct': pnl_pct,
+                    'recorded_at': datetime.now().isoformat(),
+                })
+                # Calculate running success rate for this discovery category
+                category = d.get('category', 'unknown')
+                outcomes = d.get('trade_outcomes', [])
+                wins = sum(1 for o in outcomes if o['profitable'])
+                d['success_rate'] = wins / len(outcomes) if outcomes else 0
+                break
+        self._save()
+
+    def get_successful_patterns(self, min_trades: int = 2) -> List[Dict]:
+        """Get discovery categories and patterns that led to profitable trades."""
+        category_stats = {}  # type: Dict[str, Dict]
+        for d in self.data.get('discoveries', []):
+            outcomes = d.get('trade_outcomes', [])
+            if not outcomes:
+                continue
+            cat = d.get('category', 'unknown')
+            if cat not in category_stats:
+                category_stats[cat] = {'wins': 0, 'total': 0, 'examples': []}
+            for o in outcomes:
+                category_stats[cat]['total'] += 1
+                if o.get('profitable'):
+                    category_stats[cat]['wins'] += 1
+            if d.get('success_rate', 0) > 0.5:
+                category_stats[cat]['examples'].append({
+                    'symbol': d.get('symbol'),
+                    'summary': d.get('summary', '')[:80],
+                    'rate': d.get('success_rate'),
+                })
+
+        # Filter to categories with enough samples
+        return [
+            {
+                'category': cat,
+                'win_rate': stats['wins'] / stats['total'] if stats['total'] > 0 else 0,
+                'total_trades': stats['total'],
+                'examples': stats['examples'][:3],
+            }
+            for cat, stats in category_stats.items()
+            if stats['total'] >= min_trades
+        ]
+
+    def get_feedback_context(self, max_chars: int = 1000) -> str:
+        """Get discovery feedback for prompt injection into Orchestrator."""
+        patterns = self.get_successful_patterns()
+        if not patterns:
+            return ""
+
+        parts = ["DISCOVERY FEEDBACK (what worked/didn't):"]
+        for p in sorted(patterns, key=lambda x: x['win_rate'], reverse=True)[:5]:
+            status = "GOOD" if p['win_rate'] > 0.5 else "WEAK"
+            parts.append(
+                f"  - {p['category']}: {status} ({p['win_rate']:.0%} win rate, {p['total_trades']} trades)"
+            )
+            for ex in p['examples'][:2]:
+                parts.append(f"    Example: [{ex['symbol']}] {ex['summary']}")
+
+        result = '\n'.join(parts)
+        return result[:max_chars]
+
 
 class GeminiResearchMixin:
     """Mixin that adds research capabilities to GeminiClient.
@@ -141,6 +213,8 @@ class GeminiResearchMixin:
 
         memory = self._get_memory()
         memory_context = memory.get_context_summary()
+        # V8.2 Sprint 3: Include feedback on what patterns worked
+        feedback_context = memory.get_feedback_context()
 
         regime = context.get('regime', 'UNKNOWN')
         symbols = context.get('symbols', [])
@@ -160,6 +234,8 @@ CONTEXTE MARCHÉ:
 
 MÉMOIRE CONTEXTUELLE:
 {memory_context}
+
+{feedback_context}
 
 MISSION:
 Utilise Google Search pour rechercher les informations les PLUS RÉCENTES et pertinentes pour ces symboles et le contexte de marché actuel.

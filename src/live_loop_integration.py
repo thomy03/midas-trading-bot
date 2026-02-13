@@ -29,7 +29,7 @@ from scoring.bull_optimizer import (
     calculate_trend_strength,
     calculate_atr
 )
-from scoring.adaptive_scorer_patch import AdaptiveScorerBullPatch
+from agents.adaptive_scorer import AdaptiveScorerBullPatch
 
 logger = logging.getLogger(__name__)
 

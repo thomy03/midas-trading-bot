@@ -1,8 +1,10 @@
 """
-News Fetcher Module
+News Fetcher Module V8.2
 Récupération de news financières depuis différentes sources.
+V8.2: Scrape le CONTENU COMPLET des articles les plus impactants (pas juste les titres RSS).
 
 Sources supportées:
+- RSS Feeds (30+ feeds) + article content scraping
 - NewsAPI (news générales)
 - Alpha Vantage News (news financières)
 - Reddit (r/wallstreetbets, r/stocks, r/investing)
@@ -12,8 +14,9 @@ Sources supportées:
 import os
 import json
 import asyncio
+import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 from enum import Enum
 import aiohttp
@@ -21,6 +24,14 @@ import time
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Try to import BeautifulSoup for article scraping
+try:
+    from bs4 import BeautifulSoup
+    BS4_AVAILABLE = True
+except ImportError:
+    BS4_AVAILABLE = False
+    logger.warning("[NEWS] beautifulsoup4 not installed - article scraping disabled")
 
 
 class NewsSource(Enum):
@@ -45,6 +56,40 @@ class NewsArticle:
     symbols: List[str] = field(default_factory=list)
     sectors: List[str] = field(default_factory=list)
     relevance_score: float = 0.5
+    full_content: Optional[str] = None  # V8.2: scraped article body
+    scraped: bool = False  # V8.2: whether full content was scraped
+
+
+# V8.2: High-impact keywords for relevance scoring
+IMPACT_KEYWORDS = {
+    # Very high impact (weight 3)
+    'earnings': 3, 'FDA': 3, 'merger': 3, 'acquisition': 3, 'bankruptcy': 3,
+    'IPO': 3, 'guidance': 3, 'recall': 3, 'sanctions': 3, 'tariff': 3,
+    'rate cut': 3, 'rate hike': 3, 'layoffs': 3, 'restructuring': 3,
+    # High impact (weight 2)
+    'revenue': 2, 'profit': 2, 'loss': 2, 'beat': 2, 'miss': 2,
+    'upgrade': 2, 'downgrade': 2, 'dividend': 2, 'buyback': 2, 'split': 2,
+    'contract': 2, 'partnership': 2, 'lawsuit': 2, 'investigation': 2,
+    'inflation': 2, 'recession': 2, 'CPI': 2, 'jobs report': 2,
+    'Fed': 2, 'ECB': 2, 'SEC': 2, 'antitrust': 2,
+    # Moderate impact (weight 1)
+    'analyst': 1, 'target price': 1, 'outlook': 1, 'forecast': 1,
+    'market cap': 1, 'volume': 1, 'breakout': 1, 'rally': 1, 'crash': 1,
+    'supply chain': 1, 'chip': 1, 'semiconductor': 1, 'AI': 1,
+}
+
+# V8.2: Source credibility weights (higher = more credible)
+SOURCE_CREDIBILITY = {
+    'reuters_markets': 1.0, 'bloomberg': 1.0, 'les_echos': 0.9,
+    'cnbc': 0.85, 'marketwatch': 0.85, 'bbc_business': 0.85, 'ft': 0.95,
+    'yahoo_finance': 0.75, 'seeking_alpha': 0.7, 'ap_news': 0.85,
+    'finextra': 0.8, 'investing_com': 0.7, 'boursorama': 0.7,
+    'zonebourse': 0.65, 'bfm_bourse': 0.7,
+    'techcrunch': 0.6, 'the_verge': 0.5, 'ars_technica': 0.5,
+    'wired': 0.45, 'hacker_news': 0.4, 'science_daily': 0.4,
+    'nature_news': 0.5, 'biorxiv': 0.5,
+    'semi_digest': 0.7, 'energy_intel': 0.7,
+}
 
 
 @dataclass
@@ -64,34 +109,38 @@ class NewsFetcher:
     Récupérateur de news multi-sources.
     """
 
-    # RSS Feeds pour les news financières
+    # RSS Feeds pour les news financières (V8.2: enriched with sector-specific feeds)
     RSS_FEEDS = {
-        # Original
+        # === Tier 1: Premium financial sources ===
         'reuters_markets': 'https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best',
         'bloomberg': 'https://feeds.bloomberg.com/markets/news.rss',
         'cnbc': 'https://www.cnbc.com/id/10000664/device/rss/rss.html',
+        'marketwatch': 'https://feeds.content.dowjones.io/public/rss/mw_topstories',
         'yahoo_finance': 'https://finance.yahoo.com/rss/topstories',
         'seeking_alpha': 'https://seekingalpha.com/market_currents.xml',
-        # Tech
+        'ft': 'https://www.ft.com/rss/home',
+        # === Tier 2: EU Financial ===
+        'les_echos': 'https://syndication.lesechos.fr/rss/rss_une.xml',
+        'bfm_bourse': 'https://www.tradingsat.com/rss/actualites-bourse.xml',
+        'boursorama': 'https://www.boursorama.com/rss/actualites/dernieres.xml',
+        'investing_com': 'https://www.investing.com/rss/news.rss',
+        'zonebourse': 'https://www.zonebourse.com/rss/',
+        # === Tier 3: Sector-specific (V8.2) ===
+        'finextra': 'https://www.finextra.com/rss/headlines.aspx',
+        'semi_digest': 'https://www.semiconductor-digest.com/feed/',
+        'energy_intel': 'https://www.rigzone.com/news/rss/rigzone_latest.aspx',
+        'biorxiv': 'http://connect.biorxiv.org/biorxiv_xml.php?subject=all',
+        # === Tier 4: Tech & General ===
         'techcrunch': 'https://techcrunch.com/feed/',
         'the_verge': 'https://www.theverge.com/rss/index.xml',
         'ars_technica': 'https://feeds.arstechnica.com/arstechnica/index',
         'wired': 'https://www.wired.com/feed/rss',
         'hacker_news': 'https://hnrss.org/frontpage',
-        # Science
-        'science_daily': 'https://www.sciencedaily.com/rss/all.xml',
-        'nature_news': 'https://www.nature.com/nature.rss',
-        # Business/Finance
-        'marketwatch': 'https://feeds.content.dowjones.io/public/rss/mw_topstories',
-        'les_echos': 'https://syndication.lesechos.fr/rss/rss_une.xml',
-        'bfm_bourse': 'https://www.tradingsat.com/rss/actualites-bourse.xml',
-        # General
         'ap_news': 'https://rsshub.app/apnews/topics/business',
         'bbc_business': 'https://feeds.bbci.co.uk/news/business/rss.xml',
-        # EU Specific
-        'boursorama': 'https://www.boursorama.com/rss/actualites/dernieres.xml',
-        'investing_com': 'https://www.investing.com/rss/news.rss',
-        'zonebourse': 'https://www.zonebourse.com/rss/',
+        # === Tier 5: Science ===
+        'science_daily': 'https://www.sciencedaily.com/rss/all.xml',
+        'nature_news': 'https://www.nature.com/nature.rss',
     }
 
     # Subsocials pertinents
@@ -121,6 +170,10 @@ class NewsFetcher:
         self._rss_cache: List[NewsArticle] = []
         self._rss_cache_time: float = 0.0
         self._rss_cache_ttl: float = 900.0  # 15 minutes
+        # V8.2: Article scraping cache
+        self._scraped_cache: Dict[str, str] = {}  # url -> content
+        self._scrape_cache_time: float = 0.0
+        self._max_scrape_per_cycle: int = 10  # Max articles to scrape per RSS refresh
 
     async def _ensure_session(self):
         """Crée la session HTTP si nécessaire"""
@@ -132,8 +185,198 @@ class NewsFetcher:
         if self.session and not self.session.closed:
             await self.session.close()
 
+    # ========================================================================
+    # V8.2: Article Content Scraping
+    # ========================================================================
+
+    def _score_article_relevance(self, article: NewsArticle) -> float:
+        """Score an article's relevance to decide if it's worth scraping.
+        Returns 0.0-10.0. Higher = more worth scraping."""
+        score = 0.0
+        text = (article.title + ' ' + (article.content or '')).upper()
+
+        # 1. Source credibility (0-2 pts)
+        source_weight = SOURCE_CREDIBILITY.get(article.source, 0.3)
+        score += source_weight * 2.0
+
+        # 2. Impact keywords in title (0-4 pts)
+        keyword_score = 0.0
+        for keyword, weight in IMPACT_KEYWORDS.items():
+            if keyword.upper() in text:
+                keyword_score += weight
+        score += min(4.0, keyword_score)
+
+        # 3. Recency bonus (0-2 pts) - newer articles are more relevant
+        try:
+            age_hours = (datetime.now() - article.published_at.replace(tzinfo=None)).total_seconds() / 3600
+        except (AttributeError, TypeError):
+            age_hours = 24
+        if age_hours < 1:
+            score += 2.0
+        elif age_hours < 4:
+            score += 1.5
+        elif age_hours < 12:
+            score += 1.0
+        elif age_hours < 24:
+            score += 0.5
+
+        # 4. Has ticker symbols mentioned (0-2 pts)
+        ticker_pattern = r'\b[A-Z]{2,5}\b'
+        tickers_found = len(set(re.findall(ticker_pattern, article.title)))
+        score += min(2.0, tickers_found * 0.5)
+
+        return min(10.0, score)
+
+    async def _scrape_article_content(self, url: str) -> Optional[str]:
+        """Scrape the full text content of an article from its URL."""
+        if not BS4_AVAILABLE:
+            return None
+        if not url or not url.startswith('http'):
+            return None
+
+        # Check cache
+        if url in self._scraped_cache:
+            return self._scraped_cache[url]
+
+        await self._ensure_session()
+
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (compatible; MidasBot/1.0; +market-research)',
+                'Accept': 'text/html,application/xhtml+xml',
+                'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
+            }
+            async with self.session.get(
+                url, timeout=aiohttp.ClientTimeout(total=8),
+                headers=headers, allow_redirects=True
+            ) as resp:
+                if resp.status != 200:
+                    return None
+                content_type = resp.headers.get('Content-Type', '')
+                if 'text/html' not in content_type and 'application/xhtml' not in content_type:
+                    return None
+                html = await resp.text(encoding='utf-8', errors='replace')
+        except Exception as e:
+            logger.debug(f'[NEWS] Scrape failed for {url[:60]}: {e}')
+            return None
+
+        try:
+            soup = BeautifulSoup(html, 'lxml')
+
+            # Remove noise elements
+            for tag in soup.find_all(['script', 'style', 'nav', 'footer', 'header',
+                                       'aside', 'iframe', 'noscript', 'form', 'button']):
+                tag.decompose()
+
+            # Try common article content selectors
+            article_body = None
+            selectors = [
+                'article',
+                '[role="main"]',
+                '.article-body', '.article-content', '.article__body',
+                '.story-body', '.story-content',
+                '.post-content', '.entry-content',
+                '#article-body', '#story-body', '#main-content',
+                '.caas-body',  # Yahoo Finance
+                '.group',  # Reuters
+            ]
+            for sel in selectors:
+                found = soup.select_one(sel)
+                if found:
+                    article_body = found
+                    break
+
+            if article_body is None:
+                # Fallback: largest text block
+                article_body = soup.find('body') or soup
+
+            # Extract paragraphs
+            paragraphs = article_body.find_all('p')
+            if not paragraphs:
+                # Fallback to all text
+                text = article_body.get_text(separator='\n', strip=True)
+            else:
+                text = '\n'.join(p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30)
+
+            # Clean up
+            text = re.sub(r'\n{3,}', '\n\n', text)
+            text = re.sub(r' {2,}', ' ', text)
+
+            # Validate: must have meaningful content (>200 chars)
+            if len(text) < 200:
+                return None
+
+            # Truncate to ~3000 chars (enough for LLM context without bloating)
+            if len(text) > 3000:
+                text = text[:3000] + '...'
+
+            # Cache it
+            self._scraped_cache[url] = text
+            return text
+
+        except Exception as e:
+            logger.debug(f'[NEWS] Parse failed for {url[:60]}: {e}')
+            return None
+
+    async def scrape_top_articles(self, articles: List[NewsArticle], max_scrape: int = 0) -> List[NewsArticle]:
+        """Score all articles by relevance and scrape the top N most impactful ones.
+        Returns the same list with full_content populated on scraped articles."""
+        if not BS4_AVAILABLE:
+            logger.warning("[NEWS] beautifulsoup4 not available - skipping article scraping")
+            return articles
+
+        max_scrape = max_scrape or self._max_scrape_per_cycle
+
+        # Score and rank
+        scored = [(self._score_article_relevance(a), a) for a in articles]
+        scored.sort(key=lambda x: x[0], reverse=True)
+
+        # Only scrape articles with relevance > 3.0 (meaningful signal)
+        to_scrape = [(score, a) for score, a in scored if score >= 3.0 and a.url and not a.scraped][:max_scrape]
+
+        if not to_scrape:
+            logger.info('[NEWS] No articles scored high enough for scraping')
+            return articles
+
+        logger.info(f'[NEWS] Scraping {len(to_scrape)} top articles (scores: {[f"{s:.1f}" for s, _ in to_scrape]})')
+
+        # Scrape in parallel (bounded concurrency)
+        semaphore = asyncio.Semaphore(5)  # Max 5 concurrent scrapes
+
+        async def _bounded_scrape(article: NewsArticle) -> None:
+            async with semaphore:
+                content = await self._scrape_article_content(article.url)
+                if content:
+                    article.full_content = content
+                    article.scraped = True
+
+        await asyncio.gather(
+            *[_bounded_scrape(a) for _, a in to_scrape],
+            return_exceptions=True
+        )
+
+        scraped_count = sum(1 for _, a in to_scrape if a.scraped)
+        logger.info(f'[NEWS] Successfully scraped {scraped_count}/{len(to_scrape)} articles')
+
+        # Update relevance scores based on content
+        for article in articles:
+            article.relevance_score = self._score_article_relevance(article)
+
+        return articles
+
+    def get_scraped_articles(self, limit: int = 10) -> List[NewsArticle]:
+        """Get the most impactful scraped articles (with full_content).
+        Used by IntelligenceOrchestrator to feed LLM reasoning."""
+        scraped = [a for a in self._rss_cache if a.scraped and a.full_content]
+        scraped.sort(key=lambda a: a.relevance_score, reverse=True)
+        return scraped[:limit]
+
+    # ========================================================================
+    # RSS Fetching
+    # ========================================================================
+
     async def fetch_all_rss(self) -> List[NewsArticle]:
-        """Fetch ALL RSS feeds in parallel. Cache for 15 min."""
+        """Fetch ALL RSS feeds in parallel. Cache for 15 min. V8.2: scrape top articles."""
         now = time.time()
         if self._rss_cache and (now - self._rss_cache_time) < self._rss_cache_ttl:
             return self._rss_cache
@@ -222,9 +465,17 @@ class NewsFetcher:
             except Exception:
                 return datetime.min
         all_articles.sort(key=_sort_key, reverse=True)
+
+        # V8.2: Scrape full content of top impactful articles
+        try:
+            all_articles = await self.scrape_top_articles(all_articles)
+        except Exception as e:
+            logger.warning(f'[NEWS] Article scraping phase failed: {e}')
+
         self._rss_cache = all_articles
         self._rss_cache_time = now
-        logger.info(f'[NEWS] RSS cache refreshed: {len(all_articles)} articles from {len(self.RSS_FEEDS)} feeds')
+        scraped_count = sum(1 for a in all_articles if a.scraped)
+        logger.info(f'[NEWS] RSS cache refreshed: {len(all_articles)} articles from {len(self.RSS_FEEDS)} feeds ({scraped_count} scraped)')
         return all_articles
 
     async def fetch_symbol_news(self, symbol: str, company_name: str = None) -> List[NewsArticle]:
@@ -279,21 +530,35 @@ class NewsFetcher:
                 seen.add(key)
                 unique.append(a)
         unique.sort(key=lambda a: a.published_at, reverse=True)
-        return unique[:20]
+        result = unique[:20]
+
+        # V8.2: Scrape top 3 symbol-specific articles if not already scraped
+        if BS4_AVAILABLE:
+            unscraped = [a for a in result if not a.scraped and a.url][:3]
+            if unscraped:
+                try:
+                    await self.scrape_top_articles(unscraped, max_scrape=3)
+                except Exception as e:
+                    logger.debug(f'[NEWS] Symbol scrape failed for {symbol}: {e}')
+
+        return result
 
     async def fetch_latest(self) -> dict:
         """
         Fetch latest news from all available sources.
         Called by IntelligenceOrchestrator._collect_intelligence().
-        Returns dict with news articles and social posts.
+        Returns dict with news articles, social posts, and scraped content.
+        V8.2: includes 'scraped_articles' with full article content.
         """
-        results = {"articles": [], "social": [], "sectors": {}, "rss": []}
-        
-        # RSS feeds (cached 15 min)
+        results = {"articles": [], "social": [], "sectors": {}, "rss": [], "scraped_articles": []}
+
+        # RSS feeds (cached 15 min) + article scraping
         try:
             rss_articles = await self.fetch_all_rss()
             results["rss"] = rss_articles[:30]  # Top 30 most recent
             results["articles"].extend(rss_articles[:15])
+            # V8.2: Include scraped articles separately for LLM deep analysis
+            results["scraped_articles"] = self.get_scraped_articles(limit=8)
         except Exception as e:
             logger.warning(f"[NEWS] RSS fetch failed: {e}")
         
