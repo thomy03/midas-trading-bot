@@ -59,6 +59,14 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# Activity logging
+try:
+    from src.utils.activity_logger import log_activity as _log_activity
+    ACTIVITY_LOGGER_AVAILABLE = True
+except ImportError:
+    ACTIVITY_LOGGER_AVAILABLE = False
+    def _log_activity(*a, **kw): pass
+
 # V8.1 Sprint 1C: Signal tracker for feedback loop
 try:
     from src.learning import signal_tracker as _signal_tracker
@@ -187,6 +195,9 @@ class LiveLoop:
         # Tasks
         self._main_task: Optional[asyncio.Task] = None
         self._health_task: Optional[asyncio.Task] = None
+
+        # Pre-market pending signals
+        self.pending_signals: List[Dict] = []
 
         # Metrics
         self._metrics = LoopMetrics()
@@ -406,19 +417,32 @@ class LiveLoop:
                 # 1. Vérifier la session de marché
                 self._current_session = self._get_market_session()
 
-                # Allow analysis even when market closed (but no trading)
-                if not self._should_trade() and self._current_session == MarketSession.CLOSED:
-                    # Still do analysis for preparation
-                    if self.config.analyze_when_closed:
+                # Pre-market scanning: analyze and queue signals
+                if not self._should_trade():
+                    if self._current_session == MarketSession.PRE_MARKET:
+                        logger.info("🌅 PRE-MARKET: scanning symbols (trades will be queued)")
+                        if ACTIVITY_LOGGER_AVAILABLE:
+                            _log_activity("scan_start", details="Pre-market scanning phase")
+                        # Continue to screening but flag pre-market mode
+                        pass
+                    elif self._current_session == MarketSession.CLOSED and self.config.analyze_when_closed:
                         pass  # Continue to analysis
                     else:
-                        self._persist_state()  # Still update webapp
+                        self._persist_state()
                         await asyncio.sleep(60)
                         continue
-                elif not self._should_trade():
-                    self._persist_state()  # Still update webapp
-                    await asyncio.sleep(60)  # Attendre 1 minute
-                    continue
+
+                # At market open, execute pending signals from pre-market
+                if self._current_session == MarketSession.REGULAR and self.pending_signals:
+                    logger.info(f"🔔 MARKET OPEN: executing {len(self.pending_signals)} pending signals")
+                    if ACTIVITY_LOGGER_AVAILABLE:
+                        _log_activity("scan_start", details=f"Executing {len(self.pending_signals)} pre-market signals")
+                    for ps in list(self.pending_signals):
+                        try:
+                            await self._process_signal(ps)
+                        except Exception as e:
+                            logger.error(f"Error executing pending signal {ps.get('symbol')}: {e}")
+                    self.pending_signals.clear()
 
                 # 2. Vérifier les guardrails
                 if not await self._check_guardrails():
@@ -532,10 +556,53 @@ class LiveLoop:
                             }
                             self._metrics.signals_found += 1
                             await self.attention_manager.mark_signal_found(symbol)
-                            await self._process_signal(alert)
+                            
+                            # Log activity
+                            if ACTIVITY_LOGGER_AVAILABLE:
+                                _log_activity(
+                                    "signal_found",
+                                    symbol=symbol,
+                                    decision=result.decision.value.upper(),
+                                    scores={
+                                        "technical": float(getattr(result.technical_score, 'score', result.technical_score) or 0),
+                                        "fundamental": float(getattr(result.fundamental_score, 'score', result.fundamental_score) or 0),
+                                        "sentiment": float(getattr(result.sentiment_score, 'score', result.sentiment_score) or 0),
+                                        "news": float(getattr(result.news_score, 'score', result.news_score) or 0),
+                                        "total": result.total_score,
+                                        "ml": result.ml_score or 0,
+                                    },
+                                    reasoning=str(result.reasoning_summary or "")[:1000],
+                                    strategy=self.current_regime.value if hasattr(self.current_regime, 'value') else '',
+                                )
+                            
+                            # Pre-market: queue instead of execute
+                            if self._current_session == MarketSession.PRE_MARKET:
+                                self.pending_signals.append(alert)
+                                logger.info(f"📋 PRE-MARKET: queued {symbol} (score={result.total_score})")
+                                if ACTIVITY_LOGGER_AVAILABLE:
+                                    _log_activity("trade_queued", symbol=symbol, details=f"Queued for market open (score={result.total_score})")
+                            else:
+                                await self._process_signal(alert)
                         
                         self._metrics.screens_performed += 1
                         
+                        # Log scan result
+                        if ACTIVITY_LOGGER_AVAILABLE:
+                            scan_decision = result.decision.value.upper() if result else "NO_RESULT"
+                            _log_activity(
+                                "scan_result",
+                                symbol=symbol,
+                                decision=scan_decision,
+                                scores={
+                                    "technical": float(getattr(result.technical_score, 'score', result.technical_score) or 0) if result else 0,
+                                    "fundamental": float(getattr(result.fundamental_score, 'score', result.fundamental_score) or 0) if result else 0,
+                                    "sentiment": float(getattr(result.sentiment_score, 'score', result.sentiment_score) or 0) if result else 0,
+                                    "news": float(getattr(result.news_score, 'score', result.news_score) or 0) if result else 0,
+                                    "total": result.total_score if result else 0,
+                                } if result else {},
+                                reasoning=str(result.reasoning_summary or "")[:1000] if result else "",
+                            )
+
                     except Exception as e:
                         import traceback; logger.error(f"Error screening {symbol} with ReasoningEngine: {e}\n{traceback.format_exc()}")
                         
@@ -625,6 +692,8 @@ class LiveLoop:
         min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 55
         if confidence < min_score:
             logger.info(f"\u23ed\ufe0f Signal {symbol} skipped: score {confidence} < {min_score}")
+            if ACTIVITY_LOGGER_AVAILABLE:
+                _log_activity("signal_rejected", symbol=symbol, decision="SKIP", details=f"Score {confidence} < min {min_score}")
             # V8.1: Track rejected signal for feedback loop
             if SIGNAL_TRACKER_AVAILABLE:
                 try:
@@ -893,6 +962,24 @@ class LiveLoop:
         if position:
             self._metrics.trades_executed += 1
             logger.info(f"📈 Paper trade executed: {symbol} x{position.quantity} @ {price:.2f}")
+            
+            # Log activity
+            if ACTIVITY_LOGGER_AVAILABLE:
+                _log_activity(
+                    "trade_executed",
+                    symbol=symbol,
+                    decision="BUY",
+                    details=f"Bought {position.quantity} shares @ ${price:.2f}",
+                    scores={
+                        "technical": float(pillar_technical or 0),
+                        "fundamental": float(pillar_fundamental or 0),
+                        "sentiment": float(pillar_sentiment or 0),
+                        "news": float(pillar_news or 0),
+                        "total": score,
+                    },
+                    reasoning=str(reasoning or "")[:1000],
+                    strategy=self.current_regime.value if hasattr(self.current_regime, 'value') else '',
+                )
             
             # Notify
             if self.config.notification_callback:

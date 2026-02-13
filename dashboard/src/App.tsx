@@ -7,6 +7,7 @@ import Signals from "./pages/Signals";
 import Market from "./pages/Market";
 import Journal from "./pages/Journal";
 import Settings from "./pages/Settings";
+import Activity from "./pages/Activity";
 import Strategies from "./pages/Strategies";
 import StrategyDetail from "./pages/StrategyDetail";
 
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/market" element={<Market />} />
         <Route path="/journal" element={<Journal />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/activity" element={<Activity />} />
       </Routes>
     </AppShell>
   );

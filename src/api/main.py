@@ -1537,6 +1537,26 @@ async def get_strategy_detail(strategy_id: str):
         return {"error": str(e), "traceback": traceback.format_exc()}
 
 
+
+
+# ==================== Activity Logs Endpoint ====================
+
+@app.get("/api/activity", tags=["Activity"])
+async def get_activity_logs(
+    limit: int = Query(default=50, ge=1, le=500),
+    type: Optional[str] = Query(None, alias="type"),
+    strategy: Optional[str] = None,
+    symbol: Optional[str] = None,
+):
+    """Get bot activity logs with optional filters."""
+    try:
+        from src.utils.activity_logger import get_activities
+        entries = get_activities(limit=limit, activity_type=type, strategy=strategy, symbol=symbol)
+        return {"activities": entries, "count": len(entries)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/{path:path}", include_in_schema=False)
 async def serve_spa(path: str):
     """Serve the React SPA for any non-API route."""

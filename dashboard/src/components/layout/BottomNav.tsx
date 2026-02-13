@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Wallet, FlaskConical, Zap, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Wallet, FlaskConical, Zap, TrendingUp, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
@@ -7,6 +7,7 @@ const tabs = [
   { to: "/portfolio", icon: Wallet, label: "Portfolio" },
   { to: "/strategies", icon: FlaskConical, label: "A/B Test" },
   { to: "/signals", icon: Zap, label: "Signals" },
+  { to: "/activity", icon: Activity, label: "Activity" },
   { to: "/performance", icon: TrendingUp, label: "Perf" },
 ];
 
