@@ -213,7 +213,15 @@ class NewsFetcher:
         for r in results:
             if isinstance(r, list):
                 all_articles.extend(r)
-        all_articles.sort(key=lambda a: a.published_at, reverse=True)
+        def _sort_key(a):
+            try:
+                dt = a.published_at
+                if dt.tzinfo is not None:
+                    return dt.replace(tzinfo=None)
+                return dt
+            except Exception:
+                return datetime.min
+        all_articles.sort(key=_sort_key, reverse=True)
         self._rss_cache = all_articles
         self._rss_cache_time = now
         logger.info(f'[NEWS] RSS cache refreshed: {len(all_articles)} articles from {len(self.RSS_FEEDS)} feeds')
@@ -224,6 +232,10 @@ class NewsFetcher:
         await self.fetch_all_rss()
 
         search_terms = [symbol.upper()]
+        # Also search without exchange suffix (.PA, .DE, .AS, etc.)
+        bare = symbol.split('.')[0].upper()
+        if bare != symbol.upper():
+            search_terms.append(bare)
         if company_name:
             search_terms.append(company_name.upper())
         TICKER_NAMES = {
@@ -275,7 +287,15 @@ class NewsFetcher:
         Called by IntelligenceOrchestrator._collect_intelligence().
         Returns dict with news articles and social posts.
         """
-        results = {"articles": [], "social": [], "sectors": {}}
+        results = {"articles": [], "social": [], "sectors": {}, "rss": []}
+        
+        # RSS feeds (cached 15 min)
+        try:
+            rss_articles = await self.fetch_all_rss()
+            results["rss"] = rss_articles[:30]  # Top 30 most recent
+            results["articles"].extend(rss_articles[:15])
+        except Exception as e:
+            logger.warning(f"[NEWS] RSS fetch failed: {e}")
         
         # Market-wide news
         try:
@@ -289,15 +309,16 @@ class NewsFetcher:
         
         # Social/Reddit posts
         try:
-            social = await self.fetch_social_posts(subreddits=["wallstreetbets", "stocks", "investing"], limit=10)
+            social = await self.fetch_social_posts(subsocials=["wallstreetbets", "stocks", "investing"], limit=10)
             results["social"].extend(social)
         except Exception as e:
             logger.warning(f"[NEWS] Social fetch failed: {e}")
         
         # Sector news
         try:
-            for sector in ["technology", "healthcare", "finance"]:
-                sector_news = await self.fetch_sector_news(sector=sector, limit=5)
+            sector_keywords = {"technology": ["tech", "AI", "semiconductor", "software"], "healthcare": ["pharma", "biotech", "FDA", "drug"], "finance": ["banking", "rates", "Fed", "earnings"]}
+            for sector, kw in sector_keywords.items():
+                sector_news = await self.fetch_sector_news(sector=sector, keywords=kw, days_back=3)
                 results["sectors"][sector] = sector_news
         except Exception as e:
             logger.warning(f"[NEWS] Sector news failed: {e}")
@@ -485,7 +506,7 @@ class NewsFetcher:
 
         for subsocial in subsocials:
             try:
-                url = f'https://www.social.com/r/{subsocial}/hot.json'
+                url = f'https://www.reddit.com/r/{subsocial}/hot.json'
                 params = {'limit': limit, 't': time_filter}
 
                 async with self.session.get(url, headers=headers, params=params) as response:
@@ -517,7 +538,7 @@ class NewsFetcher:
                         all_posts.append(NewsArticle(
                             title=post_data.get('title', ''),
                             source=f'Reddit r/{subsocial}',
-                            url=f"https://social.com{post_data.get('permalink', '')}",
+                            url=f"https://www.reddit.com{post_data.get('permalink', '')}",
                             published_at=published,
                             content=post_data.get('selftext', '')[:2000],
                             summary=post_data.get('title', ''),

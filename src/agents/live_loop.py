@@ -664,10 +664,12 @@ class LiveLoop:
                                 except Exception as e:
                                     logger.debug(f"Symbol intel failed for {symbol}: {e}")
                                 intel_adj = max(-15.0, min(15.0, global_adj + symbol_adj))
+                                news_count = len(symbol_intel_result.get("news", [])) if symbol_intel_result else 0
+                                logger.info(f"🧠 INTEL: {symbol} global={global_adj:+.1f} symbol={symbol_adj:+.1f} total={intel_adj:+.1f} news={news_count}")
                                 if intel_adj != 0:
                                     old_score = result.total_score
                                     result.total_score = max(0, min(100, result.total_score + intel_adj))
-                                    logger.info(f"🧠 INTEL: {symbol} global={global_adj:+.1f} symbol={symbol_adj:+.1f} total={intel_adj:+.1f} pts ({old_score:.1f} → {result.total_score:.1f})")
+                                    logger.info(f"🧠 INTEL APPLIED: {symbol} {intel_adj:+.1f} pts ({old_score:.1f} → {result.total_score:.1f})")
                             except Exception as e:
                                 logger.debug(f"Intel adjustment failed for {symbol}: {e}")
                         

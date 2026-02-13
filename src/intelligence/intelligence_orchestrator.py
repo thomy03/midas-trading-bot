@@ -347,11 +347,18 @@ class IntelligenceOrchestrator:
             symbols=', '.join(self.symbols)
         )
 
-        response = await self.gemini.chat_json(
-            prompt,
-            system_prompt=system_prompt,
-            max_tokens=3000
-        )
+        try:
+            response = await asyncio.wait_for(
+                self.gemini.chat_json(
+                    prompt,
+                    system_prompt=system_prompt,
+                    max_tokens=3000
+                ),
+                timeout=60
+            )
+        except asyncio.TimeoutError:
+            logger.warning('Gemini reasoning timed out (60s)')
+            return IntelligenceBrief(timestamp=datetime.now())
 
         return self._parse_brief(response)
 
@@ -437,6 +444,17 @@ class IntelligenceOrchestrator:
                         sections.append("Macro insight: %s" % macro)
             except Exception:
                 pass
+
+        # RSS news (if available via news dict)
+        rss = raw_data.get('news', {})
+        if isinstance(rss, dict):
+            rss_articles = rss.get('rss', [])
+            if rss_articles:
+                rss_text = chr(10).join(
+                    '- [%s] %s' % (getattr(a, 'source', '?'), getattr(a, 'title', str(a)))
+                    for a in rss_articles[:20]
+                )
+                sections.append("=== RSS NEWS FEEDS ===\n%s" % rss_text)
 
         if not sections:
             sections.append("No intelligence data available at this time.")
