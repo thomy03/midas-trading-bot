@@ -6,6 +6,7 @@ import { DonutChart } from "@/components/charts/DonutChart";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { PILLAR_COLORS } from "@/lib/constants";
 import { formatCurrency, formatPct } from "@/lib/utils";
+import { StrategySplit, StrategyBadge } from "@/components/shared/StrategySplit";
 import { Wallet, ChevronDown, ChevronUp, TrendingUp, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 
@@ -53,6 +54,7 @@ export default function Portfolio() {
             </div>
           </div>
         </div>
+        {summary?.strategies && <StrategySplit strategies={summary.strategies} />}
       </Card>
 
       {/* Allocation */}
@@ -102,6 +104,7 @@ export default function Portfolio() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-white">{p.symbol}</span>
+                        <StrategyBadge strategyId={p.strategy_id} />
                         {p.sector && (
                           <span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[9px] text-gray-500">
                             {p.sector}

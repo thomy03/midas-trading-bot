@@ -6,6 +6,7 @@ import { RegimeBadge } from "@/components/shared/RegimeBadge";
 import { CardSkeleton } from "@/components/shared/LoadingSkeleton";
 import { GaugeRing } from "@/components/shared/GaugeRing";
 import { formatCurrency } from "@/lib/utils";
+import { StrategySplit } from "@/components/shared/StrategySplit";
 import { Activity, TrendingUp, AlertTriangle, Flame, Brain, Zap, Timer } from "lucide-react";
 
 export default function Dashboard() {
@@ -49,6 +50,7 @@ export default function Dashboard() {
             </span>
           </div>
         </div>
+        {portfolio?.strategies && <StrategySplit strategies={portfolio.strategies} />}
         <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
           <span className="flex items-center gap-1">
             <div className="h-1.5 w-1.5 rounded-full bg-blue-400" />

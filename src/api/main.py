@@ -485,7 +485,7 @@ async def add_symbol_to_watchlist(
 
 # ==================== Portfolio & Trades ====================
 
-@app.get("/api/v1/portfolio/summary", response_model=PortfolioSummary, tags=["Portfolio"])
+@app.get("/api/v1/portfolio/summary", tags=["Portfolio"])
 async def get_portfolio_summary(agent: str = "llm", api_key: str = Depends(verify_api_key)):
     """Get portfolio summary (reads from portfolio.json for paper trading)."""
     import json
@@ -514,13 +514,39 @@ async def get_portfolio_summary(agent: str = "llm", api_key: str = Depends(verif
                     total_invested += cur * shares
                     total_pnl += (cur - entry) * shares
                     total_positions += 1
-            return PortfolioSummary(
-                total_capital=round(total_cash + total_invested, 2),
-                available_capital=round(total_cash, 2),
-                invested_capital=round(total_invested, 2),
-                open_positions=total_positions,
-                unrealized_pnl=round(total_pnl, 2)
-            )
+            # Build per-strategy breakdown
+            strategies_breakdown = {}
+            for sid2, sdata2 in ms_data.get("strategies", {}).items():
+                s_cash = sdata2.get("cash", 15000)
+                s_invested = 0
+                s_pnl = 0
+                s_positions = 0
+                for p2 in sdata2.get("positions", []):
+                    cur2 = p2.get("current_price", p2.get("entry_price", 0))
+                    entry2 = p2.get("entry_price", 0)
+                    shares2 = p2.get("shares", 0)
+                    s_invested += cur2 * shares2
+                    s_pnl += (cur2 - entry2) * shares2
+                    s_positions += 1
+                s_equity = s_cash + s_invested
+                initial = sdata2.get("initial_capital", 15000)
+                s_return_pct = round(((s_equity - initial) / initial) * 100, 2) if initial > 0 else 0
+                strategies_breakdown[sid2] = {
+                    "equity": round(s_equity, 2),
+                    "cash": round(s_cash, 2),
+                    "invested": round(s_invested, 2),
+                    "positions": s_positions,
+                    "pnl": round(s_pnl, 2),
+                    "return_pct": s_return_pct
+                }
+            return {
+                "total_capital": round(total_cash + total_invested, 2),
+                "available_capital": round(total_cash, 2),
+                "invested_capital": round(total_invested, 2),
+                "open_positions": total_positions,
+                "unrealized_pnl": round(total_pnl, 2),
+                "strategies": strategies_breakdown
+            }
 
         # Fallback to portfolio.json
         portfolio_path = Path(f"{data_dir}/portfolio.json")

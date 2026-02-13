@@ -4,11 +4,14 @@ import { EquityCurve } from "@/components/charts/EquityCurve";
 import { MonthlyHeatmap } from "@/components/charts/MonthlyHeatmap";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { formatPct } from "@/lib/utils";
+import { usePortfolioSummary } from "@/api/hooks";
+import { StrategySplit } from "@/components/shared/StrategySplit";
 import { BarChart3, TrendingUp, TrendingDown, Target, Award } from "lucide-react";
 
 export default function Performance() {
   const { data: rawHistory, isLoading: hLoading } = usePortfolioHistory();
   const { data: perf, isLoading: pLoading } = usePerformance();
+  const { data: summary } = usePortfolioSummary();
   const history = rawHistory && !('error' in rawHistory) ? rawHistory : null;
 
   if (hLoading || pLoading) return <LoadingSkeleton rows={4} />;
@@ -50,6 +53,13 @@ export default function Performance() {
           </div>
         </Card>
       </div>
+
+      {/* Strategy Split */}
+      {summary?.strategies && (
+        <div className="fade-up fade-up-1">
+          <StrategySplit strategies={summary.strategies} />
+        </div>
+      )}
 
       {/* Equity Curve */}
       <Card className="fade-up fade-up-1">

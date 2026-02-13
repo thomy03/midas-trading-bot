@@ -1,7 +1,7 @@
 {
   "version": "4.0.0",
   "created_at": "2026-02-03T22:40:05.680653",
-  "last_updated": "2026-02-13T00:13:42.870990",
+  "last_updated": "2026-02-13T07:59:36.950836",
   "current_phase": "idle",
   "phase_started_at": null,
   "market_regime": "RANGE",
@@ -38,6 +38,6 @@
     "trades_executed": 0,
     "screens_performed": 0,
     "errors": 0,
-    "uptime_seconds": 3011
+    "uptime_seconds": 30965
   }
 }

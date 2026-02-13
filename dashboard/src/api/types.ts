@@ -1,9 +1,19 @@
+export interface StrategyBreakdown {
+  equity: number;
+  cash: number;
+  invested: number;
+  positions: number;
+  pnl: number;
+  return_pct: number;
+}
+
 export interface PortfolioSummary {
   total_capital: number;
   available_capital: number;
   invested_capital: number;
   open_positions: number;
   unrealized_pnl: number;
+  strategies?: { [key: string]: StrategyBreakdown };
 }
 
 export interface Position {
@@ -26,6 +36,7 @@ export interface Position {
   sector?: string;
   industry?: string;
   entry_date?: string;
+  strategy_id?: string;
 }
 
 export interface PositionsResponse {
