@@ -15,8 +15,8 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-INITIAL_CAPITAL = 15000.0
-DATA_FILE = "data/multi_strategy_state.json"
+INITIAL_CAPITAL = float(os.environ.get("TRADING_CAPITAL_PER_STRATEGY", os.environ.get("CAPITAL", 100000)) or 100000) / 2  # Split between aggressive/moderate
+DATA_FILE = os.environ.get("MULTI_STRATEGY_FILE", "data/multi_strategy_state.json")
 
 
 @dataclass
@@ -29,6 +29,12 @@ class VirtualPosition:
     take_profit: float
     score_at_entry: float
     strategy_id: str
+    # Reasoning data
+    reasoning: str = ""
+    pillar_scores: Dict[str, float] = field(default_factory=dict)
+    ml_score: float = 0.0
+    regime: str = ""
+    key_factors: List[str] = field(default_factory=list)
     current_price: float = 0.0
     pnl_pct: float = 0.0
 
@@ -47,8 +53,12 @@ class VirtualPosition:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'VirtualPosition':
-        return cls(**data)
+    def from_dict(cls, data: dict) -> "VirtualPosition":
+        # Filter to only known fields
+        import inspect
+        valid = {k for k in inspect.signature(cls).parameters}
+        filtered = {k: v for k, v in data.items() if k in valid}
+        return cls(**filtered)
 
 
 @dataclass
@@ -201,9 +211,13 @@ class MultiStrategyTracker:
         pillar_scores: Dict[str, float],
         current_price: float,
         atr: float,
+        reasoning: str = "",
+        regime: str = "",
+        key_factors: List[str] = None,
     ) -> Dict[str, str]:
         """
-        Evaluate a signal against all 4 strategies.
+        Evaluate a signal against all strategies (aggressive + moderate).
+        Each agent (LLM / No-LLM) runs this independently.
         Returns {strategy_id: 'accepted'|'rejected'} with reasons.
         """
         from config.strategies import get_all_profiles
@@ -229,19 +243,19 @@ class MultiStrategyTracker:
                 results[sid] = "rejected:already_holding"
                 continue
 
-            # Recalculate score with strategy-specific weights
-            weighted_score = 0
-            for pillar, weight in profile.pillar_weights.items():
-                weighted_score += pillar_scores.get(pillar, 0) * weight
-
-            # Apply ML Gate if enabled
+            base_score = total_score
+            
+            # Apply ML Gate (always active)
             if profile.use_ml_gate and ml_score is not None:
                 if ml_score < profile.ml_min_score:
                     state.signals_rejected += 1
                     results[sid] = f"rejected:ml_gate({ml_score:.0f}<{profile.ml_min_score})"
                     continue
+                # ML boost if strong ML signal
                 if ml_score > 60:
-                    weighted_score += profile.ml_boost
+                    base_score += profile.ml_boost
+
+            weighted_score = base_score
 
             # Check min score
             if weighted_score < profile.min_score:
@@ -275,6 +289,11 @@ class MultiStrategyTracker:
                 stop_loss=sl,
                 take_profit=tp,
                 score_at_entry=weighted_score,
+                reasoning=reasoning,
+                pillar_scores=dict(pillar_scores),
+                ml_score=float(ml_score or 0),
+                regime=regime,
+                key_factors=key_factors or [],
                 strategy_id=sid,
                 current_price=current_price,
             )

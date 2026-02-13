@@ -65,7 +65,7 @@ class AdaptivePositionManager:
         score_exit_threshold: float = 45,
         atr_multiplier: float = 2.5,
         trailing_activation: float = 0.05,  # +5%
-        trailing_distance: float = 0.12,     # 12%
+        trailing_distance: float = 0.05,     # unified to 5% (was 12%)
         max_hold_days: int = 30,
         grok_scanner=None,
         executor=None

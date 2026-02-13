@@ -100,6 +100,14 @@ except ImportError:
     DISCOVERY_MODE_AVAILABLE = False
     DiscoveryMode = None
 
+# V6.1 - Orchestrator Memory (decision tracking & accuracy)
+try:
+    from src.learning.orchestrator_memory import get_orchestrator_memory, OrchestratorMemory
+    ORCHESTRATOR_MEMORY_AVAILABLE = True
+except ImportError:
+    ORCHESTRATOR_MEMORY_AVAILABLE = False
+    OrchestratorMemory = None
+
 
 logger = logging.getLogger(__name__)
 
@@ -247,6 +255,16 @@ class MarketAgent:
 
         # V5.2 - Intuitive Reasoning (Raisonnement News → Secteur → Actions)
         self.intuitive_reasoning: Optional[IntuitiveReasoning] = None
+
+        # V6.1 - Orchestrator Memory
+        self.orchestrator_memory: Optional[OrchestratorMemory] = None
+        if ORCHESTRATOR_MEMORY_AVAILABLE:
+            try:
+                self.orchestrator_memory = get_orchestrator_memory()
+                stats = self.orchestrator_memory.get_accuracy_stats(30)
+                logger.info(f"[V6.1] OrchestratorMemory loaded: {stats['total_verified']} verified decisions, accuracy={stats['accuracy']}%")
+            except Exception as e:
+                logger.warning(f"OrchestratorMemory not available: {e}")
 
         # État runtime
         self._running = False
@@ -1097,6 +1115,25 @@ class MarketAgent:
                         except Exception as e:
                             logger.error(f"Failed to persist analysis for {symbol}: {e}")
 
+                        # V6.1: Record decision in orchestrator memory
+                        if self.orchestrator_memory:
+                            try:
+                                pillar_scores_dict = {
+                                    "technical": round(reasoning_result.technical_score.score, 2) if reasoning_result.technical_score else 0,
+                                    "fundamental": round(reasoning_result.fundamental_score.score, 2) if reasoning_result.fundamental_score else 0,
+                                    "sentiment": round(reasoning_result.sentiment_score.score, 2) if reasoning_result.sentiment_score else 0,
+                                    "news": round(reasoning_result.news_score.score, 2) if reasoning_result.news_score else 0,
+                                }
+                                self.orchestrator_memory.record_decision(
+                                    symbol=symbol,
+                                    total_score=reasoning_result.total_score,
+                                    action=reasoning_result.decision.value,
+                                    pillar_scores=pillar_scores_dict,
+                                    entry_price=0  # Will be updated if trade executes
+                                )
+                            except Exception as mem_err:
+                                logger.warning(f"[MEMORY] Failed to record decision for {symbol}: {mem_err}")
+
                         # Skip if not actionable - but record why
                         if reasoning_result.decision.value not in ["strong_buy", "buy"]:
                             decision_reason = f"Decision: {reasoning_result.decision.value} (score: {reasoning_result.total_score:.1f}/100)"
@@ -1161,6 +1198,19 @@ class MarketAgent:
                         # V4.2 - Generate narrative report for actionable signals
                         if self.narrative_generator:
                             try:
+                                # V6.1: Inject pillar scores and memory into narrative context
+                                _pillar_context = (
+                                    f"\n=== PILLAR SCORES for {symbol} ===\n"
+                                    f"Technical: {reasoning_result.technical_score.score:.1f}/100\n" if reasoning_result.technical_score else ""
+                                    f"Fundamental: {reasoning_result.fundamental_score.score:.1f}/100\n" if reasoning_result.fundamental_score else ""
+                                    f"Sentiment: {reasoning_result.sentiment_score.score:.1f}/100\n" if reasoning_result.sentiment_score else ""
+                                    f"News: {reasoning_result.news_score.score:.1f}/100\n" if reasoning_result.news_score else ""
+                                    f"TOTAL: {reasoning_result.total_score:.1f}/100 -> {reasoning_result.decision.value}\n"
+                                )
+                                _memory_context = ""
+                                if self.orchestrator_memory:
+                                    _memory_context = self.orchestrator_memory.get_summary_for_prompt(days=14)
+
                                 # Collect social data for narrative
                                 social_data = None
                                 grok_data = None
@@ -1192,7 +1242,9 @@ class MarketAgent:
                                         'score': reasoning_result.fundamental_score.score if reasoning_result.fundamental_score else 0
                                     },
                                     news_data={
-                                        'score': reasoning_result.news_score.score if reasoning_result.news_score else 0
+                                        'score': reasoning_result.news_score.score if reasoning_result.news_score else 0,
+                                        'pillar_context': _pillar_context if '_pillar_context' in dir() else '',
+                                        'memory_context': _memory_context if '_memory_context' in dir() else ''
                                     },
                                     reasoning_result=reasoning_result
                                 )

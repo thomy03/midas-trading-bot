@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "./client";
+import { useAgent } from "@/contexts/AgentContext";
 import type {
   PortfolioSummary,
   PositionsResponse,
@@ -16,49 +17,65 @@ import type {
 } from "./types";
 
 export function usePortfolioSummary() {
+  const { agent } = useAgent();
   return useQuery({
-    queryKey: ["portfolio", "summary"],
-    queryFn: () => apiFetch<PortfolioSummary>("/api/v1/portfolio/summary"),
+    queryKey: ["portfolio", "summary", agent],
+    queryFn: () => apiFetch<PortfolioSummary>(`/api/v1/portfolio/summary?agent=${agent}`),
   });
 }
 
 export function usePortfolioPositions() {
+  const { agent } = useAgent();
   return useQuery({
-    queryKey: ["portfolio", "positions"],
-    queryFn: () => apiFetch<PositionsResponse>("/api/v1/portfolio/positions"),
+    queryKey: ["portfolio", "positions", agent],
+    queryFn: () => apiFetch<PositionsResponse>(`/api/v1/portfolio/positions?agent=${agent}`),
   });
 }
 
 export function useAgentStatus() {
+  const { agent } = useAgent();
   return useQuery({
-    queryKey: ["agent", "status"],
-    queryFn: () => apiFetch<AgentStatus>("/api/v1/agent/status"),
+    queryKey: ["agent", "status", agent],
+    queryFn: () => apiFetch<AgentStatus>(`/api/v1/agent/status?agent=${agent}`),
   });
 }
 
 export function usePortfolioHistory() {
+  const { agent } = useAgent();
   return useQuery({
-    queryKey: ["portfolio", "history"],
-    queryFn: () => apiFetch<PortfolioHistory>("/api/v1/portfolio/history"),
+    queryKey: ["portfolio", "history", agent],
+    queryFn: () => apiFetch<PortfolioHistory>(`/api/v1/portfolio/history?agent=${agent}`),
     refetchInterval: 60_000,
   });
 }
 
 export function useTrades(status?: "open" | "closed") {
-  const params = status ? `?status=${status}` : "";
+  const { agent } = useAgent();
+  const params = new URLSearchParams({ agent });
+  if (status) params.set("status", status);
   return useQuery({
-    queryKey: ["trades", status ?? "all"],
-    queryFn: () => apiFetch<Trade[]>(`/api/v1/trades${params}`),
+    queryKey: ["trades", status ?? "all", agent],
+    queryFn: () => apiFetch<Trade[]>(`/api/v1/trades?${params.toString()}`),
   });
 }
 
 export function usePerformance() {
+  const { agent } = useAgent();
   return useQuery({
-    queryKey: ["trades", "performance"],
-    queryFn: () => apiFetch<PerformanceStats>("/api/v1/trades/performance"),
+    queryKey: ["trades", "performance", agent],
+    queryFn: () => apiFetch<PerformanceStats>(`/api/v1/trades/performance?agent=${agent}`),
   });
 }
 
+export function useAlerts(days = 7) {
+  const { agent } = useAgent();
+  return useQuery({
+    queryKey: ["alerts", days, agent],
+    queryFn: () => apiFetch<AlertItem[]>(`/api/v1/alerts?days=${days}&agent=${agent}`),
+  });
+}
+
+// Global hooks (no agent param)
 export function useSectors() {
   return useQuery({
     queryKey: ["sectors"],
@@ -83,13 +100,6 @@ export function useEconomicEvents(daysAhead = 30) {
         `/api/v1/calendar/events?days_ahead=${daysAhead}`
       ),
     refetchInterval: 300_000,
-  });
-}
-
-export function useAlerts(days = 7) {
-  return useQuery({
-    queryKey: ["alerts", days],
-    queryFn: () => apiFetch<AlertItem[]>(`/api/v1/alerts?days=${days}`),
   });
 }
 

@@ -10,6 +10,8 @@ import asyncio
 import logging
 import signal
 import os
+import json as _json
+from pathlib import Path as _Path
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, time
 from typing import Dict, List, Optional, Callable, Any
@@ -21,9 +23,9 @@ from .state import AgentState, StateManager, get_state_manager
 from .strategy_evolver import StrategyEvolver, get_strategy_evolver, TradeResult
 from .decision_journal import DecisionJournal, get_decision_journal
 
-from ..intelligence.heat_detector import HeatDetector, get_heat_detector
 from ..intelligence.attention_manager import AttentionManager, get_attention_manager
-from ..execution.paper_trader import get_paper_trader, PaperTrader
+from ..execution.execution_bridge import get_execution_bridge
+from ..execution.paper_trader import get_paper_trader, PaperTrader  # kept for multi-strategy tracker compat
 # Portfolio tracking
 try:
     from ..utils.portfolio_tracker import record_snapshot
@@ -57,6 +59,36 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# Activity logging
+try:
+    from src.utils.activity_logger import log_activity as _log_activity
+    ACTIVITY_LOGGER_AVAILABLE = True
+except ImportError:
+    ACTIVITY_LOGGER_AVAILABLE = False
+    def _log_activity(*a, **kw): pass
+
+# V8.1 Sprint 1C: Signal tracker for feedback loop
+try:
+    from src.learning import signal_tracker as _signal_tracker
+    SIGNAL_TRACKER_AVAILABLE = True
+except ImportError:
+    SIGNAL_TRACKER_AVAILABLE = False
+
+# V8.2: Opportunity tracker - track rejected signals
+try:
+    from src.learning.opportunity_tracker import log_rejection as _log_rejection_opp
+    OPPORTUNITY_TRACKER_AVAILABLE = True
+except ImportError:
+    OPPORTUNITY_TRACKER_AVAILABLE = False
+    def _log_rejection_opp(*a, **kw): pass
+
+# V8.1 Sprint 1C: Liquidity filter
+try:
+    from src.utils.liquidity_filter import check_liquidity as _check_liquidity
+    LIQUIDITY_FILTER_AVAILABLE = True
+except ImportError:
+    LIQUIDITY_FILTER_AVAILABLE = False
+
 
 # =============================================================================
 # CONFIGURATION
@@ -74,7 +106,7 @@ class MarketSession(Enum):
 class LiveLoopConfig:
     """Configuration de la boucle live"""
     # Polling intervals (secondes)
-    heat_poll_interval: int = 60      # Polling des sources de chaleur
+    heat_poll_interval: int = 300      # Polling des sources de chaleur
     screening_interval: int = 300     # Screening (5 min)
     health_check_interval: int = 600  # Health check (10 min)
 
@@ -82,15 +114,15 @@ class LiveLoopConfig:
     timezone: str = "Europe/Paris"
 
     # Heures de trading
-    pre_market_start: time = time(4, 0)
+    pre_market_start: time = time(8, 0)
     market_open: time = time(9, 0)
     market_close: time = time(17, 30)
-    after_hours_end: time = time(20, 0)
+    after_hours_end: time = time(22, 0)
 
     # Mode
     trade_pre_market: bool = False
-    trade_after_hours: bool = False
-    analyze_when_closed: bool = True  # Analyse meme hors marche
+    trade_after_hours: bool = True
+    analyze_when_closed: bool = False  # Analyse meme hors marche
     paper_trading: bool = True
 
     # V7: Risk management
@@ -154,11 +186,11 @@ class LiveLoop:
 
         # V8: Intelligence Orchestrator
         self._intelligence_orchestrator = None
+        self._current_brief = None
 
         # Components (initialisés dans initialize())
-        self.guardrails: Optional[Guardrails] = None
+        self.guardrails: object = None
         self.state: Optional[AgentState] = None
-        self.heat_detector: Optional[HeatDetector] = None
         self.attention_manager: Optional[AttentionManager] = None
         self.strategy_evolver: Optional[StrategyEvolver] = None
         self.decision_journal: Optional[DecisionJournal] = None
@@ -171,8 +203,10 @@ class LiveLoop:
 
         # Tasks
         self._main_task: Optional[asyncio.Task] = None
-        self._heat_task: Optional[asyncio.Task] = None
         self._health_task: Optional[asyncio.Task] = None
+
+        # Pre-market pending signals
+        self.pending_signals: List[Dict] = []
 
         # Metrics
         self._metrics = LoopMetrics()
@@ -196,8 +230,7 @@ class LiveLoop:
         self.state = self.state_manager.state
 
         # Intelligence components
-        self.heat_detector = await get_heat_detector()
-        self.attention_manager = await get_attention_manager(self.heat_detector)
+        self.attention_manager = await get_attention_manager()
 
         # Learning components
         self.strategy_evolver = await get_strategy_evolver()
@@ -216,14 +249,8 @@ class LiveLoop:
             self.position_monitor = get_position_manager()
             logger.info("V7 Risk management initialized")
 
-        # V8: Initialize Intelligence Orchestrator (skip if DISABLE_LLM=1)
-        _llm_disabled = os.environ.get('DISABLE_LLM', '').strip() in ('1', 'true', 'yes')
-        if _llm_disabled:
-            logger.info("V8 Intelligence Orchestrator DISABLED (DISABLE_LLM=1)")
-            self._intelligence_orchestrator = None
-
-        if not _llm_disabled:
-          try:
+        # V8: Initialize Intelligence Orchestrator
+        try:
             from src.intelligence.intelligence_orchestrator import IntelligenceOrchestrator
             from src.intelligence.gemini_client import GeminiClient
             from src.intelligence.market_context import get_market_context_analyzer
@@ -235,12 +262,15 @@ class LiveLoop:
             grok_scanner = None
             news_fetcher = None
             trend_discovery = None
-            try:
-                from src.intelligence.grok_scanner import GrokScanner
-                grok_scanner = GrokScanner()
-                await grok_scanner.initialize()
-            except Exception:
-                logger.debug("Grok scanner not available for V8 orchestrator")
+            if os.environ.get("DISABLE_LLM", "false").lower() != "true":
+                try:
+                    from src.intelligence.grok_scanner import GrokScanner
+                    grok_scanner = GrokScanner()
+                    await grok_scanner.initialize()
+                except Exception:
+                    logger.debug("Grok scanner not available for V8 orchestrator")
+            else:
+                logger.info("LLM disabled - skipping Grok scanner for V8 orchestrator")
             try:
                 from src.intelligence.news_fetcher import NewsFetcher
                 news_fetcher = NewsFetcher()
@@ -307,14 +337,13 @@ class LiveLoop:
 
         # Démarrer les tâches parallèles
         self._main_task = asyncio.create_task(self._main_loop())
-        self._heat_task = asyncio.create_task(self._heat_loop())
         self._health_task = asyncio.create_task(self._health_loop())
 
         # V7: Position monitor loop
         if self.config.enable_position_monitor and self.position_monitor:
             self._position_monitor_task = asyncio.create_task(self._position_monitor_loop())
 
-        tasks = [self._main_task, self._heat_task, self._health_task]
+        tasks = [self._main_task, self._health_task]
         if self._position_monitor_task:
             tasks.append(self._position_monitor_task)
 
@@ -333,7 +362,7 @@ class LiveLoop:
         self._shutdown_event.set()
 
         # Annuler les tâches
-        for task in [self._main_task, self._heat_task, self._health_task, self._position_monitor_task]:
+        for task in [self._main_task, self._health_task, self._position_monitor_task]:
             if task and not task.done():
                 task.cancel()
 
@@ -397,17 +426,32 @@ class LiveLoop:
                 # 1. Vérifier la session de marché
                 self._current_session = self._get_market_session()
 
-                # Allow analysis even when market closed (but no trading)
-                if not self._should_trade() and self._current_session == MarketSession.CLOSED:
-                    # Still do analysis for preparation
-                    if self.config.analyze_when_closed:
+                # Pre-market scanning: analyze and queue signals
+                if not self._should_trade():
+                    if self._current_session == MarketSession.PRE_MARKET:
+                        logger.info("🌅 PRE-MARKET: scanning symbols (trades will be queued)")
+                        if ACTIVITY_LOGGER_AVAILABLE:
+                            _log_activity("scan_start", details="Pre-market scanning phase")
+                        # Continue to screening but flag pre-market mode
+                        pass
+                    elif self._current_session == MarketSession.CLOSED and self.config.analyze_when_closed:
                         pass  # Continue to analysis
                     else:
+                        self._persist_state()
                         await asyncio.sleep(60)
                         continue
-                elif not self._should_trade():
-                    await asyncio.sleep(60)  # Attendre 1 minute
-                    continue
+
+                # At market open, execute pending signals from pre-market
+                if self._current_session == MarketSession.REGULAR and self.pending_signals:
+                    logger.info(f"🔔 MARKET OPEN: executing {len(self.pending_signals)} pending signals")
+                    if ACTIVITY_LOGGER_AVAILABLE:
+                        _log_activity("scan_start", details=f"Executing {len(self.pending_signals)} pre-market signals")
+                    for ps in list(self.pending_signals):
+                        try:
+                            await self._process_signal(ps)
+                        except Exception as e:
+                            logger.error(f"Error executing pending signal {ps.get('symbol')}: {e}")
+                    self.pending_signals.clear()
 
                 # 2. Vérifier les guardrails
                 if not await self._check_guardrails():
@@ -440,8 +484,29 @@ class LiveLoop:
                     limit=self.config.max_concurrent_screens
                 )
 
+                # V8.2: Generate intelligence brief BEFORE screening (LLM only)
+                if self._intelligence_orchestrator is not None and symbols_to_screen and os.environ.get("DISABLE_LLM", "false").lower() != "true":
+                    try:
+                        self._current_brief = await self._intelligence_orchestrator.get_brief()
+                        if self._current_brief and hasattr(self._current_brief, 'reasoning_summary') and self._current_brief.reasoning_summary:
+                            logger.info(f"🧠 INTEL BRIEF: {self._current_brief.reasoning_summary[:120]}...")
+                            try:
+                                import json as _json
+                                with open(os.path.join("data", "intelligence_brief.json"), "w") as _bf:
+                                    _json.dump({"reasoning_summary": self._current_brief.reasoning_summary,
+                                               "portfolio_alerts": getattr(self._current_brief, 'portfolio_alerts', [])[:5],
+                                               "timestamp": datetime.now().isoformat()}, _bf, indent=2, default=str)
+                            except Exception:
+                                pass
+                        else:
+                            self._current_brief = None
+                    except Exception as e:
+                        logger.warning(f"Intelligence brief failed: {e}")
+                        self._current_brief = None
+
                 if symbols_to_screen:
                     await self._screen_symbols(symbols_to_screen)
+                    logger.info(f"✅ Screening complete for {len(symbols_to_screen)} symbols")
 
                 # 6. Reset le cycle
                 await self.attention_manager.reset_cycle()
@@ -449,6 +514,7 @@ class LiveLoop:
                 # Métriques
                 self._metrics.cycles_completed += 1
                 self._metrics.last_cycle_time = datetime.now()
+                self._persist_state()
 
                 cycle_duration = (datetime.now() - cycle_start).total_seconds() * 1000
                 self._update_avg_cycle_duration(cycle_duration)
@@ -463,10 +529,38 @@ class LiveLoop:
                 self._metrics.errors_count += 1
                 await asyncio.sleep(30)  # Court délai avant retry
 
-            # Attendre avant le prochain cycle
+            logger.info(f"💤 Sleeping {self.config.screening_interval}s before next cycle...")
             await asyncio.sleep(self.config.screening_interval)
 
         logger.info("Main trading loop ended")
+
+
+    def _get_symbol_intel_summary(self, symbol: str):
+        """Get symbol-specific intel summary from current brief."""
+        if not self._current_brief:
+            return None
+        parts = []
+        try:
+            adj = self._intelligence_orchestrator.get_symbol_adjustment(symbol, self._current_brief)
+            if adj != 0:
+                parts.append(f"{'📈' if adj > 0 else '📉'} Impact: {adj:+.1f} pts")
+        except Exception:
+            pass
+        if hasattr(self._current_brief, 'megatrends'):
+            for trend in (self._current_brief.megatrends or []):
+                syms = getattr(trend, 'symbols', {}) if not isinstance(trend, str) else {}
+                if isinstance(syms, dict) and symbol in syms:
+                    parts.append(f"Trend: {getattr(trend, 'theme', '')[:50]}")
+        if hasattr(self._current_brief, 'portfolio_alerts'):
+            ticker_base = symbol.split('.')[0]
+            for alert in (self._current_brief.portfolio_alerts or [])[:3]:
+                if ticker_base in str(alert) or symbol in str(alert):
+                    parts.append(str(alert)[:100])
+        if parts:
+            return " | ".join(parts)
+        if self._current_brief.reasoning_summary:
+            return f"Contexte: {self._current_brief.reasoning_summary[:150]}"
+        return None
 
     async def _screen_symbols(self, symbols: List[str]):
         """Screene une liste de symboles avec les 4 piliers"""
@@ -480,7 +574,26 @@ class LiveLoop:
                     try:
                         await self.attention_manager.mark_screened(symbol)
                         
+                        # V8.1: Liquidity filter - skip illiquid symbols
+                        if LIQUIDITY_FILTER_AVAILABLE:
+                            try:
+                                liq = _check_liquidity(symbol)
+                                if not liq['liquid']:
+                                    logger.info(f"[LIQUIDITY] Skipping {symbol}: {liq.get('reason')}")
+                                    # V8.2: Track liquidity rejection
+                                    if OPPORTUNITY_TRACKER_AVAILABLE:
+                                        try:
+                                            _log_rejection_opp(symbol=symbol, score=0, reason="liquidity",
+                                                             price=0, pillars_detail={},
+                                                             regime=self.current_regime.value if hasattr(self.current_regime, 'value') else '')
+                                        except Exception:
+                                            pass
+                                    continue
+                            except Exception as e:
+                                logger.info(f"[LIQUIDITY] Error for {symbol}: {e}")
+                        
                         # Analyse 4 piliers
+                        logger.info(f"[SCREENING] Analyzing {symbol}...")
                         result = await reasoning_engine.analyze(symbol)
                         
                         if result and result.decision in [DecisionType.BUY, DecisionType.STRONG_BUY]:
@@ -503,14 +616,86 @@ class LiveLoop:
                                 'pillar_sentiment': result.sentiment_score,
                                 'pillar_news': result.news_score,
                                 'reasoning': result.reasoning_summary,
+                                'ml_score': result.ml_score,
+                                'regime': self.current_regime.value if hasattr(self.current_regime, 'value') else '',
+                                'key_factors': [str(f) for f in (result.key_factors or [])[:5]],
                                 'timestamp': result.timestamp
                             }
                             self._metrics.signals_found += 1
                             await self.attention_manager.mark_signal_found(symbol)
-                            await self._process_signal(alert)
+                            
+                            # Log activity
+                            if ACTIVITY_LOGGER_AVAILABLE:
+                                _log_activity(
+                                    "signal_found",
+                                    symbol=symbol,
+                                    decision=result.decision.value.upper(),
+                                    scores={
+                                        "technical": round((float(getattr(result.technical_score, 'score', result.technical_score) or 0) + 100) / 2, 1) if result else 0,
+                                        "fundamental": round((float(getattr(result.fundamental_score, 'score', result.fundamental_score) or 0) + 100) / 2, 1) if result else 0,
+                                        "ml_gate": "confirmed" if result and hasattr(result, 'ml_gate_applied') and result.ml_gate_applied else "none",
+                                        "total": result.total_score,
+                                        "ml": result.ml_score or 0,
+                                    },
+                                    reasoning=str(result.reasoning_summary or "")[:1000],
+                                    strategy=self.current_regime.value if hasattr(self.current_regime, 'value') else '',
+                                )
+                            
+                            # Pre-market: queue instead of execute
+                            if self._current_session == MarketSession.PRE_MARKET:
+                                self.pending_signals.append(alert)
+                                logger.info(f"📋 PRE-MARKET: queued {symbol} (score={result.total_score})")
+                                if ACTIVITY_LOGGER_AVAILABLE:
+                                    _log_activity("trade_queued", symbol=symbol, details=f"Queued for market open (score={result.total_score})")
+                            else:
+                                await self._process_signal(alert)
+                        
+                        # V8.2+V9: Apply intel adjustment from orchestrator brief + per-symbol intelligence
+                        intel_adj = 0.0
+                        symbol_intel_result = None
+                        if hasattr(self, '_current_brief') and self._current_brief is not None and self._intelligence_orchestrator is not None:
+                            try:
+                                # Global brief adjustment
+                                global_adj = self._intelligence_orchestrator.get_symbol_adjustment(symbol, self._current_brief)
+                                # Per-symbol intelligence (uses cached news + Gemini)
+                                symbol_adj = 0.0
+                                try:
+                                    symbol_intel_result = await self._intelligence_orchestrator.get_symbol_intelligence(symbol)
+                                    symbol_adj = symbol_intel_result.get('adjustment', 0.0)
+                                except Exception as e:
+                                    logger.debug(f"Symbol intel failed for {symbol}: {e}")
+                                intel_adj = max(-15.0, min(15.0, global_adj + symbol_adj))
+                                news_count = len(symbol_intel_result.get("news", [])) if symbol_intel_result else 0
+                                logger.info(f"🧠 INTEL: {symbol} global={global_adj:+.1f} symbol={symbol_adj:+.1f} total={intel_adj:+.1f} news={news_count}")
+                                if intel_adj != 0:
+                                    old_score = result.total_score
+                                    result.total_score = max(0, min(100, result.total_score + intel_adj))
+                                    logger.info(f"🧠 INTEL APPLIED: {symbol} {intel_adj:+.1f} pts ({old_score:.1f} → {result.total_score:.1f})")
+                            except Exception as e:
+                                logger.debug(f"Intel adjustment failed for {symbol}: {e}")
                         
                         self._metrics.screens_performed += 1
                         
+                        # Log scan result
+                        if ACTIVITY_LOGGER_AVAILABLE:
+                            scan_decision = result.decision.value.upper() if result else "NO_RESULT"
+                            _log_activity(
+                                "scan_result",
+                                symbol=symbol,
+                                decision=scan_decision,
+                                scores={
+                                    "technical": round((float(getattr(result.technical_score, 'score', result.technical_score) or 0) + 100) / 2, 1) if result else 0,
+                                    "fundamental": round((float(getattr(result.fundamental_score, 'score', result.fundamental_score) or 0) + 100) / 2, 1) if result else 0,
+                                    "ml_gate": "confirmed" if result and hasattr(result, 'ml_gate_applied') and result.ml_gate_applied else "none",
+                                    "total": result.total_score if result else 0,
+                                    "intel_adj": intel_adj if 'intel_adj' in dir() else 0,
+                                    "intel_summary": self._get_symbol_intel_summary(symbol) if hasattr(self, '_current_brief') and self._current_brief else None,
+                                    "intel_reasoning": symbol_intel_result.get('reasoning', '') if symbol_intel_result else None,
+                                    "intel_news": symbol_intel_result.get('news', [])[:5] if symbol_intel_result else [],
+                                } if result else {},
+                                reasoning=str(result.reasoning_summary or "")[:1000] if result else "",
+                            )
+
                     except Exception as e:
                         import traceback; logger.error(f"Error screening {symbol} with ReasoningEngine: {e}\n{traceback.format_exc()}")
                         
@@ -550,6 +735,7 @@ class LiveLoop:
         signal_type = alert.get('confidence_signal', 'UNKNOWN')
         
         logger.info(f"📊 Signal detected: {symbol} - {signal_type} (score: {confidence})")
+        self._persist_signal(alert)
         
         # V8.1: Evaluate signal against all 4 strategy profiles
         try:
@@ -574,6 +760,9 @@ class LiveLoop:
                     pillar_scores=pillar_scores,
                     current_price=current_price,
                     atr=atr,
+                    reasoning=str(alert.get("reasoning", ""))[:500],
+                    regime=str(alert.get("regime", "")),
+                    key_factors=[str(f) for f in alert.get("key_factors", [])[:5]],
                 )
                 accepted = [k for k, v in multi_results.items() if v.startswith("accepted")]
                 if accepted:
@@ -593,11 +782,55 @@ class LiveLoop:
                 logger.info(f"   🏢 Piliers L2: Health={alert.get('l2_health_score',0)}/20, Context={alert.get('l2_context_score',0)}/10, Sentiment={alert.get('l2_sentiment_score',0)}/30 | ELITE={alert.get('l2_is_elite', False)}")
 
         # Filtrer par score minimum (BUY >= 55, STRONG_BUY >= 75)
-        min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 75
+        min_score = self.config.min_confidence_score if hasattr(self.config, 'min_confidence_score') else 55
         if confidence < min_score:
-            logger.info(f"⏭️ Signal {symbol} skipped: score {confidence} < {min_score}")
+            logger.info(f"\u23ed\ufe0f Signal {symbol} skipped: score {confidence} < {min_score}")
+            if ACTIVITY_LOGGER_AVAILABLE:
+                _log_activity("signal_rejected", symbol=symbol, decision="SKIP", details=f"Score {confidence} < min {min_score}")
+            # V8.1: Track rejected signal for feedback loop
+            if SIGNAL_TRACKER_AVAILABLE:
+                try:
+                    _signal_tracker.record({
+                        'symbol': symbol, 'score': confidence,
+                        'decision': 'REJECTED', 'regime': alert.get('regime', ''),
+                        'sector': alert.get('sector', ''),
+                        'rejection_reason': f'score {confidence} < {min_score}',
+                        'key_factors': alert.get('key_factors', []),
+                    })
+                except Exception:
+                    pass
+            # V8.2: Opportunity tracker - log rejection with price
+            if OPPORTUNITY_TRACKER_AVAILABLE:
+                try:
+                    _log_rejection_opp(
+                        symbol=symbol,
+                        score=confidence,
+                        reason="threshold",
+                        price=float(alert.get("current_price", 0) or 0),
+                        pillars_detail={
+                            "technical": float(getattr(alert.get("pillar_technical", 0), "score", alert.get("pillar_technical", 0)) or 0),
+                            "fundamental": float(getattr(alert.get("pillar_fundamental", 0), "score", alert.get("pillar_fundamental", 0)) or 0),
+                            "sentiment": float(getattr(alert.get("pillar_sentiment", 0), "score", alert.get("pillar_sentiment", 0)) or 0),
+                            "news": float(getattr(alert.get("pillar_news", 0), "score", alert.get("pillar_news", 0)) or 0),
+                        },
+                        regime=alert.get("regime", ""),
+                    )
+                except Exception as e:
+                    logger.debug(f"Opportunity tracker error: {e}")
             return
             
+        # V8.1: Track taken signal for feedback loop
+        if SIGNAL_TRACKER_AVAILABLE:
+            try:
+                _signal_tracker.record({
+                    'symbol': symbol, 'score': confidence,
+                    'decision': signal_type, 'regime': alert.get('regime', ''),
+                    'sector': alert.get('sector', ''),
+                    'key_factors': alert.get('key_factors', []),
+                })
+            except Exception:
+                pass
+
         # Callback externe
         if self._on_signal_callback:
             await self._on_signal_callback(alert)
@@ -686,6 +919,30 @@ class LiveLoop:
                 )
                 if not allowed:
                     logger.info(f"[DEFENSIVE] Trade {symbol} blocked: {reason}")
+                    # Log as PENDING CONFIRMATION in activity feed
+                    if ACTIVITY_LOGGER_AVAILABLE:
+                        _log_activity(
+                            "signal_rejected",
+                            symbol=symbol,
+                            decision="PENDING CONFIRMATION",
+                            scores={"total": confidence},
+                            details=f"Signal BUY rejeté: {reason}. En attente d'un score plus élevé ou d'un changement de régime.",
+                        )
+                    # Track as rejected for opportunity analysis
+                    if OPPORTUNITY_TRACKER_AVAILABLE:
+                        try:
+                            import yfinance as yf
+                            price = yf.Ticker(symbol).fast_info.get('lastPrice', 0)
+                        except Exception:
+                            price = 0
+                        try:
+                            _log_rejection_opp(
+                                symbol=symbol, score=confidence, reason="threshold",
+                                price=price, pillars_detail={},
+                                regime=self.current_regime.value if hasattr(self.current_regime, 'value') else ''
+                            )
+                        except Exception:
+                            pass
                     return
             except Exception as e:
                 logger.warning(f"Defensive check error: {e}")
@@ -739,7 +996,7 @@ class LiveLoop:
             return
         
         # Get paper trader
-        paper_trader = get_paper_trader()
+        bridge = get_execution_bridge()
         
         # Extract pillar scores and reasoning from alert
         pillar_technical = alert.get('pillar_technical')
@@ -773,7 +1030,7 @@ class LiveLoop:
             logger.warning(f"Could not fetch company info for {symbol}: {e}")
         
         # Open position with full analysis
-        position = paper_trader.open_position(
+        position = bridge.open_position(
             symbol=symbol,
             price=price,
             score=score,
@@ -806,7 +1063,7 @@ class LiveLoop:
                         except:
                             sell_price = weakest.entry_price
                         
-                        sell_result = paper_trader.close_position(
+                        sell_result = bridge.close_position(
                             symbol=weakest.symbol,
                             price=sell_price,
                             reason=f"rotation_upgrade_to_{symbol}"
@@ -815,7 +1072,7 @@ class LiveLoop:
                         if sell_result:
                             logger.info(f"🔻 SOLD {weakest.symbol} @ ${sell_price:.2f} for rotation")
                             
-                            position = paper_trader.open_position(
+                            position = bridge.open_position(
                                 symbol=symbol,
                                 price=price,
                                 score=score,
@@ -840,6 +1097,24 @@ class LiveLoop:
         if position:
             self._metrics.trades_executed += 1
             logger.info(f"📈 Paper trade executed: {symbol} x{position.quantity} @ {price:.2f}")
+            
+            # Log activity
+            if ACTIVITY_LOGGER_AVAILABLE:
+                _log_activity(
+                    "trade_executed",
+                    symbol=symbol,
+                    decision="BUY",
+                    details=f"Bought {position.quantity} shares @ ${price:.2f}",
+                    scores={
+                        "technical": float(pillar_technical or 0),
+                        "fundamental": float(pillar_fundamental or 0),
+                        "sentiment": float(pillar_sentiment or 0),
+                        "news": float(pillar_news or 0),
+                        "total": score,
+                    },
+                    reasoning=str(reasoning or "")[:1000],
+                    strategy=self.current_regime.value if hasattr(self.current_regime, 'value') else '',
+                )
             
             # Notify
             if self.config.notification_callback:
@@ -875,131 +1150,6 @@ class LiveLoop:
                 logger.error(f"Position monitor error: {e}")
             await asyncio.sleep(60)
         logger.info("V7 Position monitor loop ended")
-
-    # -------------------------------------------------------------------------
-    # HEAT DETECTION LOOP
-    # -------------------------------------------------------------------------
-
-    async def _heat_loop(self):
-        """Boucle de détection de chaleur"""
-        logger.info("Heat detection loop started")
-
-        while self._running and not self._shutdown_event.is_set():
-            try:
-                # Seulement pendant les heures de marché étendue
-                session = self._get_market_session()
-                if session == MarketSession.CLOSED:
-                    await asyncio.sleep(60)
-                    continue
-
-                # Collecter les données de différentes sources
-                await self._collect_heat_data()
-
-            except Exception as e:
-                logger.error(f"Error in heat loop: {e}", exc_info=True)
-
-            await asyncio.sleep(self.config.heat_poll_interval)
-
-        logger.info("Heat detection loop ended")
-
-    async def _collect_heat_data(self):
-        """Collecte les données de chaleur de toutes les sources"""
-        # Skip LLM-based scanners if disabled
-        _llm_off = os.environ.get('DISABLE_LLM', '').strip() in ('1', 'true', 'yes')
-
-        # Import des scanners
-        try:  # noqa
-            from ..intelligence.grok_scanner import get_grok_scanner
-            from ..intelligence.social_scanner import get_social_scanner
-
-            # Grok (X/Twitter) - skip if LLM disabled
-            grok_scanner = None if _llm_off else await get_grok_scanner()
-            if grok_scanner:
-                trends = await grok_scanner.search_financial_trends()
-                if trends:
-                    # Convert List[GrokInsight] to Dict[str, Dict] for ingest_grok_data
-                    grok_data = {}
-                    logger.info(f"🐦 Grok returned {len(trends)} insights")
-                    for insight in trends:
-                        logger.debug(f"🐦 Insight: {insight.topic} | Symbols: {insight.mentioned_symbols}")
-                        for symbol in insight.mentioned_symbols:
-                            if symbol not in grok_data:
-                                grok_data[symbol] = {
-                                    'sentiment_score': insight.sentiment_score,
-                                    'summary': insight.summary,
-                                    'confidence': insight.confidence
-                                }
-                    if grok_data:
-                        await self.heat_detector.ingest_grok_data(grok_data)
-                        
-                        # V5.6 - Set Grok symbols as PRIORITY for screening
-                        grok_symbols = list(grok_data.keys())
-                        if grok_symbols and self.attention_manager:
-                            self.attention_manager.set_grok_priority_symbols(grok_symbols)
-
-            # Social (Reddit, StockTwits)
-            social_scanner = await get_social_scanner()
-            if social_scanner:
-                result = await social_scanner.full_scan()
-                if result and result.trending_symbols:
-                    # Convert trending_symbols to dict for ingest_social_data
-                    social_data = {}
-                    for ts in result.trending_symbols:
-                        social_data[ts.symbol] = {
-                            'count': ts.mention_count,
-                            'sentiment': ts.avg_sentiment,
-                            'posts': []
-                        }
-                    if social_data:
-                        await self.heat_detector.ingest_social_data(social_data)
-
-        except ImportError:
-            logger.debug("Social scanners not available")
-        except Exception as e:
-            logger.warning(f"Error collecting heat data: {e}")
-
-        # Données de prix/volume (toujours disponibles)
-        try:
-            price_data = await self._get_price_movements()
-            if price_data:
-                await self.heat_detector.ingest_price_data(price_data)
-        except Exception as e:
-            logger.warning(f"Error getting price data: {e}")
-
-    async def _get_price_movements(self) -> Dict[str, Dict]:
-        """Obtient les mouvements de prix récents"""
-        # Symboles en focus
-        focus_symbols = self.attention_manager.get_symbols_for_screening(limit=20)
-
-        if not focus_symbols:
-            return {}
-
-        from ..data.market_data import MarketDataFetcher
-
-        market_data = MarketDataFetcher()
-        price_data = {}
-
-        for symbol in focus_symbols:
-            try:
-                df = market_data.get_stock_data(symbol, period="5d", interval="1h")
-                if df is not None and len(df) >= 2:
-                    current_price = df['Close'].iloc[-1]
-                    prev_price = df['Close'].iloc[-2]
-                    change_pct = ((current_price - prev_price) / prev_price) * 100
-
-                    avg_volume = df['Volume'].mean()
-                    current_volume = df['Volume'].iloc[-1]
-                    volume_ratio = current_volume / avg_volume if avg_volume > 0 else 1.0
-
-                    price_data[symbol] = {
-                        'change_pct': change_pct,
-                        'volume_ratio': volume_ratio,
-                        'price': current_price
-                    }
-            except Exception as e:
-                logger.debug(f"Error getting price for {symbol}: {e}")
-
-        return price_data
 
     # -------------------------------------------------------------------------
     # HEALTH CHECK LOOP
@@ -1154,9 +1304,6 @@ class LiveLoop:
         """Nettoie les ressources"""
         logger.info("Cleaning up LiveLoop...")
 
-        if self.heat_detector:
-            await self.heat_detector.close()
-
         if self.attention_manager:
             await self.attention_manager.close()
 
@@ -1174,6 +1321,65 @@ class LiveLoop:
     # -------------------------------------------------------------------------
     # GETTERS
     # -------------------------------------------------------------------------
+
+    def _persist_state(self):
+        """Persist agent state for webapp API (called every cycle)"""
+        try:
+            state_path = _Path("data/agent_state.json")
+            existing = {}
+            if state_path.exists():
+                try:
+                    with open(state_path, "r") as f:
+                        existing = _json.load(f)
+                except Exception:
+                    pass
+            existing["running"] = self._running
+            existing["session"] = self._current_session.value if hasattr(self, '_current_session') else "scanning"
+            existing["phase"] = "scanning" if self._running else "stopped"
+            existing["market_regime"] = getattr(self, "_current_regime", "RANGE")
+            existing["last_updated"] = datetime.now().isoformat()
+            existing["metrics"] = {
+                "cycles": self._metrics.cycles_completed,
+                "signals_found": self._metrics.signals_found,
+                "trades_executed": self._metrics.trades_executed,
+                "screens_performed": self._metrics.screens_performed,
+                "errors": self._metrics.errors_count,
+                "uptime_seconds": int((datetime.now() - self._metrics.started_at).total_seconds()) if self._metrics.started_at else 0,
+            }
+            with open(state_path, "w") as f:
+                _json.dump(existing, f, indent=2, default=str)
+        except Exception as e:
+            logger.debug(f"State persist error: {e}")
+
+    def _persist_signal(self, alert: dict):
+        """Append signal to signals log for webapp"""
+        try:
+            signals_path = _Path("data/signals_log.json")
+            signals = []
+            if signals_path.exists():
+                try:
+                    with open(signals_path, "r") as f:
+                        signals = _json.load(f)
+                except Exception:
+                    signals = []
+            signals.append({
+                "symbol": alert.get("symbol", ""),
+                "score": alert.get("confidence_score", 0),
+                "signal": alert.get("confidence_signal", ""),
+                "regime": alert.get("regime", ""),
+                "timestamp": datetime.now().isoformat(),
+                "pillar_scores": {
+                    "technical": float(getattr(alert.get("pillar_technical", 0), "score", alert.get("pillar_technical", 0)) or 0),
+                    "fundamental": float(getattr(alert.get("pillar_fundamental", 0), "score", alert.get("pillar_fundamental", 0)) or 0),
+                },
+                "ml_score": float(alert.get("ml_score", 0) or 0),
+                "key_factors": [str(f) for f in alert.get("key_factors", [])[:3]],
+            })
+            signals = signals[-500:]
+            with open(signals_path, "w") as f:
+                _json.dump(signals, f, indent=2, default=str)
+        except Exception as e:
+            logger.debug(f"Signal persist error: {e}")
 
     def get_metrics(self) -> LoopMetrics:
         """Retourne les métriques"""
@@ -1196,10 +1402,7 @@ class LiveLoop:
             },
             'focus_topics': [
                 t.symbol for t in self.attention_manager.get_focus_topics(5)
-            ] if self.attention_manager else [],
-            'hot_symbols': [
-                h.symbol for h in self.heat_detector.get_hot_symbols(5)
-            ] if self.heat_detector else []
+            ] if self.attention_manager else []
         }
 
     def is_running(self) -> bool:

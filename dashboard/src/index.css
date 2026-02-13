@@ -11,20 +11,75 @@
   --color-bear: #ef4444;
   --color-range: #eab308;
   --color-volatile: #f97316;
+  --color-accent: #7c3aed;
+  --color-accent-dim: #6d28d9;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-display: swap;
+  src: local('Inter');
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+/* Glass card */
+.glass {
+  background: linear-gradient(135deg, rgba(17,17,24,0.8) 0%, rgba(26,26,36,0.6) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
 }
-::-webkit-scrollbar-track {
-  background: var(--color-surface);
+
+.glass-accent {
+  background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(17,17,24,0.8) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(124,58,237,0.15);
 }
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
+
+/* Pulse glow */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+  50% { box-shadow: 0 0 16px rgba(34,197,94,0.7); }
 }
+.pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+/* Gauge animation */
+@keyframes gauge-fill {
+  from { stroke-dashoffset: 251; }
+}
+
+/* Fade in */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fade-up 0.3s ease-out both; }
+.fade-up-1 { animation-delay: 0.05s; }
+.fade-up-2 { animation-delay: 0.1s; }
+.fade-up-3 { animation-delay: 0.15s; }
+.fade-up-4 { animation-delay: 0.2s; }
+
+/* Thought step connector */
+.thought-line {
+  position: relative;
+}
+.thought-line::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(124,58,237,0.4), rgba(124,58,237,0.1));
+}
+
+/* Safe area for mobile */
+.safe-area-pb { padding-bottom: env(safe-area-inset-bottom, 0px); }

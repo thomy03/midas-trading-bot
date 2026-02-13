@@ -1,0 +1,39 @@
+{
+  "bull": {
+    "valuation": 0.12,
+    "cash_flow": 0.18,
+    "growth": 0.28,
+    "profitability": 0.2,
+    "health": 0.1,
+    "quality": 0.12
+  },
+  "bear": {
+    "valuation": 0.25,
+    "cash_flow": 0.2,
+    "growth": 0.1,
+    "profitability": 0.15,
+    "health": 0.2,
+    "quality": 0.1
+  },
+  "volatile": {
+    "valuation": 0.15,
+    "cash_flow": 0.22,
+    "growth": 0.13,
+    "profitability": 0.18,
+    "health": 0.22,
+    "quality": 0.1
+  },
+  "neutral": {
+    "valuation": 0.18,
+    "cash_flow": 0.18,
+    "growth": 0.18,
+    "profitability": 0.18,
+    "health": 0.16,
+    "quality": 0.12
+  },
+  "_metadata": {
+    "version": "8.1.0",
+    "created": "2026-02-11",
+    "description": "Adaptive fundamental pillar weights by market regime. Updated by learning engine."
+  }
+}

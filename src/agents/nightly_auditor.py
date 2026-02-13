@@ -477,6 +477,14 @@ class NightlyAuditor:
             f"{len(confirmed_guidelines)} confirmed"
         )
 
+        # V8.1 Sprint 1C: Run adaptive feedback loop
+        try:
+            from src.learning.adaptive_feedback import run_feedback
+            feedback_report = await run_feedback()
+            logger.info(f"[NIGHTLY] Adaptive feedback completed: {feedback_report.get('signals_evaluated', 0)} signals evaluated")
+        except Exception as e:
+            logger.warning(f"[NIGHTLY] Adaptive feedback error: {e}")
+
         return report
 
     async def _analyze_trade(

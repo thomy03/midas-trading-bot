@@ -228,6 +228,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# V8.1 signals endpoint
+try:
+    from src.api.signals_endpoint import register_signals_endpoint
+    register_signals_endpoint(app)
+except Exception:
+    pass
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -478,15 +485,71 @@ async def add_symbol_to_watchlist(
 
 # ==================== Portfolio & Trades ====================
 
-@app.get("/api/v1/portfolio/summary", response_model=PortfolioSummary, tags=["Portfolio"])
-async def get_portfolio_summary(api_key: str = Depends(verify_api_key)):
+@app.get("/api/v1/portfolio/summary", tags=["Portfolio"])
+async def get_portfolio_summary(agent: str = "llm", api_key: str = Depends(verify_api_key)):
     """Get portfolio summary (reads from portfolio.json for paper trading)."""
     import json
     from pathlib import Path
     
     try:
-        # Read directly from portfolio.json for paper trading
-        portfolio_path = Path("data/portfolio.json")
+        data_dir = "data" if agent == "llm" else "data-nollm"
+        suffix = "llm" if agent == "llm" else "nollm"
+        ms_path = Path(f"{data_dir}/multi_strategy_{suffix}.json")
+
+        # Try multi_strategy file first
+        if ms_path.exists():
+            with open(ms_path, "r") as f:
+                ms_data = json.load(f)
+            total_cash = 0
+            total_invested = 0
+            total_pnl = 0
+            total_positions = 0
+            for sid, sdata in ms_data.get("strategies", {}).items():
+                cash = sdata.get("cash", 15000)
+                total_cash += cash
+                for p in sdata.get("positions", []):
+                    cur = p.get("current_price", p.get("entry_price", 0))
+                    entry = p.get("entry_price", 0)
+                    shares = p.get("shares", 0)
+                    total_invested += cur * shares
+                    total_pnl += (cur - entry) * shares
+                    total_positions += 1
+            # Build per-strategy breakdown
+            strategies_breakdown = {}
+            for sid2, sdata2 in ms_data.get("strategies", {}).items():
+                s_cash = sdata2.get("cash", 15000)
+                s_invested = 0
+                s_pnl = 0
+                s_positions = 0
+                for p2 in sdata2.get("positions", []):
+                    cur2 = p2.get("current_price", p2.get("entry_price", 0))
+                    entry2 = p2.get("entry_price", 0)
+                    shares2 = p2.get("shares", 0)
+                    s_invested += cur2 * shares2
+                    s_pnl += (cur2 - entry2) * shares2
+                    s_positions += 1
+                s_equity = s_cash + s_invested
+                initial = sdata2.get("initial_capital", 15000)
+                s_return_pct = round(((s_equity - initial) / initial) * 100, 2) if initial > 0 else 0
+                strategies_breakdown[sid2] = {
+                    "equity": round(s_equity, 2),
+                    "cash": round(s_cash, 2),
+                    "invested": round(s_invested, 2),
+                    "positions": s_positions,
+                    "pnl": round(s_pnl, 2),
+                    "return_pct": s_return_pct
+                }
+            return {
+                "total_capital": round(total_cash + total_invested, 2),
+                "available_capital": round(total_cash, 2),
+                "invested_capital": round(total_invested, 2),
+                "open_positions": total_positions,
+                "unrealized_pnl": round(total_pnl, 2),
+                "strategies": strategies_breakdown
+            }
+
+        # Fallback to portfolio.json
+        portfolio_path = Path(f"{data_dir}/portfolio.json")
         if portfolio_path.exists():
             with open(portfolio_path, 'r') as f:
                 data = json.load(f)
@@ -530,6 +593,7 @@ async def get_portfolio_summary(api_key: str = Depends(verify_api_key)):
 @app.get("/api/v1/trades", response_model=List[TradeResponse], tags=["Trades"])
 async def get_trades(
     status: Optional[str] = Query(None, pattern="^(open|closed)$"),
+    agent: str = "llm",
     api_key: str = Depends(verify_api_key)
 ):
     """Get all trades, optionally filtered by status (reads from portfolio.json for paper trading)."""
@@ -540,9 +604,39 @@ async def get_trades(
     try:
         trades = []
         
-        # Read open positions from portfolio.json
+        data_dir = "data" if agent == "llm" else "data-nollm"
+        suffix = "llm" if agent == "llm" else "nollm"
+
+        # Read open positions from multi_strategy file
         if status != "closed":
-            portfolio_path = Path("data/portfolio.json")
+            ms_path = Path(f"{data_dir}/multi_strategy_{suffix}.json")
+            if ms_path.exists():
+                with open(ms_path, "r") as f:
+                    ms_data = json.load(f)
+                for sid, sdata in ms_data.get("strategies", {}).items():
+                    for i, p in enumerate(sdata.get("positions", [])):
+                        entry = p.get("entry_price", 0)
+                        cur = p.get("current_price", entry)
+                        shares = p.get("shares", 0)
+                        trades.append(TradeResponse(
+                            trade_id=f"{agent}_{sid}_{p.get('symbol', '')}_{i}",
+                            symbol=p.get("symbol", ""),
+                            entry_date=p.get("entry_date", datetime.now().isoformat()),
+                            entry_price=entry,
+                            shares=shares,
+                            status="open",
+                            pnl=round((cur - entry) * shares, 2),
+                            pnl_pct=round(((cur - entry) / entry) * 100, 2) if entry > 0 else 0,
+                            stop_loss=p.get("stop_loss"),
+                            take_profit=p.get("take_profit"),
+                            score_at_entry=p.get("score_at_entry"),
+                            reasoning=p.get("reasoning"),
+                            position_value=round(cur * shares, 2),
+                            company_name=p.get("company_name"),
+                            sector=p.get("sector"),
+                        ))
+
+            portfolio_path = Path(f"{data_dir}/portfolio.json")
             if portfolio_path.exists():
                 with open(portfolio_path, 'r') as f:
                     data = json.load(f)
@@ -572,7 +666,7 @@ async def get_trades(
         
         # Read closed trades from trades_history.json
         if status != "open":
-            history_path = Path("data/trades_history.json")
+            history_path = Path(f"{data_dir}/trades_history.json")
             if history_path.exists():
                 with open(history_path, 'r') as f:
                     data = json.load(f)
@@ -657,11 +751,60 @@ async def close_trade(
 
 
 @app.get("/api/v1/trades/performance", response_model=PerformanceResponse, tags=["Trades"])
-async def get_performance(api_key: str = Depends(verify_api_key)):
+async def get_performance(agent: str = "llm", api_key: str = Depends(verify_api_key)):
     """Get trading performance metrics."""
+    import json as _json
+    from pathlib import Path as _Path
     try:
-        summary = trade_tracker.get_performance_summary()
+        data_dir = "data" if agent == "llm" else "data-nollm"
+        suffix = "llm" if agent == "llm" else "nollm"
+        ms_path = _Path(f"{data_dir}/multi_strategy_{suffix}.json")
 
+        if ms_path.exists():
+            with open(ms_path, "r") as f:
+                ms_data = _json.load(f)
+            total_trades = 0
+            winning = 0
+            losing = 0
+            total_pnl = 0.0
+            wins_sum = 0.0
+            losses_sum = 0.0
+            max_dd = 0.0
+            open_pos = 0
+            for sid, sdata in ms_data.get("strategies", {}).items():
+                total_trades += sdata.get("total_trades", 0)
+                winning += sdata.get("winning_trades", 0)
+                losing += sdata.get("losing_trades", 0)
+                total_pnl += sdata.get("total_pnl", 0)
+                open_pos += len(sdata.get("positions", []))
+                dd = abs(sdata.get("max_drawdown", 0))
+                if dd > max_dd:
+                    max_dd = dd
+                for t in sdata.get("closed_trades", []):
+                    pnl = t.get("pnl_amount", t.get("pnl", 0))
+                    if pnl > 0:
+                        wins_sum += pnl
+                    else:
+                        losses_sum += abs(pnl)
+            closed = total_trades
+            win_rate = (winning / closed * 100) if closed > 0 else 0
+            avg_win = (wins_sum / winning) if winning > 0 else 0
+            avg_loss = (losses_sum / losing) if losing > 0 else 0
+            pf = (wins_sum / losses_sum) if losses_sum > 0 else None
+            return PerformanceResponse(
+                total_trades=total_trades + open_pos,
+                open_trades=open_pos,
+                closed_trades=closed,
+                total_pnl=round(total_pnl, 2),
+                win_rate=round(win_rate, 1),
+                avg_win=round(avg_win, 2),
+                avg_loss=round(avg_loss, 2),
+                profit_factor=round(pf, 2) if pf else None,
+                sharpe_ratio=None,
+                max_drawdown=round(max_dd, 2)
+            )
+
+        summary = trade_tracker.get_performance_summary()
         return PerformanceResponse(
             total_trades=summary['total_trades'],
             open_trades=summary['open_trades'],
@@ -1054,7 +1197,7 @@ async def get_pillar_weights():
 # ==================== Agent Status Endpoint ====================
 
 @app.get("/api/v1/agent/status", tags=["Agent"])
-async def get_agent_status(api_key: str = Depends(verify_api_key)):
+async def get_agent_status(agent: str = "llm", api_key: str = Depends(verify_api_key)):
     """Get live agent status, regime, metrics, hot symbols, and intelligence brief."""
     import json
     from pathlib import Path
@@ -1070,8 +1213,10 @@ async def get_agent_status(api_key: str = Depends(verify_api_key)):
         "llm_enabled": not _llm_disabled,
     }
 
+    data_dir = "data" if agent == "llm" else "data-nollm"
+
     # Read agent state
-    state_path = Path("data/agent_state.json")
+    state_path = Path(f"{data_dir}/agent_state.json")
     if state_path.exists():
         try:
             with open(state_path, "r") as f:
@@ -1085,7 +1230,7 @@ async def get_agent_status(api_key: str = Depends(verify_api_key)):
             pass
 
     # Read intelligence brief
-    brief_path = Path("data/intelligence_brief.json")
+    brief_path = Path(f"{data_dir}/intelligence_brief.json")
     if brief_path.exists():
         try:
             with open(brief_path, "r") as f:
@@ -1099,7 +1244,7 @@ async def get_agent_status(api_key: str = Depends(verify_api_key)):
 # ==================== Portfolio History Endpoint ====================
 
 @app.get("/api/v1/portfolio/history", tags=["Portfolio"])
-async def get_portfolio_history(api_key: str = Depends(verify_api_key)):
+async def get_portfolio_history(agent: str = "llm", api_key: str = Depends(verify_api_key)):
     """Get portfolio equity curve (daily history vs SPY)."""
     try:
         from src.utils.portfolio_tracker import get_performance_stats
@@ -1112,12 +1257,51 @@ async def get_portfolio_history(api_key: str = Depends(verify_api_key)):
 # ==================== Portfolio Positions Endpoint ====================
 
 @app.get("/api/v1/portfolio/positions", tags=["Portfolio"])
-async def get_portfolio_positions(api_key: str = Depends(verify_api_key)):
+async def get_portfolio_positions(agent: str = "llm", api_key: str = Depends(verify_api_key)):
     """Get detailed positions with allocation percentages and pillar scores."""
     import json
     from pathlib import Path
 
-    portfolio_path = Path("data/portfolio.json")
+    data_dir = "data" if agent == "llm" else "data-nollm"
+    suffix = "llm" if agent == "llm" else "nollm"
+    ms_path = Path(f"{data_dir}/multi_strategy_{suffix}.json")
+
+    # Try multi_strategy file first
+    if ms_path.exists():
+        try:
+            with open(ms_path, "r") as f:
+                ms_data = json.load(f)
+            all_positions = []
+            total_cash = 0
+            for sid, sdata in ms_data.get("strategies", {}).items():
+                total_cash += sdata.get("cash", 15000)
+                for p in sdata.get("positions", []):
+                    p["strategy"] = sdata.get("name", sid)
+                    all_positions.append(p)
+            total_invested = sum(
+                p.get("current_price", p.get("entry_price", 0)) * p.get("shares", 0)
+                for p in all_positions
+            )
+            total_value = total_cash + total_invested
+            enriched = []
+            for p in all_positions:
+                pos_value = p.get("current_price", p.get("entry_price", 0)) * p.get("shares", 0)
+                enriched.append({
+                    **p,
+                    "position_value": pos_value,
+                    "allocation_pct": round((pos_value / total_value * 100), 2) if total_value > 0 else 0
+                })
+            return {
+                "positions": enriched,
+                "cash": round(total_cash, 2),
+                "total_value": round(total_value, 2),
+                "total_capital": round(total_value, 2),
+                "positions_count": len(enriched)
+            }
+        except Exception:
+            pass
+
+    portfolio_path = Path(f"{data_dir}/portfolio.json")
     if not portfolio_path.exists():
         return {"positions": [], "total_value": 0}
 
@@ -1163,14 +1347,71 @@ async def get_portfolio_positions(api_key: str = Depends(verify_api_key)):
 
 @app.get("/api/v1/strategies/comparison", tags=["Strategies"])
 async def get_strategy_comparison():
-    """Get comparison of all 4 strategy profiles."""
-    try:
-        from src.agents.multi_strategy_tracker import get_multi_tracker
-        tracker = get_multi_tracker()
-        return tracker.get_comparison()
-    except Exception as e:
-        logger.error(f"Strategy comparison error: {e}")
-        return {"strategies": [], "error": str(e)}
+    """Get comparison of all 8 strategies (2 agents x 4 profiles)."""
+    import json, os
+    all_strategies = []
+    
+    # Agent WITH LLM
+    llm_file = "data/multi_strategy_llm.json"
+    if os.path.exists(llm_file):
+        try:
+            with open(llm_file, "r") as f:
+                data = json.load(f)
+            for sid, sdata in data.get("strategies", {}).items():
+                sdata["id"] = f"llm_{sid}"
+                sdata["name"] = f"🤖 {sdata.get('name', sid)}"
+                sdata["agent"] = "llm"
+                all_strategies.append(sdata)
+        except Exception as e:
+            logger.warning(f"Error reading LLM strategies: {e}")
+    
+    # Agent WITHOUT LLM
+    nollm_file = "data-nollm/multi_strategy_nollm.json"
+    if os.path.exists(nollm_file):
+        try:
+            with open(nollm_file, "r") as f:
+                data = json.load(f)
+            for sid, sdata in data.get("strategies", {}).items():
+                sdata["id"] = f"nollm_{sid}"
+                sdata["name"] = f"📊 {sdata.get('name', sid)}"
+                sdata["agent"] = "nollm"
+                all_strategies.append(sdata)
+        except Exception as e:
+            logger.warning(f"Error reading No-LLM strategies: {e}")
+    
+    # Fallback: try default file if no dual-agent data
+    if not all_strategies:
+        try:
+            from src.agents.multi_strategy_tracker import get_multi_tracker
+            tracker = get_multi_tracker()
+            return tracker.get_comparison()
+        except Exception as e:
+            logger.error(f"Strategy comparison error: {e}")
+    
+    # Sort by return
+    all_strategies.sort(key=lambda x: x.get("return_pct", ((x.get("cash", 15000) + sum(p.get("current_price", 0) * p.get("shares", 0) for p in x.get("positions", []))) - 15000) / 150), reverse=True)
+    
+    # Compute return_pct and other derived fields if missing
+    for s in all_strategies:
+        equity = s.get("cash", 15000)
+        for p in s.get("positions", []):
+            equity += p.get("current_price", 0) * p.get("shares", 0)
+        initial = s.get("initial_capital", 15000)
+        s["equity"] = round(equity, 2)
+        s["return_pct"] = round(((equity - initial) / initial) * 100, 2) if initial > 0 else 0
+        s["open_positions"] = len(s.get("positions", []))
+        total = s.get("total_trades", 0)
+        wins = s.get("winning_trades", 0)
+        s["win_rate"] = round((wins / total) * 100, 1) if total > 0 else 0
+        if "recent_trades" not in s:
+            s["recent_trades"] = s.get("closed_trades_list", [])[-10:] if isinstance(s.get("closed_trades_list"), list) else []
+    
+    return {
+        "strategies": all_strategies,
+        "agents": {"llm": "🤖 With LLMs", "nollm": "📊 Without LLMs"},
+        "total_strategies": len(all_strategies),
+        "updated_at": datetime.now().isoformat()
+    }
 
 @app.post("/api/v1/strategies/reset", tags=["Strategies"])
 async def reset_strategies():
@@ -1207,9 +1448,124 @@ async def get_strategy_profiles():
         return {"error": str(e)}
 
 
+
+@app.get("/api/v1/strategies/{strategy_id}", tags=["Strategies"])
+async def get_strategy_detail(strategy_id: str):
+    """Get detailed info for a single strategy (positions, trades, reasoning)."""
+    import json, os
+    
+    # Parse agent and strategy from id (e.g. llm_aggressive_ml or nollm_moderate_no_ml)
+    if strategy_id.startswith('llm_'):
+        agent = 'llm'
+        sid = strategy_id[4:]
+        data_file = 'data/multi_strategy_llm.json'
+    elif strategy_id.startswith('nollm_'):
+        agent = 'nollm'
+        sid = strategy_id[6:]
+        data_file = 'data-nollm/multi_strategy_nollm.json'
+    else:
+        return {"error": "Invalid strategy_id. Use llm_ or nollm_ prefix."}
+    
+    if not os.path.exists(data_file):
+        return {"error": f"Data file not found: {data_file}"}
+    
+    try:
+        with open(data_file, 'r') as f:
+            data = json.load(f)
+        
+        sdata = data.get('strategies', {}).get(sid)
+        if not sdata:
+            return {"error": f"Strategy {sid} not found in {agent} agent"}
+        
+        # Enrich positions with P&L
+        positions = sdata.get('positions', [])
+        for p in positions:
+            entry = p.get('entry_price', 0)
+            current = p.get('current_price', entry)
+            if entry > 0:
+                p['pnl_pct'] = round(((current - entry) / entry) * 100, 2)
+                p['pnl_amount'] = round((current - entry) * p.get('shares', 0), 2)
+            else:
+                p['pnl_pct'] = 0
+                p['pnl_amount'] = 0
+        
+        # Compute equity
+        equity = sdata.get('cash', 15000)
+        for p in positions:
+            equity += p.get('current_price', 0) * p.get('shares', 0)
+        
+        initial = sdata.get('initial_capital', 15000)
+        
+        # Get strategy profile info
+        try:
+            from config.strategies import get_all_profiles
+            profile = get_all_profiles().get(sid)
+            profile_info = {
+                'description': profile.description if profile else '',
+                'min_score': profile.min_score if profile else 0,
+                'max_positions': profile.max_positions if profile else 0,
+                'position_size_pct': profile.position_size_pct if profile else 0,
+                'use_ml_gate': profile.use_ml_gate if profile else False,
+                'pillar_weights': profile.pillar_weights if profile else {},
+            } if profile else {}
+        except:
+            profile_info = {}
+        
+        return {
+            'id': strategy_id,
+            'strategy_id': sid,
+            'agent': agent,
+            'name': sdata.get('name', sid),
+            'color': sdata.get('color', '#888'),
+            'equity': round(equity, 2),
+            'cash': round(sdata.get('cash', 15000), 2),
+            'initial_capital': initial,
+            'return_pct': round(((equity - initial) / initial) * 100, 2) if initial > 0 else 0,
+            'total_trades': sdata.get('total_trades', 0),
+            'winning_trades': sdata.get('winning_trades', 0),
+            'losing_trades': sdata.get('losing_trades', 0),
+            'total_pnl': sdata.get('total_pnl', 0),
+            'max_drawdown': sdata.get('max_drawdown', 0),
+            'signals_evaluated': sdata.get('signals_evaluated', 0),
+            'signals_accepted': sdata.get('signals_accepted', 0),
+            'signals_rejected': sdata.get('signals_rejected', 0),
+            'positions': positions,
+            'closed_trades': sdata.get('closed_trades', []),
+            'equity_curve': sdata.get('equity_curve', []),
+            'profile': profile_info,
+        }
+    except Exception as e:
+        import traceback
+        return {"error": str(e), "traceback": traceback.format_exc()}
+
+
+
+
+# ==================== Activity Logs Endpoint ====================
+
+@app.get("/api/v1/activity", tags=["Activity"])
+async def get_activity_logs(
+    limit: int = Query(default=50, ge=1, le=500),
+    type: Optional[str] = Query(None, alias="type"),
+    strategy: Optional[str] = None,
+    symbol: Optional[str] = None,
+    agent: Optional[str] = None,
+):
+    """Get bot activity logs with optional filters."""
+    try:
+        from src.utils.activity_logger import get_activities
+        entries = get_activities(limit=limit, activity_type=type, strategy=strategy, symbol=symbol, agent=agent)
+        return {"activities": entries, "count": len(entries)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/{path:path}", include_in_schema=False)
 async def serve_spa(path: str):
     """Serve the React SPA for any non-API route."""
+    # Never intercept API routes
+    if path.startswith("api/"):
+        raise HTTPException(status_code=404, detail=f"API route not found: /{path}")
     index_path = os.path.join(DASHBOARD_DIR, "index.html")
     if os.path.isdir(DASHBOARD_DIR) and os.path.isfile(index_path):
         return FileResponse(index_path)

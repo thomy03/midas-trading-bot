@@ -403,6 +403,11 @@ class GrokScanner:
         self._last_reset = datetime.now()
         self._rate_limit = 60
 
+        # Daily budget (max API calls per day to control costs)
+        self._daily_call_count = 0
+        self._daily_call_date = datetime.now().date()
+        self._daily_budget = int(os.getenv('GROK_DAILY_BUDGET', '50'))
+
         # Cache
         self._cache: Dict[str, Tuple[Any, datetime]] = {}
         self._cache_ttl = timedelta(minutes=5)
@@ -498,6 +503,18 @@ class GrokScanner:
         max_tokens: int = 1500
     ) -> Optional[str]:
         """Appelle le LLM Grok"""
+        # Daily budget check
+        today = datetime.now().date()
+        if today != self._daily_call_date:
+            self._daily_call_count = 0
+            self._daily_call_date = today
+        if self._daily_call_count >= self._daily_budget:
+            logger.warning(f"Grok daily budget exhausted ({self._daily_budget} calls). Skipping.")
+            return None
+        self._daily_call_count += 1
+        if self._daily_call_count % 10 == 0:
+            logger.info(f"Grok daily usage: {self._daily_call_count}/{self._daily_budget} calls")
+
         messages = []
 
         if system_prompt:

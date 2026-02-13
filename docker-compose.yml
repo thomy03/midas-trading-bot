@@ -32,8 +32,10 @@ services:
       - ./data:/app/data
       - ./logs:/app/logs
       - ./src:/app/src:ro
+      - ./dashboard/dist:/app/dashboard/dist:ro
       - ./.env:/app/.env:ro
       - ./src:/app/src:ro
+      - ./dashboard/dist:/app/dashboard/dist:ro
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=${TZ:-Europe/Paris}
@@ -49,8 +51,8 @@ services:
     networks:
       - tradingbot-network
     # Note: Pour le trading reel, retirer --mock et configurer IBKR_HOST
-    # extra_hosts:
-    #   - "host.docker.internal:host-gateway"  # Pour acceder a TWS sur l'hote
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Pour acceder a TWS sur l'hote
 
   # ==================== Dashboard Service ====================
   dashboard:
@@ -66,6 +68,7 @@ services:
       - ./data:/app/data
       - ./.env:/app/.env:ro
       - ./src:/app/src:ro
+      - ./dashboard/dist:/app/dashboard/dist:ro
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=${TZ:-Europe/Paris}
@@ -98,6 +101,7 @@ services:
       - ./data:/app/data
       - ./.env:/app/.env:ro
       - ./src:/app/src:ro
+      - ./dashboard/dist:/app/dashboard/dist:ro
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=${TZ:-Europe/Paris}
@@ -129,8 +133,10 @@ services:
       - ./data:/app/data
       - ./logs:/app/logs
       - ./src:/app/src:ro
+      - ./dashboard/dist:/app/dashboard/dist:ro
       - ./.env:/app/.env:ro
       - ./src:/app/src:ro
+      - ./dashboard/dist:/app/dashboard/dist:ro
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=${TZ:-Europe/Paris}

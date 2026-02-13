@@ -101,6 +101,7 @@ class ReasoningResult:
     sentiment_score: PillarScore
     news_score: PillarScore
 
+
     # Combined result
     total_score: float              # V4.8: 0 to 100 (display scale, unified)
     decision: DecisionType
@@ -113,6 +114,10 @@ class ReasoningResult:
 
     # Weights used
     weights_used: Dict[str, float]
+
+    # ML score for gate (0-100 display scale)
+    ml_score: Optional[float] = None
+    ml_gate_applied: bool = False
 
     # Market context
     market_context: Optional[MarketContext] = None
@@ -147,11 +152,11 @@ class ReasoningResult:
 class ReasoningConfig:
     """Configuration for the reasoning engine"""
     # Pillar weights (must sum to 1.0) - used as defaults if adaptive learning disabled
-    technical_weight: float = 0.30
-    fundamental_weight: float = 0.30
-    sentiment_weight: float = 0.15
-    news_weight: float = 0.10
-    ml_weight: float = 0.15  # V5.3 - ML Pillar
+    technical_weight: float = 0.55
+    fundamental_weight: float = 0.45
+    sentiment_weight: float = 0.00
+    news_weight: float = 0.00
+    ml_weight: float = 0.00  # V5.3 - ML Pillar
 
     # V5.4 - ML Confirmation Gate
     ml_confirmation_enabled: bool = True   # Require ML to confirm BUY signals
@@ -494,7 +499,8 @@ class ReasoningEngine:
         # Generate reasoning
         reasoning_summary = self._generate_summary(
             symbol, total_score, decision,
-            technical_score, fundamental_score, sentiment_score, news_score
+            technical_score, fundamental_score, sentiment_score, news_score,
+            ml_score=ml_score
         )
 
         # Extract key factors
@@ -531,6 +537,7 @@ class ReasoningEngine:
             fundamental_score=fundamental_score,
             sentiment_score=sentiment_score,
             news_score=news_score,
+            ml_score=(ml_score.score + 100) / 2 if ml_score else None,
             total_score=total_score,
             decision=decision,
             confidence=confidence,
@@ -624,7 +631,8 @@ class ReasoningEngine:
         technical: PillarScore,
         fundamental: PillarScore,
         sentiment: PillarScore,
-        news: PillarScore
+        news: PillarScore,
+        ml_score: 'PillarScore' = None
     ) -> str:
         """Generate human-readable reasoning summary"""
         parts = []
@@ -635,17 +643,19 @@ class ReasoningEngine:
 
         # Pillar summary table
         parts.append("PILLAR BREAKDOWN:")
+        # Active pillars only (exclude disabled Sentiment/News)
         pillars = [
             ('Technical', technical),
             ('Fundamental', fundamental),
-            ('Sentiment', sentiment),
-            ('News', news)
         ]
+        if ml_score and ml_score.score != 0:
+            pillars.append(('ML Adaptive', ml_score))
 
         for name, score in pillars:
+            display = round((score.score + 100) / 2, 1)
             signal = score.signal.value.replace('_', ' ')
             quality = f"[{score.data_quality:.0%}]" if score.data_quality < 1 else ""
-            parts.append(f"  {name:12}: {score.score:+6.1f} ({signal}) {quality}")
+            parts.append(f"  {name:12}: {display:5.1f}/100 ({signal}) {quality}")
 
         # Key reasoning from each pillar
         parts.append("\nKEY INSIGHTS:")

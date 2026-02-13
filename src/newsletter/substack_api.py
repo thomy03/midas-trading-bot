@@ -17,6 +17,7 @@ import requests
 import json
 import sys
 import re
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
@@ -140,9 +141,157 @@ class SubstackAPI:
         
         return result if result else [{"type": "text", "text": " "}]
     
+
+    def _is_html(self, text: str) -> bool:
+        """Detect if content is HTML rather than Markdown."""
+        html_tags = re.findall(r'<(?:h[1-6]|p|strong|em|ul|ol|li|a|br|hr|div|span|blockquote)[^>]*>', text, re.IGNORECASE)
+        return len(html_tags) > 3
+
+    def html_to_prosemirror(self, html: str) -> Dict[str, Any]:
+        """Convert HTML content to ProseMirror format for Substack."""
+        content = []
+        # Split by major block tags
+        # Remove doctype, html, head, body wrappers if present
+        html = re.sub(r'<!DOCTYPE[^>]*>', '', html)
+        html = re.sub(r'</?(?:html|head|body)[^>]*>', '', html)
+        
+        # Process block by block
+        blocks = re.split(r'(?=<(?:h[1-6]|p|ul|ol|hr|blockquote)[^>]*>)', html)
+        
+        for block in blocks:
+            block = block.strip()
+            if not block:
+                continue
+            
+            # Headings
+            m = re.match(r'<h([1-6])[^>]*>(.*?)</h[1-6]>', block, re.DOTALL)
+            if m:
+                level = int(m.group(1))
+                inner = m.group(2).strip()
+                content.append({
+                    "type": "heading",
+                    "attrs": {"level": level},
+                    "content": self._parse_html_inline(inner)
+                })
+                continue
+            
+            # Horizontal rule
+            if re.match(r'<hr\s*/?\s*>', block, re.IGNORECASE):
+                content.append({"type": "horizontal_rule"})
+                continue
+            
+            # Unordered list
+            m = re.match(r'<ul[^>]*>(.*?)</ul>', block, re.DOTALL)
+            if m:
+                items = re.findall(r'<li[^>]*>(.*?)</li>', m.group(1), re.DOTALL)
+                list_items = []
+                for item in items:
+                    list_items.append({
+                        "type": "list_item",
+                        "content": [{"type": "paragraph", "content": self._parse_html_inline(item.strip())}]
+                    })
+                if list_items:
+                    content.append({"type": "bullet_list", "content": list_items})
+                continue
+            
+            # Ordered list
+            m = re.match(r'<ol[^>]*>(.*?)</ol>', block, re.DOTALL)
+            if m:
+                items = re.findall(r'<li[^>]*>(.*?)</li>', m.group(1), re.DOTALL)
+                list_items = []
+                for item in items:
+                    list_items.append({
+                        "type": "list_item",
+                        "content": [{"type": "paragraph", "content": self._parse_html_inline(item.strip())}]
+                    })
+                if list_items:
+                    content.append({"type": "ordered_list", "content": list_items})
+                continue
+            
+            # Blockquote
+            m = re.match(r'<blockquote[^>]*>(.*?)</blockquote>', block, re.DOTALL)
+            if m:
+                inner = re.sub(r'</?p[^>]*>', '', m.group(1)).strip()
+                content.append({
+                    "type": "blockquote",
+                    "content": [{"type": "paragraph", "content": self._parse_html_inline(inner)}]
+                })
+                continue
+            
+            # Paragraph
+            m = re.match(r'<p[^>]*>(.*?)</p>', block, re.DOTALL)
+            if m:
+                inner = m.group(1).strip()
+                if inner:
+                    content.append({
+                        "type": "paragraph",
+                        "content": self._parse_html_inline(inner)
+                    })
+                continue
+            
+            # Fallback: any remaining text
+            clean = re.sub(r'<[^>]+>', '', block).strip()
+            if clean:
+                content.append({
+                    "type": "paragraph",
+                    "content": [{"type": "text", "text": clean}]
+                })
+        
+        if not content:
+            content = [{"type": "paragraph", "content": [{"type": "text", "text": re.sub(r'<[^>]+>', '', html).strip() or " "}]}]
+        
+        return {"type": "doc", "content": content}
+
+    def _parse_html_inline(self, html: str) -> List[Dict]:
+        """Parse inline HTML (strong, em, a, br) to ProseMirror marks."""
+        result = []
+        # Simple regex-based parser for inline elements
+        pos = 0
+        pattern = re.compile(r"<(strong|b|em|i|a|br)\s*([^>]*)>(.*?)</\1>|<br\s*/?\s*>", re.DOTALL)
+        
+        for m in pattern.finditer(html):
+            # Text before this match
+            before = html[pos:m.start()]
+            before_clean = re.sub(r'<[^>]+>', '', before)
+            if before_clean:
+                result.append({"type": "text", "text": before_clean})
+            
+            if m.group(0).startswith('<br'):
+                result.append({"type": "hard_break"})
+            elif m.group(1) in ('strong', 'b'):
+                text = re.sub(r'<[^>]+>', '', m.group(3))
+                if text:
+                    result.append({"type": "text", "text": text, "marks": [{"type": "strong"}]})
+            elif m.group(1) in ('em', 'i'):
+                text = re.sub(r'<[^>]+>', '', m.group(3))
+                if text:
+                    result.append({"type": "text", "text": text, "marks": [{"type": "em"}]})
+            elif m.group(1) == 'a':
+                href = re.search(r"href=[\"']([^\"']+)[\"']", m.group(2))
+                text = re.sub(r'<[^>]+>', '', m.group(3))
+                if text:
+                    marks = [{"type": "link", "attrs": {"href": href.group(1) if href else "#"}}]
+                    result.append({"type": "text", "text": text, "marks": marks})
+            
+            pos = m.end()
+        
+        # Remaining text
+        remaining = html[pos:]
+        remaining_clean = re.sub(r'<[^>]+>', '', remaining)
+        if remaining_clean:
+            result.append({"type": "text", "text": remaining_clean})
+        
+        return result if result else [{"type": "text", "text": " "}]
+
     def create_draft(self, title: str, content: str, subtitle: str = "", audience: str = "everyone") -> Optional[int]:
         """Crée un brouillon et retourne son ID."""
-        body = self.markdown_to_prosemirror(content)
+        # Auto-detect HTML vs Markdown
+        if self._is_html(content):
+            body = self.html_to_prosemirror(content)
+            print("📝 Detected HTML content, converting to ProseMirror")
+        else:
+            body = self.markdown_to_prosemirror(content)
+            print("📝 Detected Markdown content, converting to ProseMirror")
         
         payload = {
             "draft_title": title,

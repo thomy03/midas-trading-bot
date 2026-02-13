@@ -1,0 +1,43 @@
+{
+  "strategies": {
+    "aggressive": {
+      "strategy_id": "aggressive",
+      "name": "Aggressive",
+      "color": "#ef4444",
+      "initial_capital": 15000.0,
+      "cash": 15000.0,
+      "positions": [],
+      "closed_trades": [],
+      "total_trades": 0,
+      "winning_trades": 0,
+      "losing_trades": 0,
+      "total_pnl": 0.0,
+      "equity_curve": [],
+      "signals_evaluated": 0,
+      "signals_accepted": 0,
+      "signals_rejected": 0,
+      "max_drawdown": 0.0,
+      "peak_equity": 15000.0
+    },
+    "moderate": {
+      "strategy_id": "moderate",
+      "name": "Moderate",
+      "color": "#22c55e",
+      "initial_capital": 15000.0,
+      "cash": 15000.0,
+      "positions": [],
+      "closed_trades": [],
+      "total_trades": 0,
+      "winning_trades": 0,
+      "losing_trades": 0,
+      "total_pnl": 0.0,
+      "equity_curve": [],
+      "signals_evaluated": 0,
+      "signals_accepted": 0,
+      "signals_rejected": 0,
+      "max_drawdown": 0.0,
+      "peak_equity": 15000.0
+    }
+  },
+  "updated_at": "2026-02-12T23:58:03.096119"
+}

@@ -1,0 +1,110 @@
+{
+  "updated": "2026-02-11T00:47:56.696265",
+  "sectors": {
+    "Technology": {
+      "name": "Technology",
+      "display_name": "Technology",
+      "symbols": [
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "META",
+        "NVDA",
+        "AMD",
+        "CRM",
+        "ADBE"
+      ],
+      "etf": null,
+      "momentum_5d": 0.0,
+      "momentum_20d": 0.0,
+      "avg_volume_ratio": 1.0,
+      "sentiment": 0.0,
+      "last_updated": null,
+      "source": "hardcoded"
+    },
+    "AI_Semiconductors": {
+      "name": "AI_Semiconductors",
+      "display_name": "AI Semiconductors",
+      "symbols": [
+        "NVDA",
+        "AMD",
+        "AVGO",
+        "QCOM",
+        "INTC",
+        "ARM",
+        "MRVL",
+        "MU"
+      ],
+      "etf": null,
+      "momentum_5d": 0.0,
+      "momentum_20d": 0.0,
+      "avg_volume_ratio": 1.0,
+      "sentiment": 0.0,
+      "last_updated": null,
+      "source": "hardcoded"
+    },
+    "Healthcare": {
+      "name": "Healthcare",
+      "display_name": "Healthcare",
+      "symbols": [
+        "UNH",
+        "JNJ",
+        "PFE",
+        "ABBV",
+        "MRK",
+        "LLY",
+        "TMO",
+        "DHR"
+      ],
+      "etf": null,
+      "momentum_5d": 0.0,
+      "momentum_20d": 0.0,
+      "avg_volume_ratio": 1.0,
+      "sentiment": 0.0,
+      "last_updated": null,
+      "source": "hardcoded"
+    },
+    "Finance": {
+      "name": "Finance",
+      "display_name": "Finance",
+      "symbols": [
+        "JPM",
+        "BAC",
+        "GS",
+        "MS",
+        "WFC",
+        "C",
+        "BLK",
+        "SCHW"
+      ],
+      "etf": null,
+      "momentum_5d": 0.0,
+      "momentum_20d": 0.0,
+      "avg_volume_ratio": 1.0,
+      "sentiment": 0.0,
+      "last_updated": null,
+      "source": "hardcoded"
+    },
+    "Energy": {
+      "name": "Energy",
+      "display_name": "Energy",
+      "symbols": [
+        "XOM",
+        "CVX",
+        "COP",
+        "SLB",
+        "EOG",
+        "PXD",
+        "MPC",
+        "VLO"
+      ],
+      "etf": null,
+      "momentum_5d": 0.0,
+      "momentum_20d": 0.0,
+      "avg_volume_ratio": 1.0,
+      "sentiment": 0.0,
+      "last_updated": null,
+      "source": "hardcoded"
+    }
+  }
+}

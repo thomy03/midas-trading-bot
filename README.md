@@ -1,227 +1,172 @@
-# MIDAS Trading Bot V6.2
+# MIDAS V8.1 — Dual-Agent Trading System
 
-> **Adaptive Multi-Pillar Trading System with Machine Learning**
+> **Adaptive Quantitative Trading with A/B Testing & Optional LLM Intelligence**
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+## Overview
 
-MIDAS is an algorithmic trading system that combines **5 scoring pillars**, **market regime detection**, and **adaptive machine learning** to generate swing trading signals on US/EU equities.
+Midas V8.1 is a paper-trading system running **2 independent agents** (LLM vs NoLLM) across **4 strategy profiles** each, totaling **8 virtual portfolios** ($15K each). It screens ~300 stocks across CAC40, European, Nasdaq, and S&P500 universes.
 
-## 🎯 Key Features
-
-- **5-Pillar Scoring Engine**: Technical (25+ indicators), Fundamental, Sentiment (Grok/X), News, ML
-- **Regime Detection**: Automatically adapts to BULL/BEAR/RANGE/VOLATILE markets
-- **Adaptive ML Gate**: Volatility-based ML switching for optimal performance
-- **40+ Technical Features**: Trend, momentum, volume, volatility indicators
-- **Interactive Brokers Integration**: Paper and live trading support
-
-## 📊 Backtest Results (10 years, 2015-2025)
-
-| Metric | MIDAS ML-Enhanced | S&P 500 |
-|--------|-------------------|---------|
-| **CAGR** | 30.3% | 10-12% |
-| **Sharpe Ratio** | 2.12 | 0.5-0.7 |
-| **Max Drawdown** | -31.3% | -34% |
-| **Win Rate** | 65.1% | - |
-| **Trades** | 544 | - |
-
-*Note: Backtests exclude transaction costs (~2-3% annual impact)*
-
-## 🏗️ Architecture
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    SCORING ENGINE                            │
-├─────────────┬─────────────┬─────────────┬─────────────┬─────┤
-│  TECHNICAL  │ FUNDAMENTAL │  SENTIMENT  │    NEWS     │ ML  │
-│   22-30%    │   15-28%    │   12-22%    │   5-15%     │20-30│
-├─────────────┴─────────────┴─────────────┴─────────────┴─────┤
-│              REGIME-WEIGHTED AGGREGATION                     │
-│         (BULL / BEAR / RANGE / VOLATILE)                     │
-├─────────────────────────────────────────────────────────────┤
-│                  ADAPTIVE ML GATE                            │
-│    Vol > 3% → 5 Pillars only | Vol ≤ 3% → ML active         │
-├─────────────────────────────────────────────────────────────┤
-│                  FINAL SCORE (0-100)                         │
-│                  Score ≥ 75 → BUY SIGNAL                     │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│               MIDAS V8.1 — Docker Stack             │
+│                                                     │
+│  ┌──────────────────┐   ┌──────────────────┐       │
+│  │  midas-agent     │   │  midas-agent-nollm│       │
+│  │  (LLM Agent)     │   │  (Pure Quant)     │       │
+│  │  DISABLE_LLM=false│   │  DISABLE_LLM=true │       │
+│  │  2-4 GB RAM      │   │  1-2 GB RAM       │       │
+│  └────────┬─────────┘   └─────────┬────────┘       │
+│           └──────────┬────────────┘                 │
+│                ┌─────▼──────┐                       │
+│                │  midas-api │                       │
+│                │  (FastAPI)  │                       │
+│                │  Port 8000  │                       │
+│                └────────────┘                       │
+│  Network: midas-net (bridge)                        │
+└─────────────────────────────────────────────────────┘
 ```
 
-## 📁 Project Structure
+### 3 Docker Containers
+
+| Service | Role | RAM |
+|---------|------|-----|
+| `midas-agent` | LLM agent — Grok (X/Twitter) + Gemini reasoning overlay ±15pts | 2-4 GB |
+| `midas-agent-nollm` | Pure quantitative agent — no LLM calls | 1-2 GB |
+| `midas-api` | FastAPI dashboard serving both agents' data | 512 MB |
+
+## Scoring System
+
+**Two active pillars** with weighted combination:
+
+| Pillar | Weight | Description |
+|--------|--------|-------------|
+| **Technical** | 55% | EMA alignment, MACD, ADX, RSI, Stochastic, Volume, Bollinger, ATR |
+| **Fundamental** | 45% | P/E, P/B, P/S, PEG, Revenue/Earnings Growth, Margins, ROE, D/E |
+
+- **Sentiment & News pillars**: code present but **disabled** (weight=0). The Intelligence Orchestrator handles news/sentiment globally for the LLM agent.
+- **ML Pillar**: weight=0 but acts as a **confirmation gate** — can block BUY signals (score < 40) or boost them (+5 pts if score ≥ 60).
+- Internal score scale: -100 to +100 → display scale: 0 to 100.
+
+### Decision Thresholds (display 0–100)
+
+| Decision | Score |
+|----------|-------|
+| STRONG_BUY | ≥ 70 |
+| BUY | 55 – 69 |
+| HOLD | 40 – 54 |
+| SELL | 25 – 39 |
+| STRONG_SELL | < 25 |
+
+## Dual-Agent A/B Testing
+
+### LLM Agent
+- Grok Scanner: autonomous X/Twitter discovery + deep-dive + chain-of-thought
+- Gemini Intelligence Orchestrator: market context reasoning → **±15 pts** score overlay
+- Heat Detection from social + price + Grok sources
+
+### NoLLM Agent
+- Pure quantitative: same scoring engine, no LLM overlay
+- Heat detection from price + social only (no Grok)
+- Baseline for measuring LLM value-add
+
+### 4 Strategy Profiles (per agent)
+
+| Profile | Min Score | Max Positions | Position Size | ML Gate |
+|---------|-----------|---------------|---------------|---------|
+| 🔴 Aggressive + ML | 70 | 10 | 8% base | ON (min 40) |
+| 🟠 Aggressive No ML | 70 | 10 | 8% base | OFF |
+| 🟢 Moderate + ML | 78 | 6 | 5% base | ON (min 50) |
+| 🔵 Moderate No ML | 78 | 6 | 5% base | OFF |
+
+**2 agents × 4 profiles = 8 virtual portfolios** ($15,000 each).
+
+## Position Sizing
+
+Score-based dynamic sizing:
+
+| Score | Multiplier | Aggressive | Moderate |
+|-------|-----------|------------|----------|
+| ≥ 90 | ×2.0 | 16% | 10% |
+| ≥ 85 | ×1.6 | 12.8% | 8% |
+| ≥ 80 | ×1.2 | 9.6% | 6% |
+| < 80 | ×1.0 | 8% | 5% |
+
+## Risk Management
+
+- **Stop-Loss**: ATR-based (1.5× aggressive, 2.0× moderate), clamped 2–10%
+- **Take-Profit**: ATR-based (3.0× aggressive, 4.0× moderate), clamped 5–30%
+- **Trailing Stop**: activates at +5% gain, trails at 3–12% from peak
+- **Max Hold**: 30 days → auto-exit
+- **Circuit Breakers**: 3% daily loss / 15% max drawdown → defensive mode
+- **Defensive Manager**: 4 levels (NONE → CAUTIOUS → DEFENSIVE → MAXIMUM)
+- **Correlation Manager**: max 25% sector, max 15% single stock, avg correlation < 0.70
+
+## Market Regime
+
+Detected via SPY + VIX:
+
+| Regime | Condition | Position Impact |
+|--------|-----------|-----------------|
+| BULL | SPY > EMA50+3%, trend > 3%, VIX < 20 | Max 10%, score ×1.05 |
+| RANGE | Default | Max 8%, score ×1.00 |
+| BEAR | SPY < EMA50-3%, trend < -3% | Max 5%, score ×0.90 |
+| VOLATILE | VIX > 30 or vol > 35% | Max 4%, score ×0.80–0.60 |
+
+## Market Hours (Paris Time)
+
+| Session | Hours | Markets |
+|---------|-------|---------|
+| Europe | 08:00 – 15:30 | CAC40, European stocks |
+| Overlap | 15:30 – 17:30 | EU + US |
+| US | 17:30 – 22:00 | Nasdaq, S&P500 |
+
+## Universe
+
+~300 stocks across:
+- **CAC40** (40 French blue chips)
+- **Europe** (major EU exchanges: .PA, .DE, .AS, .MI, .MC, .L)
+- **Nasdaq** (top tech/growth US stocks)
+- **S&P500** (US large caps)
+
+Ticker files in `config/`: `cac40.json`, `europe.json`, `nasdaq.json`, `sp500.json`.
+
+## Pipeline (5-minute cycle)
+
+1. **Regime Detection** — SPY/VIX analysis
+2. **Session Check** — EU/Overlap/US filtering
+3. **Guardrails** — daily P&L, drawdown, circuit breakers
+4. **Attention Focus** — priority: Manual > Hot > Warming > Watchlist > Discovery
+5. **Screening** — max 3 symbols/cycle via ReasoningEngine (4 pillars)
+6. **Signal Processing** — Multi-Strategy evaluation, Sector-Regime adjustment, V8 Intel overlay (LLM only), Defensive/Correlation checks
+7. **Execution** — Paper Trader with dynamic position sizing
+
+## Key Directories
 
 ```
-src/
-├── agents/
-│   ├── pillars/           # 5 scoring pillars
-│   │   ├── technical_pillar.py
-│   │   ├── fundamental_pillar.py
-│   │   ├── sentiment_pillar.py
-│   │   ├── news_pillar.py
-│   │   └── ml_pillar.py
-│   ├── adaptive_ml_gate.py    # Volatility-based ML switching
-│   ├── regime_adapter.py      # Market regime detection
-│   ├── adaptive_scorer.py     # Score aggregation
-│   └── live_loop.py           # Main trading loop
-├── learning/
-│   ├── knowledge_engine.py    # Learn from mistakes
-│   ├── dynamic_influence_learner.py  # Discover influencers
-│   └── smart_signal_learner.py       # Weak signal detection
-├── brokers/
-│   ├── ib_broker.py           # Interactive Brokers
-│   └── paper_trader.py        # Paper trading
-├── indicators/                # 30+ technical indicators
-└── data/                      # Market data clients
+/opt/midas/
+├── run_agent.py              # Entry point
+├── docker-compose.prod.yml   # 3-service Docker stack
+├── config/strategies.py      # 4 strategy profiles
+├── src/
+│   ├── agents/               # Core engine, pillars, reasoning
+│   ├── intelligence/         # Grok, Gemini, Heat, Attention
+│   ├── execution/            # Paper trader, risk, sizing, stops
+│   ├── data/                 # Market data fetchers
+│   └── api/                  # FastAPI dashboard
+├── data/                     # LLM agent data
+├── data-nollm/               # NoLLM agent data
+├── models/                   # Shared ML models (read-only)
+└── docs/                     # Documentation
 ```
 
-## 🚀 Quick Start
+## Documentation
 
-### Prerequisites
-
-- Python 3.11+
-- Docker (optional)
-- API keys: Grok (xAI), Gemini, Alpha Vantage
-
-### Installation
-
-```bash
-# Clone repository
-git clone https://github.com/thomy03/midas-trading-bot.git
-cd midas-trading-bot
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or: venv\Scripts\activate  # Windows
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Copy and configure environment
-cp .env.example .env
-# Edit .env with your API keys
-```
-
-### Configuration
-
-Edit `.env` with your credentials:
-
-```env
-# Required
-GROK_API_KEY=xai-your_key
-GOOGLE_AI_API_KEY=your_gemini_key
-
-# Optional
-TELEGRAM_BOT_TOKEN=your_token
-TELEGRAM_CHAT_ID=your_chat_id
-```
-
-### Running
-
-```bash
-# Paper trading mode
-python -m src.main --mode paper
-
-# With Docker
-docker-compose up -d
-```
-
-## 📈 Scoring Pillars
-
-### Technical Pillar (22-30%)
-
-Analyzes 25+ indicators across 4 categories:
-
-| Category | Weight | Indicators |
-|----------|--------|------------|
-| Trend | 30% | EMA 20/50/200, MACD, ADX, Supertrend |
-| Momentum | 25% | RSI, Stochastic, Williams %R, CCI, ROC |
-| Volume | 25% | OBV, VWAP, Volume Ratio, CMF, MFI |
-| Volatility | 20% | ATR, Bollinger Bands |
-
-### Fundamental Pillar (15-28%)
-
-- P/E ratio vs sector
-- PEG ratio
-- Debt/Equity
-- Profit margins
-- Revenue growth
-- Free cash flow
-
-### Sentiment Pillar (12-22%)
-
-- X/Twitter analysis via Grok API
-- StockTwits sentiment
-- Dynamic influencer discovery (no hardcoded list)
-
-### News Pillar (5-15%)
-
-- Multi-source aggregation (Alpha Vantage, FMP, NewsAPI)
-- Event detection (earnings, FDA approvals)
-- LLM sentiment analysis
-
-### ML Pillar (20-30%)
-
-- 40 technical features
-- Random Forest classifier
-- Monthly retraining on trade history
-- Market regime detection
-
-## 🎛️ Regime Adaptation
-
-The system detects market conditions and adapts:
-
-| Regime | Detection | Adjustments |
-|--------|-----------|-------------|
-| **BULL** | SPY > EMA50 +3%, VIX < 20 | Momentum ↑, Small caps OK |
-| **BEAR** | SPY < EMA50 -3% | Fundamentals ↑, Blue chips only |
-| **RANGE** | Sideways | Balanced weights |
-| **VOLATILE** | VIX > 30 | Mega caps only, tight stops |
-
-## 🤖 Adaptive ML Gate (V6.2)
-
-Volatility-based ML switching:
-
-```
-Volatility > 3%  →  5 Pillars only (ML disabled)
-Volatility ≤ 3%  →  ML Gate active:
-                    - ML confidence > 60% → BOOST (+5 pts)
-                    - ML confidence < 40% → BLOCK (reject)
-                    - Else → NEUTRAL (pass-through)
-```
-
-## 📊 API & Dashboard
-
-```bash
-# Start API server
-uvicorn src.api.main:app --host 0.0.0.0 --port 8000
-
-# Endpoints
-GET  /api/health          # Health check
-GET  /api/signals         # Current signals
-GET  /api/portfolio       # Portfolio status
-POST /api/analyze/{symbol} # Analyze specific symbol
-WS   /ws/signals          # Real-time signals
-```
-
-Dashboard: `http://localhost:3000` (if running webapp)
-
-## ⚠️ Limitations
-
-- **Long only**: No short selling (retail-focused design)
-- **Data latency**: yfinance has 15-min delay
-- **Backtest**: Transaction costs not included (estimate -2-3% CAGR)
-- **Test coverage**: Needs improvement for production
-
-## 📜 License
-
-MIT License - see [LICENSE](LICENSE)
-
-## 🙏 Acknowledgments
-
-- [yfinance](https://github.com/ranaroussi/yfinance) for market data
-- [scikit-learn](https://scikit-learn.org/) for ML models
-- [xAI Grok](https://x.ai/) for sentiment analysis
+- [Architecture Details](docs/ARCHITECTURE.md)
+- [Scoring System](docs/SCORING.md)
+- [Risk Management](docs/RISK.md)
 
 ---
 
-**Disclaimer**: This software is for educational purposes only. Trading involves significant risk of loss. Past performance does not guarantee future results.
+*Midas V8.1 — Last updated: 2026-02-11*
