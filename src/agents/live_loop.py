@@ -74,6 +74,14 @@ try:
 except ImportError:
     SIGNAL_TRACKER_AVAILABLE = False
 
+# V8.2: Opportunity tracker - track rejected signals
+try:
+    from src.learning.opportunity_tracker import log_rejection as _log_rejection_opp
+    OPPORTUNITY_TRACKER_AVAILABLE = True
+except ImportError:
+    OPPORTUNITY_TRACKER_AVAILABLE = False
+    def _log_rejection_opp(*a, **kw): pass
+
 # V8.1 Sprint 1C: Liquidity filter
 try:
     from src.utils.liquidity_filter import check_liquidity as _check_liquidity
@@ -522,6 +530,14 @@ class LiveLoop:
                                 liq = _check_liquidity(symbol)
                                 if not liq['liquid']:
                                     logger.debug(f"[LIQUIDITY] Skipping {symbol}: {liq.get('reason')}")
+                                    # V8.2: Track liquidity rejection
+                                    if OPPORTUNITY_TRACKER_AVAILABLE:
+                                        try:
+                                            _log_rejection_opp(symbol=symbol, score=0, reason="liquidity",
+                                                             price=0, pillars_detail={},
+                                                             regime=self.current_regime.value if hasattr(self.current_regime, 'value') else '')
+                                        except Exception:
+                                            pass
                                     continue
                             except Exception as e:
                                 logger.debug(f"[LIQUIDITY] Error for {symbol}: {e}")
@@ -706,6 +722,24 @@ class LiveLoop:
                     })
                 except Exception:
                     pass
+            # V8.2: Opportunity tracker - log rejection with price
+            if OPPORTUNITY_TRACKER_AVAILABLE:
+                try:
+                    _log_rejection_opp(
+                        symbol=symbol,
+                        score=confidence,
+                        reason="threshold",
+                        price=float(alert.get("current_price", 0) or 0),
+                        pillars_detail={
+                            "technical": float(getattr(alert.get("pillar_technical", 0), "score", alert.get("pillar_technical", 0)) or 0),
+                            "fundamental": float(getattr(alert.get("pillar_fundamental", 0), "score", alert.get("pillar_fundamental", 0)) or 0),
+                            "sentiment": float(getattr(alert.get("pillar_sentiment", 0), "score", alert.get("pillar_sentiment", 0)) or 0),
+                            "news": float(getattr(alert.get("pillar_news", 0), "score", alert.get("pillar_news", 0)) or 0),
+                        },
+                        regime=alert.get("regime", ""),
+                    )
+                except Exception as e:
+                    logger.debug(f"Opportunity tracker error: {e}")
             return
             
         # V8.1: Track taken signal for feedback loop
