@@ -1547,11 +1547,12 @@ async def get_activity_logs(
     type: Optional[str] = Query(None, alias="type"),
     strategy: Optional[str] = None,
     symbol: Optional[str] = None,
+    agent: Optional[str] = None,
 ):
     """Get bot activity logs with optional filters."""
     try:
         from src.utils.activity_logger import get_activities
-        entries = get_activities(limit=limit, activity_type=type, strategy=strategy, symbol=symbol)
+        entries = get_activities(limit=limit, activity_type=type, strategy=strategy, symbol=symbol, agent=agent)
         return {"activities": entries, "count": len(entries)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

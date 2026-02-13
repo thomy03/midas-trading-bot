@@ -284,7 +284,7 @@ class IntelligenceOrchestrator:
 
         if self.grok is not None:
             async def _grok_with_timeout():
-                return await asyncio.wait_for(self.grok.full_scan_with_analysis(), timeout=120)
+                return await asyncio.wait_for(self.grok.full_scan_with_analysis(), timeout=45)
             tasks.append(self._safe_call(_grok_with_timeout))
             task_names.append('grok')
 
@@ -322,9 +322,19 @@ class IntelligenceOrchestrator:
             task_names.append('gemini_research')
 
         if tasks:
-            gathered = await asyncio.gather(*tasks)
-            for name, result in zip(task_names, gathered):
-                results[name] = result
+            try:
+                gathered = await asyncio.wait_for(
+                    asyncio.gather(*tasks, return_exceptions=True),
+                    timeout=90
+                )
+                for name, result in zip(task_names, gathered):
+                    if isinstance(result, Exception):
+                        logger.warning(f"Intelligence source {name} failed: {result}")
+                        results[name] = None
+                    else:
+                        results[name] = result
+            except asyncio.TimeoutError:
+                logger.warning("Intelligence gathering timed out after 90s — proceeding with partial data")
 
         return results
 

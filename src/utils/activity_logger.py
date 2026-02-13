@@ -38,6 +38,7 @@ def log_activity(
         "reasoning": reasoning,
         "strategy": strategy,
         "decision": decision,
+        "agent": os.environ.get("AGENT_ID", "unknown"),
     }
     if extra:
         entry.update(extra)
@@ -64,16 +65,25 @@ def get_activities(
     activity_type: Optional[str] = None,
     strategy: Optional[str] = None,
     symbol: Optional[str] = None,
+    agent: Optional[str] = None,
 ) -> List[dict]:
-    """Read activities with optional filters."""
-    _ensure_dir()
-    if not _LOG_PATH.exists():
-        return []
-    try:
-        with open(_LOG_PATH, "r") as f:
-            entries = json.load(f)
-    except Exception:
-        return []
+    """Read activities with optional filters. Merges LLM + NoLLM logs."""
+    entries = []
+
+    # Read from both LLM and NoLLM data dirs
+    for log_path in [_LOG_PATH, Path("data-nollm/activity_log.json")]:
+        if log_path.exists():
+            try:
+                with open(log_path, "r") as f:
+                    data = json.load(f)
+                    # Ensure agent field exists
+                    default_agent = "nollm" if "nollm" in str(log_path) else "llm"
+                    for e in data:
+                        if not e.get("agent"):
+                            e["agent"] = default_agent
+                    entries.extend(data)
+            except Exception:
+                pass
 
     # Filter
     if activity_type:
@@ -82,7 +92,9 @@ def get_activities(
         entries = [e for e in entries if strategy.lower() in e.get("strategy", "").lower()]
     if symbol:
         entries = [e for e in entries if e.get("symbol", "").upper() == symbol.upper()]
+    if agent:
+        entries = [e for e in entries if e.get("agent", "").lower() == agent.lower()]
 
-    # Return latest first
-    entries = list(reversed(entries))
+    # Sort by timestamp desc, return latest
+    entries.sort(key=lambda e: e.get("timestamp", ""), reverse=True)
     return entries[:limit]

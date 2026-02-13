@@ -121,7 +121,7 @@ class LiveLoopConfig:
 
     # Mode
     trade_pre_market: bool = False
-    trade_after_hours: bool = False
+    trade_after_hours: bool = True
     analyze_when_closed: bool = False  # Analyse meme hors marche
     paper_trading: bool = True
 
@@ -506,6 +506,7 @@ class LiveLoop:
 
                 if symbols_to_screen:
                     await self._screen_symbols(symbols_to_screen)
+                    logger.info(f"✅ Screening complete for {len(symbols_to_screen)} symbols")
 
                 # 6. Reset le cycle
                 await self.attention_manager.reset_cycle()
@@ -528,7 +529,7 @@ class LiveLoop:
                 self._metrics.errors_count += 1
                 await asyncio.sleep(30)  # Court délai avant retry
 
-            # Attendre avant le prochain cycle
+            logger.info(f"💤 Sleeping {self.config.screening_interval}s before next cycle...")
             await asyncio.sleep(self.config.screening_interval)
 
         logger.info("Main trading loop ended")

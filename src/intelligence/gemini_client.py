@@ -295,52 +295,59 @@ class GeminiClient(GeminiResearchMixin):
     ) -> Dict:
         """
         Send a chat message and parse JSON response.
-
-        V4.9.1: Uses temperature=1.0 (Gemini 3 recommended default).
-        Increased max_tokens to 2000 to avoid truncation.
-        Added retry logic for better reliability.
-
-        Args:
-            prompt: User message (should ask for JSON output)
-            system_prompt: Optional system instruction
-            temperature: Creativity (lower for JSON)
-            max_tokens: Maximum response length
-
-        Returns:
-            Parsed JSON dict, or empty dict on error
+        Uses response_mime_type for guaranteed valid JSON from Gemini.
         """
-        # Add stronger JSON instruction to system prompt
-        json_system = system_prompt or ""
-        json_system += "\n\nCRITICAL: You MUST respond with valid, complete JSON only. No markdown code blocks, no explanation, no truncation. Keep responses concise to fit within token limits."
+        if not self.is_available():
+            if not await self.initialize():
+                return {}
 
-        # Try up to 2 times
-        for attempt in range(2):
-            response = await self.chat(
-                prompt,
-                system_prompt=json_system,
+        json_system = system_prompt or ""
+        json_system += "\nRespond with valid JSON only."
+
+        try:
+            contents = []
+            if json_system:
+                contents.append(types.Content(
+                    role="user",
+                    parts=[types.Part(text=f"[System]: {json_system}")]
+                ))
+                contents.append(types.Content(
+                    role="model",
+                    parts=[types.Part(text="Understood.")]
+                ))
+            contents.append(types.Content(
+                role="user",
+                parts=[types.Part(text=prompt)]
+            ))
+
+            config = types.GenerateContentConfig(
                 temperature=temperature,
-                max_tokens=max_tokens
+                max_output_tokens=max_tokens,
+                response_mime_type="application/json",
             )
 
-            if not response:
-                continue
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: self._client.models.generate_content(
+                    model=self.model_name,
+                    contents=contents,
+                    config=config
+                )
+            )
 
-            try:
-                cleaned = _clean_json(response)
-                result = json.loads(cleaned)
-                return result
-            except json.JSONDecodeError as e:
-                if attempt == 0:
-                    # First attempt failed, try with simpler prompt
-                    logger.info(f"JSON parse attempt 1 failed: {e}")
-                    logger.info(f"Raw Gemini response: {response[:500]}")
-                    prompt = prompt + "\n\nRespond with MINIMAL, valid JSON only. No text before or after the JSON."
-                    # V4.9.1: Don't lower temperature (Gemini 3 recommends 1.0)
-                else:
-                    logger.warning(f"Failed to parse Gemini JSON response: {e}")
-                    logger.warning(f"Raw Gemini response: {response[:300]}")
+            if response and response.text:
+                try:
+                    return json.loads(response.text)
+                except json.JSONDecodeError as e:
+                    logger.warning(f"Gemini JSON parse failed despite mime_type: {e}")
+                    cleaned = _clean_json(response.text)
+                    return json.loads(cleaned)
+            return {}
 
-        return {}
+        except Exception as e:
+            logger.warning(f"Gemini chat_json error: {e}")
+            return {}
 
     async def analyze_financial(
         self,

@@ -53,7 +53,7 @@ class AttentionConfig:
     grok_priority: int = 1
     watchlist_priority: int = 3
     discovery_priority: int = 4
-    analysis_cooldown_hours: int = 1
+    analysis_cooldown_hours: int = 4
     discovery_batch_size: int = 0
     force_discovery_after_cycles: int = 999
     # Compat aliases
