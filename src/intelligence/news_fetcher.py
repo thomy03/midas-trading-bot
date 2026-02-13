@@ -104,6 +104,42 @@ class NewsFetcher:
         if self.session and not self.session.closed:
             await self.session.close()
 
+    async def fetch_latest(self) -> dict:
+        """
+        Fetch latest news from all available sources.
+        Called by IntelligenceOrchestrator._collect_intelligence().
+        Returns dict with news articles and social posts.
+        """
+        results = {"articles": [], "social": [], "sectors": {}}
+        
+        # Market-wide news
+        try:
+            articles = await self.fetch_newsapi(
+                query="stock market trading earnings",
+                page_size=10
+            )
+            results["articles"].extend(articles)
+        except Exception as e:
+            logger.warning(f"[NEWS] NewsAPI fetch failed: {e}")
+        
+        # Social/Reddit posts
+        try:
+            social = await self.fetch_social_posts(subreddits=["wallstreetbets", "stocks", "investing"], limit=10)
+            results["social"].extend(social)
+        except Exception as e:
+            logger.warning(f"[NEWS] Social fetch failed: {e}")
+        
+        # Sector news
+        try:
+            for sector in ["technology", "healthcare", "finance"]:
+                sector_news = await self.fetch_sector_news(sector=sector, limit=5)
+                results["sectors"][sector] = sector_news
+        except Exception as e:
+            logger.warning(f"[NEWS] Sector news failed: {e}")
+        
+        logger.info(f"[NEWS] Fetched {len(results['articles'])} articles, {len(results['social'])} social posts")
+        return results
+
     async def fetch_newsapi(
         self,
         query: str,

@@ -204,7 +204,7 @@ class AttentionManager:
 
         # 2. Focus topics (not screened, not in cooldown, region-filtered)
         session_info = MarketScheduler.get_session_info()
-        logger.info(f"Market session: {session_info[region]} ({session_info[paris_time]} Paris)")
+        logger.info(f"Market session: {session_info.get('region', 'unknown')} ({session_info.get('paris_time', '?')} Paris)")
 
         topics = self._get_sorted_focus()
         filtered = [t for t in topics if MarketScheduler.should_scan_symbol(t.symbol)]

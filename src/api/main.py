@@ -1541,7 +1541,7 @@ async def get_strategy_detail(strategy_id: str):
 
 # ==================== Activity Logs Endpoint ====================
 
-@app.get("/api/activity", tags=["Activity"])
+@app.get("/api/v1/activity", tags=["Activity"])
 async def get_activity_logs(
     limit: int = Query(default=50, ge=1, le=500),
     type: Optional[str] = Query(None, alias="type"),
@@ -1560,6 +1560,9 @@ async def get_activity_logs(
 @app.get("/{path:path}", include_in_schema=False)
 async def serve_spa(path: str):
     """Serve the React SPA for any non-API route."""
+    # Never intercept API routes
+    if path.startswith("api/"):
+        raise HTTPException(status_code=404, detail=f"API route not found: /{path}")
     index_path = os.path.join(DASHBOARD_DIR, "index.html")
     if os.path.isdir(DASHBOARD_DIR) and os.path.isfile(index_path):
         return FileResponse(index_path)

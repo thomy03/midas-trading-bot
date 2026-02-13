@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def check_liquidity(symbol: str, min_avg_volume: int = 500_000, 
                     min_avg_dollar_volume: float = 1_000_000,
-                    max_spread_pct: float = 0.5) -> Dict[str, Any]:
+                    max_spread_pct: float = 5.0) -> Dict[str, Any]:
     """
     Check if a symbol is liquid enough for trading.
     

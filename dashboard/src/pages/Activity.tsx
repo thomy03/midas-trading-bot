@@ -8,7 +8,7 @@ interface ActivityEntry {
   type: string;
   symbol: string;
   details: string;
-  scores: Record<string, number>;
+  scores: Record<string, any>;
   reasoning: string;
   strategy: string;
   decision: string;
@@ -29,7 +29,7 @@ const TYPE_BADGES: Record<string, string> = {
   scan_start: "bg-blue-500/20 text-blue-300",
   scan_result: "bg-gray-500/20 text-gray-300",
   signal_found: "bg-green-500/20 text-green-300",
-  signal_rejected: "bg-red-500/20 text-red-300",
+  signal_rejected: "bg-orange-500/20 text-orange-300",
   trade_queued: "bg-yellow-500/20 text-yellow-300",
   trade_executed: "bg-emerald-500/20 text-emerald-300",
   regime_change: "bg-purple-500/20 text-purple-300",
@@ -60,7 +60,7 @@ export default function Activity() {
     try {
       const params = new URLSearchParams({ limit: "100" });
       if (filter) params.set("type", filter);
-      const res = await fetch(`${API}/api/activity?${params}`);
+      const res = await fetch(`${API}/api/v1/activity?${params}`);
       const data = await res.json();
       setActivities(data.activities || []);
     } catch {
@@ -123,6 +123,7 @@ export default function Activity() {
                 {a.symbol && <span className="font-mono font-bold text-sm">{a.symbol}</span>}
                 {a.decision && (
                   <span className={`text-xs font-medium ${
+                    a.decision.includes("PENDING") ? "text-orange-400" :
                     a.decision.includes("BUY") ? "text-green-400" :
                     a.decision === "SKIP" || a.decision === "HOLD" ? "text-gray-400" : "text-yellow-400"
                   }`}>
@@ -154,9 +155,21 @@ export default function Activity() {
                   <div className="space-y-1">
                     <ScoreBar label="Tech" value={a.scores.technical || 0} />
                     <ScoreBar label="Funda" value={a.scores.fundamental || 0} />
-                    <ScoreBar label="Sent" value={a.scores.sentiment || 0} />
-                    <ScoreBar label="News" value={a.scores.news || 0} />
-                    {a.scores.ml > 0 && <ScoreBar label="ML" value={a.scores.ml} max={100} />}
+                    {a.scores.ml_gate && (
+                      <p className="text-[10px] mt-1">
+                        {a.scores.ml_gate === "confirmed" 
+                          ? <span className="text-green-400">🤖 ML Gate: ✅ confirmed (+5 pts)</span>
+                          : <span className="text-gray-500">🤖 ML Gate: — no confirmation</span>
+                        }
+                      </p>
+                    )}
+                    {a.scores.intel_adj != null && a.scores.intel_adj !== 0 && (
+                      <p className="text-[10px] mt-1">
+                        <span className={a.scores.intel_adj > 0 ? "text-cyan-400" : "text-orange-400"}>
+                          🧠 Orchestrator: {a.scores.intel_adj > 0 ? "+" : ""}{a.scores.intel_adj.toFixed(1)} pts
+                        </span>
+                      </p>
+                    )}
                   </div>
                 )}
                 {a.reasoning && (

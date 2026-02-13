@@ -15,7 +15,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-INITIAL_CAPITAL = 15000.0
+INITIAL_CAPITAL = float(os.environ.get("TRADING_CAPITAL_PER_STRATEGY", os.environ.get("CAPITAL", 100000)) or 100000) / 2  # Split between aggressive/moderate
 DATA_FILE = os.environ.get("MULTI_STRATEGY_FILE", "data/multi_strategy_state.json")
 
 

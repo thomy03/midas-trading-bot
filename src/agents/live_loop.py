@@ -529,7 +529,7 @@ class LiveLoop:
                             try:
                                 liq = _check_liquidity(symbol)
                                 if not liq['liquid']:
-                                    logger.debug(f"[LIQUIDITY] Skipping {symbol}: {liq.get('reason')}")
+                                    logger.info(f"[LIQUIDITY] Skipping {symbol}: {liq.get('reason')}")
                                     # V8.2: Track liquidity rejection
                                     if OPPORTUNITY_TRACKER_AVAILABLE:
                                         try:
@@ -540,9 +540,10 @@ class LiveLoop:
                                             pass
                                     continue
                             except Exception as e:
-                                logger.debug(f"[LIQUIDITY] Error for {symbol}: {e}")
+                                logger.info(f"[LIQUIDITY] Error for {symbol}: {e}")
                         
                         # Analyse 4 piliers
+                        logger.info(f"[SCREENING] Analyzing {symbol}...")
                         result = await reasoning_engine.analyze(symbol)
                         
                         if result and result.decision in [DecisionType.BUY, DecisionType.STRONG_BUY]:
@@ -580,10 +581,9 @@ class LiveLoop:
                                     symbol=symbol,
                                     decision=result.decision.value.upper(),
                                     scores={
-                                        "technical": float(getattr(result.technical_score, 'score', result.technical_score) or 0),
-                                        "fundamental": float(getattr(result.fundamental_score, 'score', result.fundamental_score) or 0),
-                                        "sentiment": float(getattr(result.sentiment_score, 'score', result.sentiment_score) or 0),
-                                        "news": float(getattr(result.news_score, 'score', result.news_score) or 0),
+                                        "technical": round((float(getattr(result.technical_score, 'score', result.technical_score) or 0) + 100) / 2, 1) if result else 0,
+                                        "fundamental": round((float(getattr(result.fundamental_score, 'score', result.fundamental_score) or 0) + 100) / 2, 1) if result else 0,
+                                        "ml_gate": "confirmed" if result and hasattr(result, 'ml_gate_applied') and result.ml_gate_applied else "none",
                                         "total": result.total_score,
                                         "ml": result.ml_score or 0,
                                     },
@@ -610,10 +610,9 @@ class LiveLoop:
                                 symbol=symbol,
                                 decision=scan_decision,
                                 scores={
-                                    "technical": float(getattr(result.technical_score, 'score', result.technical_score) or 0) if result else 0,
-                                    "fundamental": float(getattr(result.fundamental_score, 'score', result.fundamental_score) or 0) if result else 0,
-                                    "sentiment": float(getattr(result.sentiment_score, 'score', result.sentiment_score) or 0) if result else 0,
-                                    "news": float(getattr(result.news_score, 'score', result.news_score) or 0) if result else 0,
+                                    "technical": round((float(getattr(result.technical_score, 'score', result.technical_score) or 0) + 100) / 2, 1) if result else 0,
+                                    "fundamental": round((float(getattr(result.fundamental_score, 'score', result.fundamental_score) or 0) + 100) / 2, 1) if result else 0,
+                                    "ml_gate": "confirmed" if result and hasattr(result, 'ml_gate_applied') and result.ml_gate_applied else "none",
                                     "total": result.total_score if result else 0,
                                 } if result else {},
                                 reasoning=str(result.reasoning_summary or "")[:1000] if result else "",
@@ -842,6 +841,30 @@ class LiveLoop:
                 )
                 if not allowed:
                     logger.info(f"[DEFENSIVE] Trade {symbol} blocked: {reason}")
+                    # Log as PENDING CONFIRMATION in activity feed
+                    if ACTIVITY_LOGGER_AVAILABLE:
+                        _log_activity(
+                            "signal_rejected",
+                            symbol=symbol,
+                            decision="PENDING CONFIRMATION",
+                            scores={"total": confidence},
+                            details=f"Signal BUY rejeté: {reason}. En attente d'un score plus élevé ou d'un changement de régime.",
+                        )
+                    # Track as rejected for opportunity analysis
+                    if OPPORTUNITY_TRACKER_AVAILABLE:
+                        try:
+                            import yfinance as yf
+                            price = yf.Ticker(symbol).fast_info.get('lastPrice', 0)
+                        except Exception:
+                            price = 0
+                        try:
+                            _log_rejection_opp(
+                                symbol=symbol, score=confidence, reason="threshold",
+                                price=price, pillars_detail={},
+                                regime=self.current_regime.value if hasattr(self.current_regime, 'value') else ''
+                            )
+                        except Exception:
+                            pass
                     return
             except Exception as e:
                 logger.warning(f"Defensive check error: {e}")
