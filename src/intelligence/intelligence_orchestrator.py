@@ -270,6 +270,27 @@ class IntelligenceOrchestrator:
             tasks.append(self._safe_call(self.market.get_context))
             task_names.append('market_context')
 
+        # Gemini autonomous research (with Google Search grounding)
+        if self.gemini is not None and self.gemini.is_available() and hasattr(self.gemini, 'research'):
+            research_context = {
+                'regime': 'UNKNOWN',
+                'symbols': self.symbols[:20],  # Batch, not per-symbol
+                'vix': None,
+                'events': []
+            }
+            # Try to get regime/vix from market context if available
+            if self.market is not None:
+                try:
+                    mkt = self.market
+                    if hasattr(mkt, 'regime'):
+                        research_context['regime'] = str(mkt.regime)
+                    if hasattr(mkt, 'vix'):
+                        research_context['vix'] = mkt.vix
+                except Exception:
+                    pass
+            tasks.append(self._safe_call(lambda: self.gemini.research(research_context)))
+            task_names.append('gemini_research')
+
         if tasks:
             gathered = await asyncio.gather(*tasks)
             for name, result in zip(task_names, gathered):
@@ -365,6 +386,27 @@ class IntelligenceOrchestrator:
                     sections.append("=== DETECTED TRENDS ===\n%s" % trend_text)
                 elif isinstance(trends, dict):
                     sections.append("=== TRENDS ===\n%s" % json.dumps(trends, default=str)[:2000])
+            except Exception:
+                pass
+
+        # Gemini autonomous research results
+        gemini_research = raw_data.get('gemini_research')
+        if gemini_research is not None:
+            try:
+                if isinstance(gemini_research, dict):
+                    discoveries = gemini_research.get('discoveries', [])
+                    if discoveries:
+                        disc_text = '\n'.join(
+                            "- [%s] %s (impact: %s, confidence: %s)" % (
+                                d.get('symbol', '?'), d.get('summary', ''),
+                                d.get('impact_score', 0), d.get('confidence', 0)
+                            )
+                            for d in discoveries[:10]
+                        )
+                        sections.append("=== GEMINI AUTONOMOUS RESEARCH (Google Search) ===\n%s" % disc_text)
+                    macro = gemini_research.get('macro_insight')
+                    if macro:
+                        sections.append("Macro insight: %s" % macro)
             except Exception:
                 pass
 

@@ -145,7 +145,10 @@ def _clean_json(json_str: str) -> str:
     return json_str.strip()
 
 
-class GeminiClient:
+from src.intelligence.gemini_research import GeminiResearchMixin
+
+
+class GeminiClient(GeminiResearchMixin):
     """
     Unified Gemini client for financial analysis.
 
